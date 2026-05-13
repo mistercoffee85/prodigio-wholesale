@@ -66,6 +66,17 @@ const SORT_OPTIONS = [
   { value: 'name',       label: 'Name A–Z' },
 ]
 
+// Brand display order + meta for the grouped "Alle Produkte" view
+const BRAND_META: Record<string, { emoji: string; color: string; desc: string }> = {
+  'My Bubble Tea':  { emoji: '🧋', color: '#1a9e7a', desc: 'Fruchtperlen, Sets, Tapioka & Zubehör' },
+  'BobaJoy':        { emoji: '🥤', color: '#e85c2a', desc: 'Ready-to-Drink Bubble Tea' },
+  'TEABALLS':       { emoji: '🍵', color: '#3d7a5e', desc: 'Glasflaschen & Vorratsglase' },
+  'Patislove':      { emoji: '🍫', color: '#8b4513', desc: 'Bars, Dragées, Cookies & Sticks' },
+  'The Mallows':    { emoji: '☁️', color: '#9b59b6', desc: 'Premium Marshmallows' },
+  'WhiteBear':      { emoji: '🧹', color: '#2c7bb6', desc: 'Gastro & Reinigung' },
+}
+const BRAND_ORDER = ['My Bubble Tea', 'BobaJoy', 'TEABALLS', 'Patislove', 'The Mallows', 'WhiteBear']
+
 function ProductsContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -252,7 +263,48 @@ function ProductsContent() {
                 Alle Produkte anzeigen
               </button>
             </div>
+          ) : category === 'all' && !search && sort === 'default' ? (
+            /* ── Marken-gruppierte Ansicht ── */
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 48 }}>
+              {BRAND_ORDER
+                .map(brand => ({ brand, prods: products.filter(p => p.brand === brand) }))
+                .filter(({ prods }) => prods.length > 0)
+                .map(({ brand, prods }) => {
+                  const meta = BRAND_META[brand] ?? { emoji: '📦', color: 'var(--accent)', desc: '' }
+                  return (
+                    <section key={brand}>
+                      {/* Brand Header */}
+                      <div style={{
+                        display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20,
+                        paddingBottom: 14, borderBottom: `2px solid ${meta.color}22`,
+                      }}>
+                        <div style={{
+                          width: 44, height: 44, borderRadius: 12, flexShrink: 0,
+                          background: `${meta.color}18`,
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontSize: 22,
+                        }}>{meta.emoji}</div>
+                        <div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                            <h2 style={{ fontSize: 18, fontWeight: 800, color: 'var(--black)', margin: 0, letterSpacing: '-0.02em' }}>{brand}</h2>
+                            <span style={{
+                              fontSize: 11, fontWeight: 700, padding: '2px 9px', borderRadius: 20,
+                              background: `${meta.color}18`, color: meta.color,
+                            }}>{prods.length} Produkte</span>
+                          </div>
+                          {meta.desc && <div style={{ fontSize: 12.5, color: 'var(--gray-400)', marginTop: 2 }}>{meta.desc}</div>}
+                        </div>
+                      </div>
+                      {/* Products */}
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 'clamp(12px,2vw,20px)' }}>
+                        {prods.map((p, i) => <ProductCard key={p.id} product={p} priority={i === 0} approved={approved} />)}
+                      </div>
+                    </section>
+                  )
+                })}
+            </div>
           ) : (
+            /* ── Gefilterte / sortierte Ansicht ── */
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 'clamp(12px,2vw,20px)' }}>
               {products.map((p, i) => <ProductCard key={p.id} product={p} priority={i === 0} approved={approved} />)}
             </div>
