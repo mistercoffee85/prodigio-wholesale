@@ -5,6 +5,7 @@ import bcrypt from 'bcryptjs'
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { sendWelcomeEmail, sendAdminNewCustomerEmail } from '@/lib/email'
+import { rateLimit, getClientIp } from '@/lib/rateLimit'
 
 const schema = z.object({
   name:      z.string().min(2).max(100),
@@ -20,6 +21,23 @@ const schema = z.object({
 })
 
 export async function POST(req: NextRequest) {
+  // Rate limit: max 5 registrations per IP per hour
+  const ip = getClientIp(req)
+  const rl = rateLimit(ip, 'register', { limit: 5, windowSec: 3600 })
+  if (!rl.allowed) {
+    return NextResponse.json(
+      { error: 'Zu viele Anfragen. Bitte versuchen Sie es später erneut.' },
+      {
+        status: 429,
+        headers: {
+          'Retry-After': String(Math.ceil((rl.resetAt - Date.now()) / 1000)),
+          'X-RateLimit-Limit': '5',
+          'X-RateLimit-Remaining': '0',
+        },
+      }
+    )
+  }
+
   try {
     const body = await req.json()
     const data = schema.parse(body)
