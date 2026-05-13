@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 import { Providers } from './providers'
 import { Toaster } from 'react-hot-toast'
+import CookieBanner from '@/components/layout/CookieBanner'
 
 export const metadata: Metadata = {
   title: { default: 'PRO.DI.GIO Grosshandel', template: '%s | PRO.DI.GIO Grosshandel' },
@@ -15,6 +16,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <Providers>
           {children}
+          <CookieBanner />
           <Toaster
             position="bottom-right"
             toastOptions={{

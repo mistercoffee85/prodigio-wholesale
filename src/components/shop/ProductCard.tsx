@@ -48,7 +48,7 @@ function ProductImage({ src, alt, fill, size }: { src: string; alt: string; fill
   )
 }
 
-export default function ProductCard({ product: p, priority }: { product: Product; priority?: boolean }) {
+export default function ProductCard({ product: p, priority, approved = false }: { product: Product; priority?: boolean; approved?: boolean }) {
   const hasVariants = p.variants && p.variants.length > 0
   const [selectedVariant, setSelectedVariant] = useState<Variant | null>(hasVariants ? p.variants![0] : null)
 
@@ -182,7 +182,20 @@ export default function ProductCard({ product: p, priority }: { product: Product
 
           {/* Price block */}
           <div style={{ marginBottom: 12, background: 'var(--cream)', borderRadius: 10, padding: '10px 12px' }}>
-            {p.comparePrice && !hasVariants ? (
+            {!approved ? (
+              /* ── Preise verborgen ── */
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: 'var(--gray-400)', marginBottom: 4 }}>Einkaufspreis</div>
+                  <div style={{ fontSize: 20, fontWeight: 800, color: 'transparent', textShadow: '0 0 10px rgba(0,0,0,0.35)', userSelect: 'none', letterSpacing: 2 }}>CHF ••••</div>
+                </div>
+                <a href="/login" onClick={e => e.stopPropagation()} style={{
+                  fontSize: 11, fontWeight: 700, color: 'var(--forest)', background: 'white',
+                  border: '1.5px solid var(--forest)', borderRadius: 20, padding: '5px 12px',
+                  textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0,
+                }}>🔒 Preise anzeigen</a>
+              </div>
+            ) : p.comparePrice && !hasVariants ? (
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
                 {/* EK */}
                 <div>
@@ -252,7 +265,7 @@ export default function ProductCard({ product: p, priority }: { product: Product
           <button
             className="btn btn-black"
             style={{ flex: 1, fontSize: 12.5, height: 38, padding: '0 10px' }}
-            onClick={handleAdd}
+            onClick={approved ? handleAdd : (e) => { e.stopPropagation(); window.location.href = '/login' }}
             disabled={p.stock === 0}
           >
             {p.stock === 0 ? 'Ausverkauft' : '+ Warenkorb'}

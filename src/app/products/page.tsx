@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useState, useCallback } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import ProductCard from '@/components/shop/ProductCard'
@@ -68,6 +69,8 @@ const SORT_OPTIONS = [
 function ProductsContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
+  const { data: session } = useSession()
+  const approved = session?.user?.status === 'APPROVED'
   const urlCategory = searchParams.get('category') ?? 'all'
   const initBadge   = searchParams.get('badge') ?? ''
 
@@ -251,7 +254,7 @@ function ProductsContent() {
             </div>
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 'clamp(12px,2vw,20px)' }}>
-              {products.map((p, i) => <ProductCard key={p.id} product={p} priority={i === 0} />)}
+              {products.map((p, i) => <ProductCard key={p.id} product={p} priority={i === 0} approved={approved} />)}
             </div>
           )}
         </div>

@@ -360,8 +360,27 @@ tbody td { padding: 14px 18px; vertical-align: middle; }
   .hide-mobile { display: none !important; }
   .show-mobile { display: block !important; }
   .show-mobile-flex { display: flex !important; }
+
+  /* Cards & Tables */
+  .card { border-radius: 10px; }
+  table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+  /* Product grid */
+  .product-card { min-width: 0; }
+
+  /* Admin tables scrollable on mobile */
+  .admin-table-wrap { overflow-x: auto; }
 }
+
 @media (max-width: 480px) {
   .section    { padding: 40px 16px; }
   .section-sm { padding: 28px 16px; }
+
+  /* Buttons full-width on very small screens */
+  .btn-lg { width: 100%; justify-content: center; text-align: center; }
+
+  /* Cookie banner stacked */
+  .cookie-actions { flex-direction: column; width: 100%; }
+  .cookie-actions a,
+  .cookie-actions button { width: 100%; text-align: center; justify-content: center; }
 }
