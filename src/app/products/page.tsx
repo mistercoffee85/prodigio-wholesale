@@ -77,6 +77,39 @@ const BRAND_META: Record<string, { emoji: string; color: string; desc: string }>
 }
 const BRAND_ORDER = ['My Bubble Tea', 'BobaJoy', 'TEABALLS', 'Patislove', 'The Mallows', 'WhiteBear']
 
+// Subcategory order + clean labels within each brand section
+const BRAND_SUBCAT_ORDER: Record<string, { slug: string; label: string; icon: string }[]> = {
+  'My Bubble Tea': [
+    { slug: 'bubble-tea-rtd',               label: 'Ready to Drink',     icon: '🥤' },
+    { slug: 'bubble-tea-sets',              label: 'Sets',               icon: '🧋' },
+    { slug: 'bubble-tea-fruchtperlen-240g', label: 'Fruchtperlen 240g',  icon: '🫧' },
+    { slug: 'bubble-tea-1-5kg',             label: 'Fruchtperlen 1.5kg', icon: '🫐' },
+    { slug: 'bubble-tea-tapioka',           label: 'Tapioka',            icon: '⚫' },
+    { slug: 'bubble-tea-zubehoer',          label: 'Zubehör',            icon: '🥄' },
+  ],
+  'BobaJoy': [
+    { slug: 'bubble-tea-rtd', label: 'Ready to Drink', icon: '🥤' },
+  ],
+  'TEABALLS': [
+    { slug: 'teaballs-glasflaschen-bio', label: 'Glasflaschen Bio',  icon: '🌿' },
+    { slug: 'teaballs-glasflaschen',     label: 'Glasflaschen',      icon: '🍶' },
+    { slug: 'teaballs-vorratsglas-100g', label: 'Vorratsglas 100g',  icon: '🫙' },
+    { slug: 'teaballs-vorratsglas-500g', label: 'Vorratsglas 500g',  icon: '🫙' },
+  ],
+  'Patislove': [
+    { slug: 'patislove-bars',    label: 'Bars',    icon: '🍫' },
+    { slug: 'patislove-dragees', label: 'Dragées', icon: '🫐' },
+    { slug: 'patislove-cookies', label: 'Cookies', icon: '🍪' },
+    { slug: 'patislove-sticks',  label: 'Sticks',  icon: '🍬' },
+  ],
+  'The Mallows': [
+    { slug: 'the-mallows', label: 'The Mallows', icon: '☁️' },
+  ],
+  'WhiteBear': [
+    { slug: 'gastro-reinigung', label: 'Gastro & Reinigung', icon: '🧹' },
+  ],
+}
+
 function ProductsContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -264,29 +297,47 @@ function ProductsContent() {
               </button>
             </div>
           ) : category === 'all' && !search && sort === 'default' ? (
-            /* ── Marken-gruppierte Ansicht ── */
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 48 }}>
+            /* ── Marken-gruppierte Ansicht mit Unterkategorien ── */
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 56 }}>
               {BRAND_ORDER
                 .map(brand => ({ brand, prods: products.filter(p => p.brand === brand) }))
                 .filter(({ prods }) => prods.length > 0)
                 .map(({ brand, prods }) => {
                   const meta = BRAND_META[brand] ?? { emoji: '📦', color: 'var(--accent)', desc: '' }
+                  const subcatOrder = BRAND_SUBCAT_ORDER[brand] ?? []
+
+                  // Group products by subcategory slug
+                  const grouped: { slug: string; label: string; icon: string; items: Product[] }[] = []
+                  // First: ordered subcategories
+                  for (const sub of subcatOrder) {
+                    const items = prods.filter(p => p.category.slug === sub.slug)
+                    if (items.length > 0) grouped.push({ ...sub, items })
+                  }
+                  // Then: any remaining (unknown subcategories, fallback)
+                  const handledSlugs = new Set(subcatOrder.map(s => s.slug))
+                  const remaining = prods.filter(p => !handledSlugs.has(p.category.slug))
+                  if (remaining.length > 0) {
+                    grouped.push({ slug: '__other', label: remaining[0].category.name, icon: '📦', items: remaining })
+                  }
+
+                  const showSubcatHeaders = grouped.length > 1
+
                   return (
                     <section key={brand}>
-                      {/* Brand Header */}
+                      {/* ── Brand Header ── */}
                       <div style={{
-                        display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20,
-                        paddingBottom: 14, borderBottom: `2px solid ${meta.color}22`,
+                        display: 'flex', alignItems: 'center', gap: 14, marginBottom: 24,
+                        paddingBottom: 16, borderBottom: `2px solid ${meta.color}33`,
                       }}>
                         <div style={{
-                          width: 44, height: 44, borderRadius: 12, flexShrink: 0,
+                          width: 48, height: 48, borderRadius: 12, flexShrink: 0,
                           background: `${meta.color}18`,
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          fontSize: 22,
+                          fontSize: 24,
                         }}>{meta.emoji}</div>
                         <div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                            <h2 style={{ fontSize: 18, fontWeight: 800, color: 'var(--black)', margin: 0, letterSpacing: '-0.02em' }}>{brand}</h2>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                            <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--black)', margin: 0, letterSpacing: '-0.02em' }}>{brand}</h2>
                             <span style={{
                               fontSize: 11, fontWeight: 700, padding: '2px 9px', borderRadius: 20,
                               background: `${meta.color}18`, color: meta.color,
@@ -295,9 +346,29 @@ function ProductsContent() {
                           {meta.desc && <div style={{ fontSize: 12.5, color: 'var(--gray-400)', marginTop: 2 }}>{meta.desc}</div>}
                         </div>
                       </div>
-                      {/* Products */}
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 'clamp(12px,2vw,20px)' }}>
-                        {prods.map((p, i) => <ProductCard key={p.id} product={p} priority={i === 0} approved={approved} />)}
+
+                      {/* ── Subcategory groups ── */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
+                        {grouped.map(group => (
+                          <div key={group.slug}>
+                            {showSubcatHeaders && (
+                              <div style={{
+                                display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14,
+                              }}>
+                                <span style={{ fontSize: 15 }}>{group.icon}</span>
+                                <span style={{ fontSize: 13.5, fontWeight: 700, color: 'var(--gray-600)' }}>{group.label}</span>
+                                <span style={{
+                                  fontSize: 10.5, fontWeight: 600, color: 'var(--gray-400)',
+                                  background: 'var(--gray-100)', borderRadius: 20, padding: '1px 8px',
+                                }}>{group.items.length}</span>
+                                <div style={{ flex: 1, height: 1, background: 'var(--gray-100)', marginLeft: 4 }} />
+                              </div>
+                            )}
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 'clamp(12px,2vw,20px)' }}>
+                              {group.items.map((p, i) => <ProductCard key={p.id} product={p} priority={i === 0} approved={approved} />)}
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     </section>
                   )
