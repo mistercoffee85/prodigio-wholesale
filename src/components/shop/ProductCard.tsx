@@ -184,16 +184,15 @@ export default function ProductCard({ product: p, priority, approved = false }: 
           <div style={{ marginBottom: 12, background: 'var(--cream)', borderRadius: 10, padding: '10px 12px' }}>
             {!approved ? (
               /* ── Preise verborgen ── */
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: 'var(--gray-400)', marginBottom: 4 }}>Einkaufspreis</div>
-                  <div style={{ fontSize: 20, fontWeight: 800, color: 'transparent', textShadow: '0 0 10px rgba(0,0,0,0.35)', userSelect: 'none', letterSpacing: 2 }}>CHF ••••</div>
-                </div>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: 'var(--gray-400)', marginBottom: 6 }}>Einkaufspreis</div>
+                <div style={{ fontSize: 22, fontWeight: 800, color: 'transparent', textShadow: '0 0 12px rgba(0,0,0,0.3)', userSelect: 'none', letterSpacing: 3, marginBottom: 8 }}>CHF ••••</div>
                 <a href="/login" onClick={e => e.stopPropagation()} style={{
-                  fontSize: 11, fontWeight: 700, color: 'var(--forest)', background: 'white',
-                  border: '1.5px solid var(--forest)', borderRadius: 20, padding: '5px 12px',
-                  textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0,
-                }}>🔒 Preise anzeigen</a>
+                  display: 'block', fontSize: 12, fontWeight: 700,
+                  color: 'var(--forest)', background: 'white',
+                  border: '1.5px solid var(--forest)', borderRadius: 20,
+                  padding: '6px 12px', textDecoration: 'none',
+                }}>🔒 Anmelden für Preise</a>
               </div>
             ) : p.comparePrice && !hasVariants ? (
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
@@ -256,20 +255,33 @@ export default function ProductCard({ product: p, priority, approved = false }: 
         </div>
 
         {/* Actions */}
-        <div style={{ padding: '0 14px 16px', display: 'flex', gap: 8 }} onClick={e => e.stopPropagation()}>
-          <div className="qty-stepper">
-            <button onClick={() => setQty(q => Math.max(activeMoq, q - activeMoq))}>−</button>
-            <span>{qty}</span>
-            <button onClick={() => setQty(q => q + activeMoq)}>+</button>
-          </div>
-          <button
-            className="btn btn-black"
-            style={{ flex: 1, fontSize: 12.5, height: 38, padding: '0 10px' }}
-            onClick={approved ? handleAdd : (e) => { e.stopPropagation(); window.location.href = '/login' }}
-            disabled={p.stock === 0}
-          >
-            {p.stock === 0 ? 'Ausverkauft' : '+ Warenkorb'}
-          </button>
+        <div style={{ padding: '0 14px 16px' }} onClick={e => e.stopPropagation()}>
+          {!approved ? (
+            <a
+              href="/login"
+              onClick={e => e.stopPropagation()}
+              className="btn btn-black"
+              style={{ display: 'block', textAlign: 'center', fontSize: 12.5, height: 38, lineHeight: '38px', padding: '0', textDecoration: 'none' }}
+            >
+              Anmelden & Bestellen →
+            </a>
+          ) : (
+            <div style={{ display: 'flex', gap: 8 }}>
+              <div className="qty-stepper">
+                <button onClick={() => setQty(q => Math.max(activeMoq, q - activeMoq))}>−</button>
+                <span>{qty}</span>
+                <button onClick={() => setQty(q => q + activeMoq)}>+</button>
+              </div>
+              <button
+                className="btn btn-black"
+                style={{ flex: 1, fontSize: 12.5, height: 38, padding: '0 10px' }}
+                onClick={handleAdd}
+                disabled={p.stock === 0}
+              >
+                {p.stock === 0 ? 'Ausverkauft' : '+ Warenkorb'}
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -369,7 +381,18 @@ export default function ProductCard({ product: p, priority, approved = false }: 
               <div style={{ borderTop: '1px solid var(--gray-100)', paddingTop: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
                 {/* Modal price block */}
                 <div style={{ flex: 1, minWidth: 240 }}>
-                  {p.comparePrice && !hasVariants ? (
+                  {!approved ? (
+                    <div style={{ padding: '20px 24px', background: 'var(--cream)', borderRadius: 12, border: '1px solid var(--gray-100)', textAlign: 'center' }}>
+                      <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.2, textTransform: 'uppercase', color: 'var(--gray-400)', marginBottom: 8 }}>Einkaufspreis</div>
+                      <div style={{ fontSize: 32, fontWeight: 800, color: 'transparent', textShadow: '0 0 14px rgba(0,0,0,0.3)', userSelect: 'none', letterSpacing: 4, marginBottom: 12 }}>CHF ••••</div>
+                      <a href="/login" style={{
+                        display: 'inline-block', fontSize: 13, fontWeight: 700,
+                        color: 'var(--forest)', background: 'white',
+                        border: '1.5px solid var(--forest)', borderRadius: 20,
+                        padding: '8px 20px', textDecoration: 'none',
+                      }}>🔒 Anmelden für Preise</a>
+                    </div>
+                  ) : p.comparePrice && !hasVariants ? (
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0, border: '1px solid var(--gray-100)', borderRadius: 12, overflow: 'hidden' }}>
                       {/* EK */}
                       <div style={{ padding: '16px 20px', background: 'var(--cream)' }}>
@@ -411,21 +434,23 @@ export default function ProductCard({ product: p, priority, approved = false }: 
                   )}
                 </div>
 
-                <div style={{ display: 'flex', gap: 10 }}>
-                  <div className="qty-stepper">
-                    <button onClick={() => setQty(q => Math.max(activeMoq, q - activeMoq))}>−</button>
-                    <span>{qty}</span>
-                    <button onClick={() => setQty(q => q + activeMoq)}>+</button>
+                {approved && (
+                  <div style={{ display: 'flex', gap: 10 }}>
+                    <div className="qty-stepper">
+                      <button onClick={() => setQty(q => Math.max(activeMoq, q - activeMoq))}>−</button>
+                      <span>{qty}</span>
+                      <button onClick={() => setQty(q => q + activeMoq)}>+</button>
+                    </div>
+                    <button
+                      className="btn btn-primary"
+                      style={{ fontSize: 14, padding: '10px 24px', height: 42 }}
+                      onClick={e => { handleAdd(e); setModalOpen(false) }}
+                      disabled={p.stock === 0}
+                    >
+                      {p.stock === 0 ? 'Ausverkauft' : '+ In den Warenkorb'}
+                    </button>
                   </div>
-                  <button
-                    className="btn btn-primary"
-                    style={{ fontSize: 14, padding: '10px 24px', height: 42 }}
-                    onClick={e => { handleAdd(e); setModalOpen(false) }}
-                    disabled={p.stock === 0}
-                  >
-                    {p.stock === 0 ? 'Ausverkauft' : '+ In den Warenkorb'}
-                  </button>
-                </div>
+                )}
               </div>
             </div>
           </div>
