@@ -1,0 +1,214 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ─────────────────────────────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────────────────────────────
+
+enum Role {
+  ADMIN
+  CUSTOMER
+}
+
+enum UserStatus {
+  PENDING   // Waiting for admin approval
+  APPROVED
+  REJECTED
+}
+
+enum PriceGroup {
+  STANDARD  // Base prices
+  PREMIUM   // -10%
+  VIP       // -20%  (Coop, ALDI, etc.)
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  UNPAID
+  PAID
+  PARTIALLY_PAID
+  REFUNDED
+}
+
+enum PaymentMethod {
+  STRIPE_CARD
+  STRIPE_TWINT
+  BANK_TRANSFER
+  NET_30
+}
+
+// ─────────────────────────────────────────────────────────────────
+// USER & COMPANY
+// ─────────────────────────────────────────────────────────────────
+
+model User {
+  id        String     @id @default(cuid())
+  email     String     @unique
+  password  String
+  name      String
+  phone     String?
+  role      Role       @default(CUSTOMER)
+  status    UserStatus @default(PENDING)
+  company   Company?
+  orders    Order[]
+  sessions  Session[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@map("users")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@map("sessions")
+}
+
+model Company {
+  id         String     @id @default(cuid())
+  name       String
+  uid        String?    // Swiss UID: CHE-XXX.XXX.XXX
+  industry   String
+  address    String
+  city       String
+  zip        String
+  country    String     @default("CH")
+  vatNumber  String?
+  priceGroup PriceGroup @default(STANDARD)
+  creditLimit Decimal   @default(0)
+  userId     String     @unique
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  @@map("companies")
+}
+
+// ─────────────────────────────────────────────────────────────────
+// CATALOG
+// ─────────────────────────────────────────────────────────────────
+
+model Category {
+  id          String     @id @default(cuid())
+  name        String
+  slug        String     @unique
+  description String?
+  emoji       String?
+  sortOrder   Int        @default(0)
+  active      Boolean    @default(true)
+  parentId    String?
+  parent      Category?  @relation("CategoryChildren", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryChildren")
+  products    Product[]
+  createdAt   DateTime   @default(now())
+
+  @@map("categories")
+}
+
+model Product {
+  id           String      @id @default(cuid())
+  name         String
+  slug         String      @unique
+  description  String
+  categoryId   String
+  category     Category    @relation(fields: [categoryId], references: [id])
+  brand        String
+  emoji        String      @default("📦")
+  bgGradient   String?     // CSS gradient for card background
+  price        Decimal     // Base CHF price per VE
+  comparePrice Decimal?    // Crossed-out price
+  unit         String      // e.g. "12er Tray (250ml)"
+  moq          Int         @default(6)  // Minimum order quantity
+  stock        Int         @default(100)
+  badge        String?     // "new" | "hot" | "sale"
+  sku          String?     @unique
+  weight       Decimal?    // kg per unit
+  active       Boolean     @default(true)
+  taxRate      Decimal     @default(0.081)  // 0.026 Lebensmittel / 0.081 Normalsatz
+  details      Json        @default("{}")  // Key-value product specs
+  variants     Json        @default("[]")  // [{label, price, unit, moq}]
+  images       String[]    @default([])
+  orderItems   OrderItem[]
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@map("products")
+}
+
+// ─────────────────────────────────────────────────────────────────
+// ORDERS
+// ─────────────────────────────────────────────────────────────────
+
+model Order {
+  id              String        @id @default(cuid())
+  orderNumber     String        @unique
+  userId          String
+  user            User          @relation(fields: [userId], references: [id])
+  items           OrderItem[]
+  status          OrderStatus   @default(PENDING)
+  paymentStatus   PaymentStatus @default(UNPAID)
+  paymentMethod   PaymentMethod @default(BANK_TRANSFER)
+  stripePaymentId String?
+  stripeInvoiceId String?
+  subtotal        Decimal
+  taxRate         Decimal       @default(0.081)  // 8.1% Swiss VAT
+  tax             Decimal
+  shippingCost    Decimal       @default(0)
+  total           Decimal
+  notes           String?
+  shippingAddress Json?
+  invoiceUrl      String?
+  dueDate         DateTime?     // For NET_30 payments
+  paidAt          DateTime?
+  shippedAt       DateTime?
+  deliveredAt     DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int
+  unitPrice Decimal // Price at time of order
+  total     Decimal
+
+  @@map("order_items")
+}
+
+// ─────────────────────────────────────────────────────────────────
+// SETTINGS
+// ─────────────────────────────────────────────────────────────────
+
+model Setting {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String
+
+  @@map("settings")
+}
