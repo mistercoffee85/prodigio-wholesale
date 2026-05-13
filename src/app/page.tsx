@@ -9,39 +9,59 @@ export const revalidate = 60
 
 const BRANDS = [
   {
-    name: 'BobaJoy', sub: 'Ready to Drink Bubble Tea',
-    href: '/products?category=bubble-tea-rtd',
-    color: '#0d2b22',
-    accent: '#5cf5cc',
-    img: 'https://cdn.shopify.com/s/files/1/0769/8520/5054/files/BobaTeaDrinkPassionFruit_Photomountage_1080x1080_copy.png?v=1752934721',
-  },
-  {
-    name: 'My Bubble Tea', sub: 'Fruchtperlen & Boba',
-    href: '/products?category=bubble-tea-fruchtperlen-240g',
-    color: '#102540',
+    name: 'My Bubble Tea', sub: 'Sets, Perlen & Zubehör',
+    href: '/products?category=bubble-tea',
+    color: '#0c1f3a',
     accent: '#7eb8f7',
-    img: 'https://cdn.shopify.com/s/files/1/0769/8520/5054/files/76130b4b318941572685dbaaa89c14e75ab5884b2c6ae853c9fb5247cfbcacca.jpg?v=1740514239',
+    img: 'https://cdn.shopify.com/s/files/1/0769/8520/5054/files/9690ED77-8273-4F9F-B137-9A7A55D5A6B7.jpg?v=1736538559',
   },
   {
     name: 'TEABALLS', sub: 'Die Teenovation',
     href: '/products?category=teaballs',
-    color: '#0a240a',
+    color: '#0e1f0e',
     accent: '#a8e6a3',
-    img: 'https://cdn.shopify.com/s/files/1/0368/6150/9769/files/TEABALLS_Erdbeere_Flasche.png?v=1762428965',
+    img: 'https://cdn.shopify.com/s/files/1/0368/6150/9769/files/TEABALLS_Hibiskus_Flasche.png?v=1762428964',
   },
   {
     name: 'Patislove', sub: 'Pistazien-Spezialitäten',
     href: '/products?category=patislove',
-    color: '#2a1500',
+    color: '#1e0f00',
     accent: '#f7bc7e',
-    img: 'https://cdn.shopify.com/s/files/1/0763/2302/9259/files/06c66c465316b7b7e618449c5fba4cf40b3775a540c0a122c606bebb7fbcc15f.webp?v=1765449449',
+    img: 'https://cdn.shopify.com/s/files/1/0763/2302/9259/files/Untitleddesign_49.webp?v=1759780663',
   },
   {
     name: 'The Mallows', sub: 'Gourmet Marshmallows',
     href: '/products?category=the-mallows',
-    color: '#2d0e2d',
+    color: '#1a0c1a',
     accent: '#e8a0e8',
-    img: 'https://cdn.shopify.com/s/files/1/0763/2302/9259/files/3cdbc2f848ad3be234d8b48934a505c9ed824d384aa604fe8ab6345ef89c6b9c.png?v=1765704975',
+    img: 'https://cdn.shopify.com/s/files/1/0763/2302/9259/files/43f6ead8336003ff8d56a822586ec842d1058f18327592c95d20214258a85e9b.jpg?v=1765704974',
+  },
+  {
+    name: 'BobaJoy', sub: 'Ready to Drink Bubble Tea',
+    href: '/products?category=bubble-tea-rtd',
+    color: '#0d2b22',
+    accent: '#5cf5cc',
+    img: 'https://cdn.shopify.com/s/files/1/0769/8520/5054/files/BobaTeaDrinkGreenApple_Photomountage_1080x1080_copy.png?v=1752934721',
+  },
+]
+
+// Hero mosaic: 4 images picked for visual variety and impact
+const HERO_MOSAIC = [
+  { // Top full-width — Bubble Tea Set lifestyle photo
+    img: 'https://cdn.shopify.com/s/files/1/0769/8520/5054/files/9690ED77-8273-4F9F-B137-9A7A55D5A6B7.jpg?v=1736538559',
+    bg: '#0c1f3a', label: 'My Bubble Tea',
+  },
+  { // Bottom left — TEABALLS Himbeere clean bottle
+    img: 'https://cdn.shopify.com/s/files/1/0368/6150/9769/files/TEABALLS_Himbeere_Flasche.png?v=1762429748',
+    bg: '#1a0312', label: 'TEABALLS',
+  },
+  { // Bottom center — Patislove Pistachio Milk Choc Bar
+    img: 'https://cdn.shopify.com/s/files/1/0763/2302/9259/files/Untitleddesign_49.webp?v=1759780663',
+    bg: '#1e0f00', label: 'Patislove',
+  },
+  { // Bottom right — The Mallows Raspberry Hearts
+    img: 'https://cdn.shopify.com/s/files/1/0763/2302/9259/files/43f6ead8336003ff8d56a822586ec842d1058f18327592c95d20214258a85e9b.jpg?v=1765704974',
+    bg: '#1a0c1a', label: 'The Mallows',
   },
 ]
 
@@ -336,13 +356,13 @@ export default async function HomePage() {
 
             {/* Right: Image Mosaic */}
             <div className="hero-right">
-              {BRANDS.slice(0, 4).map((brand, i) => (
-                <div key={brand.name} className="hero-right-img"
-                  style={{ background: brand.color }}>
+              {HERO_MOSAIC.map((item, i) => (
+                <div key={item.label} className="hero-right-img"
+                  style={{ background: item.bg }}>
                   <Image
-                    src={brand.img} alt={brand.name} fill
+                    src={item.img} alt={item.label} fill
                     sizes="(max-width:1100px) 0px, 33vw"
-                    style={{ objectFit:'contain', padding: i === 0 ? 28 : 20, transition:'transform .4s' }}
+                    style={{ objectFit: i === 0 ? 'cover' : 'contain', padding: i === 0 ? 0 : 20, transition:'transform .4s' }}
                     priority={i === 0}
                   />
                   <div style={{
@@ -351,7 +371,7 @@ export default async function HomePage() {
                     border:'1px solid rgba(255,255,255,.1)',
                     borderRadius:8, padding:'6px 12px',
                   }}>
-                    <span style={{ fontSize:11.5, fontWeight:700, color:'white', fontFamily:"'Space Grotesk',sans-serif" }}>{brand.name}</span>
+                    <span style={{ fontSize:11.5, fontWeight:700, color:'white', fontFamily:"'Space Grotesk',sans-serif" }}>{item.label}</span>
                   </div>
                 </div>
               ))}
