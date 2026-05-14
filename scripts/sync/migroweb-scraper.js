@@ -321,6 +321,22 @@ async function main() {
 
     log('Clicked Vai — waiting 5s for catalog to initialize...')
     await new Promise(r => setTimeout(r, 5000))
+
+    // IMPORTANT: Re-fetch a fresh frame reference after Vai click.
+    // The frame reloads after Vai, making the old catalogFrame reference stale.
+    // Search all frames again for the one with product cards.
+    const freshFrames = page.frames()
+    let freshProductFrame = null
+    for (const f of freshFrames) {
+      try {
+        const count = await Promise.race([
+          f.evaluate(() => document.querySelectorAll('div.div_totcella').length),
+          new Promise((_, r) => setTimeout(() => r(0), 3000)),
+        ])
+        if (count > 0) { freshProductFrame = f; break }
+      } catch (_) {}
+    }
+    if (freshProductFrame) catalogFrame = freshProductFrame
     log('✅ Products loaded')
 
     // ── 3. DETERMINE TOTAL PAGES ─────────────────────────────────────────
