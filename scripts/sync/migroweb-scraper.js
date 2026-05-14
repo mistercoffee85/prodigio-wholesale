@@ -237,6 +237,17 @@ async function main() {
     const catalogUrl = `${CONFIG.baseUrl}/MigroWeb/insordiniCat.jsp`
     log('Loading catalog:', catalogUrl)
     await page.goto(catalogUrl, { waitUntil: 'domcontentloaded', timeout: 60000 })
+
+    // Debug: log current URL and page title
+    const catUrl = page.url()
+    const catTitle = await page.title()
+    const catInputs = await page.evaluate(() =>
+      [...document.querySelectorAll('input')].map(i => i.name + '|' + i.type + '|' + i.value).join(', ')
+    )
+    log('Catalog URL:', catUrl)
+    log('Catalog title:', catTitle)
+    log('Catalog inputs:', catInputs.substring(0, 300))
+
     await page.waitForSelector('input[name="Vai"]', { timeout: 20000 })
     log('✅ Catalog page ready')
 
