@@ -238,16 +238,14 @@ async function main() {
     await page.waitForSelector('input[value="Nuovo Ordine Catalogo"]', { timeout: 30000 })
     log('✅ Order page ready')
 
-    // Click button — navigates main page to insordiniCat.jsp (a frameset)
-    // waitForNavigation fires on main page load; child frames take additional time
-    await Promise.all([
-      page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 60000 }),
-      page.click('input[value="Nuovo Ordine Catalogo"]'),
-    ])
-    log('Navigated to:', page.url())
+    // Click button — may navigate main page OR load content in a child frame.
+    // Do NOT use waitForNavigation: if the button navigates a frame (not the main page),
+    // waitForNavigation never fires and we get a 60s timeout.
+    await page.click('input[value="Nuovo Ordine Catalogo"]')
+    log('Clicked Nuovo Ordine Catalogo — waiting for frames to load...')
 
-    // Wait for child frames to load content
-    await new Promise(r => setTimeout(r, 5000))
+    // Give the server time to create the order context and load frames
+    await new Promise(r => setTimeout(r, 12000))
 
     // Log all frames for debugging
     let allFrames = page.frames()
