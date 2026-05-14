@@ -310,7 +310,18 @@ async function main() {
     if (!productFrame) throw new Error('No div.div_totcella found after navigation to catalog')
 
     let catalogFrame = productFrame
-    log('✅ Products loaded in:', catalogFrame.url())
+    log('✅ Catalog frame:', catalogFrame.url())
+
+    // Click Vai to initialize the full catalog search (sets PAGTOT + pagination).
+    // Products are pre-loaded but PAGTOT is only set after clicking Vai.
+    catalogFrame.evaluate(() => {
+      const btn = document.querySelector('input[name="Vai"]')
+      if (btn) btn.click()
+    }).catch(() => {})
+
+    log('Clicked Vai — waiting 5s for catalog to initialize...')
+    await new Promise(r => setTimeout(r, 5000))
+    log('✅ Products loaded')
 
     // ── 3. DETERMINE TOTAL PAGES ─────────────────────────────────────────
     const totalPages = await catalogFrame.evaluate(() => {
