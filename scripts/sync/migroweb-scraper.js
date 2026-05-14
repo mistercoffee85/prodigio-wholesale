@@ -238,18 +238,19 @@ async function main() {
     await page.waitForSelector('input[value="Nuovo Ordine Catalogo"]', { timeout: 30000 })
     log('✅ Order page ready')
 
-    // Click button via evaluate (not page.click) to avoid CDP protocol timeout.
-    // page.click() dispatches a real mouse event via CDP which can hang if the
-    // page is busy loading JS — evaluate() uses the in-DOM .click() method directly.
-    await page.evaluate(() => {
+    // Fire the click WITHOUT awaiting the result.
+    // btn.click() triggers a child-frame navigation which destroys the JS context —
+    // awaiting evaluate() causes a 3-minute protocolTimeout.
+    // We fire-and-forget, then wait for frame content to appear.
+    page.evaluate(() => {
       const btn = document.querySelector('input[value="Nuovo Ordine Catalogo"]')
-      if (!btn) throw new Error('Nuovo Ordine Catalogo button not found in DOM')
-      btn.click()
-    })
-    log('Clicked Nuovo Ordine Catalogo — waiting for frames to load...')
+      if (btn) btn.click()
+    }).catch(() => {}) // intentionally not awaited — context destroyed on navigation is fine
 
-    // Give the server time to create the order context and load frames
-    await new Promise(r => setTimeout(r, 12000))
+    log('Clicked Nuovo Ordine Catalogo (fire & forget) — waiting 15s for frames...')
+
+    // Give the server time to create the order context and load child frames
+    await new Promise(r => setTimeout(r, 15000))
 
     // Log all frames for debugging
     let allFrames = page.frames()
