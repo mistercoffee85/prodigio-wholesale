@@ -43,6 +43,7 @@ export default function AdminProductsPage() {
   // Bulk price edits: map id → { price, comparePrice }
   const [priceEdits, setPriceEdits] = useState<Record<string, { price: string; comparePrice: string }>>({})
   const [saving, setSaving]       = useState(false)
+  const [bulkAction, setBulkAction] = useState<'activate' | 'deactivate' | null>(null)
 
   // Modal
   const [modalOpen, setModalOpen] = useState(false)
@@ -97,6 +98,22 @@ export default function AdminProductsPage() {
       toast.success(`${updates.length} Preise gespeichert ✓`)
       fetchAll()
     } else toast.error('Fehler beim Speichern')
+  }
+
+  // ── Bulk activate / deactivate Migroweb ───────────────────────
+  const bulkToggleMigroweb = async (action: 'activate' | 'deactivate') => {
+    setBulkAction(action)
+    const res = await fetch('/api/admin/products', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action, source: 'migroweb' }),
+    })
+    setBulkAction(null)
+    if (res.ok) {
+      const d = await res.json()
+      toast.success(`${d.updated} Migroweb-Produkte ${action === 'activate' ? 'aktiviert' : 'deaktiviert'} ✓`)
+      fetchAll()
+    } else toast.error('Fehler beim Bulk-Update')
   }
 
   // ── Toggle active ──────────────────────────────────────────────
@@ -224,6 +241,22 @@ export default function AdminProductsPage() {
               {saving ? 'Speichern…' : `💾 ${changedCount} Preis${changedCount > 1 ? 'e' : ''} speichern`}
             </button>
           )}
+          <button
+            className="btn btn-ghost"
+            onClick={() => bulkToggleMigroweb('deactivate')}
+            disabled={!!bulkAction}
+            title="Alle Migroweb-Produkte deaktivieren"
+          >
+            {bulkAction === 'deactivate' ? '⏳' : '🔴'} Migroweb AUS
+          </button>
+          <button
+            className="btn btn-ghost"
+            onClick={() => bulkToggleMigroweb('activate')}
+            disabled={!!bulkAction}
+            title="Alle Migroweb-Produkte aktivieren"
+          >
+            {bulkAction === 'activate' ? '⏳' : '🟢'} Migroweb AN
+          </button>
           <button className="btn btn-black" onClick={openAdd}>+ Neues Produkt</button>
         </div>
       </div>

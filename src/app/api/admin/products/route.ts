@@ -24,11 +24,27 @@ const productSchema = z.object({
   details:     z.record(z.string()).default({}),
 })
 
-// Bulk price update: PATCH /api/admin/products  body: { updates: [{id, price, comparePrice?}] }
+// Bulk PATCH /api/admin/products
+// body: { updates: [{id, price, comparePrice?}] }   → bulk price update
+// body: { action: 'activate', source?: string }      → bulk activate by supplier
+// body: { action: 'deactivate', source?: string }    → bulk deactivate by supplier
 export async function PATCH(req: NextRequest) {
   try {
     await requireAdmin()
-    const { updates } = await req.json() as { updates: { id: string; price: number; comparePrice?: number | null }[] }
+    const body = await req.json()
+
+    // Bulk activate / deactivate by supplier source
+    if (body.action === 'activate' || body.action === 'deactivate') {
+      const active = body.action === 'activate'
+      const where = body.source
+        ? { supplierSource: body.source as string }
+        : {}
+      const result = await prisma.product.updateMany({ where, data: { active } })
+      return NextResponse.json({ updated: result.count })
+    }
+
+    // Bulk price update
+    const { updates } = body as { updates: { id: string; price: number; comparePrice?: number | null }[] }
     if (!Array.isArray(updates) || updates.length === 0)
       return NextResponse.json({ error: 'Keine Updates' }, { status: 400 })
 
