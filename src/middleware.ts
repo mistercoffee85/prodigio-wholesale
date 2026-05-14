@@ -33,6 +33,8 @@ export default withAuth(
           pathname.startsWith('/products') ||
           pathname.startsWith('/login') ||
           pathname.startsWith('/register') ||
+          pathname.startsWith('/forgot-password') ||
+          pathname.startsWith('/reset-password') ||
           pathname.startsWith('/api/auth') ||
           pathname.startsWith('/api/products') ||
           pathname.startsWith('/api/categories') ||

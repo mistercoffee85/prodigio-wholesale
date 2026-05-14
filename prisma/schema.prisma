@@ -67,6 +67,8 @@ model User {
   company   Company?
   orders    Order[]
   sessions  Session[]
+  passwordResetToken  String?
+  passwordResetExpiry DateTime?
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 

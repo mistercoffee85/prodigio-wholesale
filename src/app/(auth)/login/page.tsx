@@ -107,7 +107,10 @@ function LoginForm() {
                 value={email} onChange={handleEmail} />
             </div>
             <div className="form-group">
-              <label className="form-label">Passwort</label>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                <label className="form-label" style={{ margin: 0 }}>Passwort</label>
+                <Link href="/forgot-password" style={{ fontSize: 13, color: 'var(--accent)', fontWeight: 500 }}>Passwort vergessen?</Link>
+              </div>
               <div style={{ position: 'relative' }}>
                 <input type={showPw ? 'text' : 'password'} className="form-input" placeholder="••••••••" autoComplete="current-password" required
                   value={password} onChange={handlePassword}

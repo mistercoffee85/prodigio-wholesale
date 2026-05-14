@@ -226,41 +226,68 @@ async function main() {
     log('✅ Login successful')
 
     // ── 2. NAVIGATE TO PRODUCT CATALOG ───────────────────────────────────
-    // Go through gestione_ordini.jsp first (required for catalog session context)
+    // CRITICAL: Must click "Nuovo Ordine Catalogo" to create server-side order context.
+    // Direct navigation to insordiniCat.jsp shows empty frames (no products).
     const ordiniUrl = `${CONFIG.baseUrl}/MigroWeb/gestione_ordini.jsp`
     log('Loading order page:', ordiniUrl)
+
+    // Use domcontentloaded to avoid networkidle2 timeout on slow JSP pages
     await page.goto(ordiniUrl, { waitUntil: 'domcontentloaded', timeout: 60000 })
+    await new Promise(r => setTimeout(r, 3000)) // let JS render the buttons
+
     await page.waitForSelector('input[value="Nuovo Ordine Catalogo"]', { timeout: 30000 })
     log('✅ Order page ready')
 
-    // Session is now established — navigate directly to catalog
-    const catalogUrl = `${CONFIG.baseUrl}/MigroWeb/insordiniCat.jsp`
-    log('Loading catalog:', catalogUrl)
-    await page.goto(catalogUrl, { waitUntil: 'networkidle2', timeout: 90000 })
+    // Click button — navigates main page to insordiniCat.jsp (a frameset)
+    // waitForNavigation fires on main page load; child frames take additional time
+    await Promise.all([
+      page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 60000 }),
+      page.click('input[value="Nuovo Ordine Catalogo"]'),
+    ])
+    log('Navigated to:', page.url())
 
-    // Find the frame that contains the catalog form (may be in a child frame)
-    const allFrames = page.frames()
-    log(`Page frames: ${allFrames.length}`)
-    allFrames.forEach((f, i) => log(`  Frame ${i}: ${f.url()}`))
+    // Wait for child frames to load content
+    await new Promise(r => setTimeout(r, 5000))
 
-    // Find the frame that has input[name="Vai"]
-    let catalogFrame = page.mainFrame()
-    for (const frame of allFrames) {
-      try {
-        const hasVai = await frame.evaluate(() => !!document.querySelector('input[name="Vai"]'))
-        if (hasVai) {
-          catalogFrame = frame
-          log('Found Vai button in frame:', frame.url())
-          break
-        }
-      } catch (_) {}
+    // Log all frames for debugging
+    let allFrames = page.frames()
+    log(`Frames after navigation: ${allFrames.length}`)
+    for (const f of allFrames) log(`  Frame: ${f.url()}`)
+
+    // Find the frame containing the Vai button (could be any child frame)
+    async function findFrameWithVai(frames) {
+      for (const frame of frames) {
+        try {
+          const btn = await frame.$('input[name="Vai"]')
+          if (btn) return { frame, btn }
+        } catch (_) {}
+      }
+      return null
     }
 
-    // Click "Vai" — loads products into the page (AJAX, no navigation)
-    await catalogFrame.evaluate(() => {
-      document.querySelector('input[name="Vai"]')?.click()
-    })
-    // Wait for products to appear (AJAX load, can take a while)
+    let found = await findFrameWithVai(allFrames)
+    if (!found) {
+      // Retry after more time
+      log('Vai not found yet — waiting 10 more seconds for frames to load...')
+      await new Promise(r => setTimeout(r, 10000))
+      allFrames = page.frames()
+      log(`Frames (retry): ${allFrames.length}`)
+      for (const f of allFrames) log(`  Frame: ${f.url()}`)
+      found = await findFrameWithVai(allFrames)
+    }
+
+    if (!found) {
+      const html = await page.content()
+      log('Page HTML (first 800 chars):', html.substring(0, 800))
+      throw new Error('Vai button not found in any frame — check catalog navigation')
+    }
+
+    let catalogFrame = found.frame
+    log('Found Vai in frame:', catalogFrame.url())
+
+    // Click Vai → loads full catalog (no filter = all products)
+    // Products load via AJAX/frame refresh — do NOT use waitForNavigation
+    await found.btn.click()
     await catalogFrame.waitForSelector('div.div_totcella', { timeout: 90000 })
     log('✅ Products loaded')
 
@@ -278,7 +305,7 @@ async function main() {
     while (pageNum <= totalPages) {
       log(`Scraping page ${pageNum} / ${totalPages}...`)
 
-      await catalogFrame.waitForSelector('div.div_totcella', { timeout: 15000 })
+      await catalogFrame.waitForSelector('div.div_totcella', { timeout: 30000 })
       const pageProducts = await catalogFrame.evaluate(extractPageProducts)
 
       log(`  → ${pageProducts.length} products found`)
@@ -287,18 +314,19 @@ async function main() {
       if (pageNum >= totalPages) break
 
       // Navigate to next page via vaiapagina() JS function
+      // vaiapagina() may be AJAX or frame reload — don't use waitForNavigation
       const nextPage = pageNum + 1
-      await Promise.all([
-        catalogFrame.waitForNavigation({ waitUntil: 'networkidle2', timeout: 30000 }),
-        catalogFrame.evaluate((n) => {
-          const gopag = document.getElementById('GOPAG')
-          if (gopag) gopag.value = String(n)
-          if (typeof vaiapagina === 'function') vaiapagina()
-        }, nextPage),
-      ])
+      await catalogFrame.evaluate((n) => {
+        const gopag = document.getElementById('GOPAG')
+        if (gopag) gopag.value = String(n)
+        if (typeof vaiapagina === 'function') vaiapagina()
+      }, nextPage)
+
+      // Wait for page to reload (AJAX or frame refresh)
+      await new Promise(r => setTimeout(r, 2000))
+      await catalogFrame.waitForSelector('div.div_totcella', { timeout: 30000 })
 
       pageNum++
-      await new Promise(r => setTimeout(r, 500))
     }
 
     log(`Total scraped: ${allProducts.length} products across ${pageNum} pages`)
