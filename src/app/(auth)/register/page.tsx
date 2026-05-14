@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
@@ -60,10 +60,10 @@ export default function RegisterPage() {
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
 
-  const set = (k: string, v: string) => {
+  const set = useCallback((k: string, v: string) => {
     setForm(f => ({ ...f, [k]: v }))
     setErrors(e => ({ ...e, [k]: '' }))
-  }
+  }, [])
 
   const validateStep1 = () => {
     const e: Record<string, string> = {}

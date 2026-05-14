@@ -1,5 +1,5 @@
 'use client'
-import { useState, Suspense } from 'react'
+import { useState, Suspense, useCallback } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
@@ -9,8 +9,13 @@ function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [loading, setLoading] = useState(false)
-  const [form, setForm] = useState({ email: '', password: '' })
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [showPw, setShowPw] = useState(false)
+  const form = { email, password }
+
+  const handleEmail = useCallback((e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value), [])
+  const handlePassword = useCallback((e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value), [])
 
   const error = searchParams.get('error')
   const errorMsg =
@@ -98,14 +103,14 @@ function LoginForm() {
           <form onSubmit={handleSubmit}>
             <div className="form-group">
               <label className="form-label">E-Mail-Adresse</label>
-              <input type="email" className="form-input" placeholder="name@unternehmen.ch" autoComplete="email" required
-                value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} />
+              <input type="email" className="form-input" placeholder="name@unternehmen.ch" autoComplete="email" required autoFocus
+                value={email} onChange={handleEmail} />
             </div>
             <div className="form-group">
               <label className="form-label">Passwort</label>
               <div style={{ position: 'relative' }}>
                 <input type={showPw ? 'text' : 'password'} className="form-input" placeholder="••••••••" autoComplete="current-password" required
-                  value={form.password} onChange={e => setForm({ ...form, password: e.target.value })}
+                  value={password} onChange={handlePassword}
                   style={{ paddingRight: 46 }} />
                 <button type="button" onClick={() => setShowPw(!showPw)} style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 17, color: 'var(--gray-300)', cursor: 'pointer' }}>
                   {showPw ? '🙈' : '👁'}
