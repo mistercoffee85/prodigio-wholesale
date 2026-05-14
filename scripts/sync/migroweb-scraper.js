@@ -226,71 +226,116 @@ async function main() {
     log('✅ Login successful')
 
     // ── 2. NAVIGATE TO PRODUCT CATALOG ───────────────────────────────────
-    // CRITICAL: Must click "Nuovo Ordine Catalogo" to create server-side order context.
-    // Direct navigation to insordiniCat.jsp shows empty frames (no products).
-    const ordiniUrl = `${CONFIG.baseUrl}/MigroWeb/gestione_ordini.jsp`
-    log('Loading order page:', ordiniUrl)
+    // KEY INSIGHT: homepage.jsp is a frameset. gestione_ordini.jsp is the MENU frame
+    // inside that frameset. "Nuovo Ordine Catalogo" navigates the CONTENT frame to
+    // insordiniCat.jsp. When gestione_ordini.jsp is loaded standalone (page.goto),
+    // the target frame doesn't exist and the browser freezes.
+    //
+    // Solution: Stay on homepage.jsp after login, let the frameset load, then find
+    // and click "Nuovo Ordine Catalogo" in whichever frame it lives in.
 
-    // Use domcontentloaded to avoid networkidle2 timeout on slow JSP pages
-    await page.goto(ordiniUrl, { waitUntil: 'domcontentloaded', timeout: 60000 })
-    await new Promise(r => setTimeout(r, 3000)) // let JS render the buttons
-
-    await page.waitForSelector('input[value="Nuovo Ordine Catalogo"]', { timeout: 30000 })
-    log('✅ Order page ready')
-
-    // Fire the click WITHOUT awaiting the result.
-    // btn.click() triggers a child-frame navigation which destroys the JS context —
-    // awaiting evaluate() causes a 3-minute protocolTimeout.
-    // We fire-and-forget, then wait for frame content to appear.
-    page.evaluate(() => {
-      const btn = document.querySelector('input[value="Nuovo Ordine Catalogo"]')
-      if (btn) btn.click()
-    }).catch(() => {}) // intentionally not awaited — context destroyed on navigation is fine
-
-    log('Clicked Nuovo Ordine Catalogo (fire & forget) — waiting 15s for frames...')
-
-    // Give the server time to create the order context and load child frames
-    await new Promise(r => setTimeout(r, 15000))
-
-    // Log all frames for debugging
+    // Log the homepage frameset structure
+    log('Checking homepage frameset...')
     let allFrames = page.frames()
-    log(`Frames after navigation: ${allFrames.length}`)
+    log(`Frames on homepage: ${allFrames.length}`)
     for (const f of allFrames) log(`  Frame: ${f.url()}`)
 
-    // Find the frame containing the Vai button (could be any child frame)
-    async function findFrameWithVai(frames) {
+    // Search all frames for the "Nuovo Ordine Catalogo" button
+    // It lives in the menu/navigation frame of the homepage frameset
+    async function findFrameWithSelector(frames, selector) {
       for (const frame of frames) {
         try {
-          const btn = await frame.$('input[name="Vai"]')
-          if (btn) return { frame, btn }
+          const el = await Promise.race([
+            frame.$(selector),
+            new Promise((_, r) => setTimeout(() => r(null), 3000)), // 3s per frame max
+          ])
+          if (el) return { frame, el }
         } catch (_) {}
       }
       return null
     }
 
-    let found = await findFrameWithVai(allFrames)
-    if (!found) {
-      // Retry after more time
-      log('Vai not found yet — waiting 10 more seconds for frames to load...')
-      await new Promise(r => setTimeout(r, 10000))
+    // First try to find the button on the current homepage (which may be a frameset)
+    let ordiniFound = await findFrameWithSelector(allFrames, 'input[value="Nuovo Ordine Catalogo"]')
+
+    if (!ordiniFound) {
+      // Navigate the homepage to load the order management section
+      log('Button not found on homepage — navigating to gestione_ordini.jsp in content frame...')
+      // Try navigating with domcontentloaded to find the button
+      const ordiniUrl = `${CONFIG.baseUrl}/MigroWeb/gestione_ordini.jsp`
+      await page.goto(ordiniUrl, { waitUntil: 'domcontentloaded', timeout: 60000 })
+      await new Promise(r => setTimeout(r, 2000))
       allFrames = page.frames()
-      log(`Frames (retry): ${allFrames.length}`)
+      log(`Frames after gestione_ordini nav: ${allFrames.length}`)
       for (const f of allFrames) log(`  Frame: ${f.url()}`)
-      found = await findFrameWithVai(allFrames)
+      ordiniFound = await findFrameWithSelector(allFrames, 'input[value="Nuovo Ordine Catalogo"]')
     }
 
-    if (!found) {
-      const html = await page.content()
-      log('Page HTML (first 800 chars):', html.substring(0, 800))
-      throw new Error('Vai button not found in any frame — check catalog navigation')
+    if (!ordiniFound) {
+      throw new Error('Nuovo Ordine Catalogo button not found in any frame')
+    }
+    log('Found button in frame:', ordiniFound.frame.url())
+
+    // Log button details to understand its target/form
+    const btnDetails = await ordiniFound.frame.evaluate(() => {
+      const btn = document.querySelector('input[value="Nuovo Ordine Catalogo"]')
+      if (!btn) return null
+      const form = btn.form
+      return {
+        type: btn.type,
+        name: btn.name,
+        formAction: form?.action,
+        formMethod: form?.method,
+        onclick: btn.getAttribute('onclick'),
+        formTarget: form?.target,
+        buttonTarget: btn.getAttribute('target'),
+        // All form fields
+        fields: form ? [...form.elements].filter(e => e.name).map(e => ({ name: e.name, value: e.value, type: e.type })) : [],
+      }
+    })
+    log('Button details:', JSON.stringify(btnDetails))
+
+    // Intercept requests made by the button click
+    const capturedRequests = []
+    page.on('request', req => {
+      if (!req.url().includes('static') && !req.url().includes('.js') && !req.url().includes('.css')) {
+        capturedRequests.push(`${req.method()} ${req.url()}`)
+      }
+    })
+
+    // Click the button via evaluate (fire-and-forget to avoid context-destroyed timeout)
+    ordiniFound.frame.evaluate(() => {
+      const btn = document.querySelector('input[value="Nuovo Ordine Catalogo"]')
+      if (btn) btn.click()
+    }).catch(() => {}) // context destroyed on navigation is expected
+
+    log('Clicked Nuovo Ordine Catalogo — waiting 20s for catalog to load...')
+    await new Promise(r => setTimeout(r, 20000))
+
+    page.removeAllListeners('request')
+    log('Requests captured:', JSON.stringify(capturedRequests.slice(0, 15)))
+    log('Main page URL after click:', page.url())
+
+    allFrames = page.frames()
+    log(`Frames after click: ${allFrames.length}`)
+    for (const f of allFrames) log(`  Frame: ${f.url()}`)
+
+    // Find Vai button in any frame (with 3s per-frame timeout to avoid CDP freeze)
+    const vaiFound = await findFrameWithSelector(allFrames, 'input[name="Vai"]')
+    if (!vaiFound) {
+      throw new Error('Vai button not found in any frame after clicking Nuovo Ordine Catalogo')
     }
 
-    let catalogFrame = found.frame
+    let catalogFrame = vaiFound.frame
     log('Found Vai in frame:', catalogFrame.url())
 
     // Click Vai → loads full catalog (no filter = all products)
-    // Products load via AJAX/frame refresh — do NOT use waitForNavigation
-    await found.btn.click()
+    // Use evaluate (fire-and-forget) to avoid CDP protocol timeout if click triggers navigation
+    catalogFrame.evaluate(() => {
+      const btn = document.querySelector('input[name="Vai"]')
+      if (btn) btn.click()
+    }).catch(() => {})
+
     await catalogFrame.waitForSelector('div.div_totcella', { timeout: 90000 })
     log('✅ Products loaded')
 
