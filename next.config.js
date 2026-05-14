@@ -20,6 +20,8 @@ const nextConfig = {
       { protocol: 'https', hostname: 'cdn.shopify.com' },
       { protocol: 'https', hostname: 'www.meinbubbletea.ch' },
       { protocol: 'https', hostname: 'www.msy.be' },
+      { protocol: 'https', hostname: 'www.wmphoto.it' },      // Migroweb product images
+      { protocol: 'https', hostname: 'www.migroweb.it' },     // Migroweb CDN fallback
     ],
   },
   experimental: {
