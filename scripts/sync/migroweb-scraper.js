@@ -383,15 +383,73 @@ async function main() {
     let catalogFrame = vaiFound.frame
     log('Found Vai in frame:', catalogFrame.url())
 
+    // Log current frame structure before clicking Vai
+    const preVaiFrames = page.frames()
+    log(`Frames before Vai: ${preVaiFrames.length}`)
+    for (const f of preVaiFrames) log(`  Frame: ${f.url()}`)
+
+    // Check if div.div_totcella already present (products pre-loaded after navigate)
+    const preVaiCardCount = await catalogFrame.evaluate(() =>
+      document.querySelectorAll('div.div_totcella').length
+    )
+    log(`div.div_totcella before Vai click: ${preVaiCardCount}`)
+
     // Click Vai → loads full catalog (no filter = all products)
-    // Use evaluate (fire-and-forget) to avoid CDP protocol timeout if click triggers navigation
     catalogFrame.evaluate(() => {
       const btn = document.querySelector('input[name="Vai"]')
       if (btn) btn.click()
     }).catch(() => {})
 
-    await catalogFrame.waitForSelector('div.div_totcella', { timeout: 90000 })
-    log('✅ Products loaded')
+    log('Clicked Vai — waiting for products...')
+    await new Promise(r => setTimeout(r, 5000))
+
+    // Check all frames for products (insordiniCat.jsp may be a frameset)
+    const postVaiFrames = page.frames()
+    log(`Frames after Vai: ${postVaiFrames.length}`)
+    for (const f of postVaiFrames) log(`  Frame: ${f.url()}`)
+
+    // Search all frames for div.div_totcella
+    let productFrame = null
+    for (const f of postVaiFrames) {
+      try {
+        const count = await Promise.race([
+          f.evaluate(() => document.querySelectorAll('div.div_totcella').length),
+          new Promise((_, r) => setTimeout(() => r(0), 3000)),
+        ])
+        log(`  Frame ${f.url()} has ${count} product cards`)
+        if (count > 0) productFrame = f
+      } catch (_) {}
+    }
+
+    if (!productFrame) {
+      // Wait longer and retry
+      log('No product cards yet — waiting 15 more seconds...')
+      await new Promise(r => setTimeout(r, 15000))
+
+      const retryFrames = page.frames()
+      for (const f of retryFrames) {
+        try {
+          const count = await Promise.race([
+            f.evaluate(() => document.querySelectorAll('div.div_totcella').length),
+            new Promise((_, r) => setTimeout(() => r(0), 3000)),
+          ])
+          log(`  Retry: Frame ${f.url()} has ${count} cards`)
+          if (count > 0) productFrame = f
+        } catch (_) {}
+      }
+    }
+
+    if (!productFrame) {
+      // Log HTML of catalogFrame for diagnosis
+      const htmlSnippet = await catalogFrame.evaluate(() =>
+        document.body ? document.body.innerHTML.substring(0, 1000) : 'no body'
+      ).catch(() => 'evaluate failed')
+      log('catalogFrame HTML:', htmlSnippet)
+      throw new Error('No div.div_totcella found in any frame after Vai click')
+    }
+
+    catalogFrame = productFrame
+    log('✅ Products frame:', catalogFrame.url())
 
     // ── 3. DETERMINE TOTAL PAGES ─────────────────────────────────────────
     const totalPages = await catalogFrame.evaluate(() => {
