@@ -15,6 +15,40 @@ const INDUSTRIES = [
   'Andere',
 ]
 
+// ⚠️ Must be defined OUTSIDE the page component —
+// otherwise React recreates it on every keystroke and inputs lose focus.
+interface FieldProps {
+  label: string
+  name: string
+  type?: string
+  placeholder?: string
+  required?: boolean
+  autoFocus?: boolean
+  value: string
+  error?: string
+  onChange: (name: string, value: string) => void
+}
+
+function Field({ label, name, type = 'text', placeholder = '', required = true, autoFocus = false, value, error, onChange }: FieldProps) {
+  return (
+    <div className="form-group">
+      <label className="form-label">
+        {label}{required && <span style={{ color: 'var(--warn)', marginLeft: 2 }}>*</span>}
+      </label>
+      <input
+        type={type}
+        className={`form-input${error ? ' error' : ''}`}
+        placeholder={placeholder}
+        value={value}
+        autoFocus={autoFocus}
+        onChange={e => onChange(name, e.target.value)}
+        autoComplete={name === 'email' ? 'email' : type === 'password' ? 'new-password' : 'off'}
+      />
+      {error && <div className="form-error">{error}</div>}
+    </div>
+  )
+}
+
 export default function RegisterPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
@@ -26,7 +60,10 @@ export default function RegisterPage() {
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
 
-  const set = (k: string, v: string) => { setForm(f => ({ ...f, [k]: v })); setErrors(e => ({ ...e, [k]: '' })) }
+  const set = (k: string, v: string) => {
+    setForm(f => ({ ...f, [k]: v }))
+    setErrors(e => ({ ...e, [k]: '' }))
+  }
 
   const validateStep1 = () => {
     const e: Record<string, string> = {}
@@ -91,19 +128,6 @@ export default function RegisterPage() {
     )
   }
 
-  const Field = ({ label, name, type = 'text', placeholder = '', required = true, half = false }: { label: string; name: string; type?: string; placeholder?: string; required?: boolean; half?: boolean }) => (
-    <div className="form-group" style={half ? {} : {}}>
-      <label className="form-label">{label}{required && <span style={{ color: 'var(--warn)', marginLeft: 2 }}>*</span>}</label>
-      <input
-        type={type} className={`form-input${errors[name] ? ' error' : ''}`}
-        placeholder={placeholder} value={form[name as keyof typeof form]}
-        onChange={e => set(name, e.target.value)}
-        autoComplete={name === 'email' ? 'email' : name === 'password' ? 'new-password' : undefined}
-      />
-      {errors[name] && <div className="form-error">{errors[name]}</div>}
-    </div>
-  )
-
   return (
     <div style={{ minHeight: '100vh', display: 'flex' }}>
       {/* Left — Brand Panel */}
@@ -129,7 +153,6 @@ export default function RegisterPage() {
             Registrieren Sie sich kostenlos und erhalten Sie Zugang zu exklusiven Grosshandelskonditionen.
           </p>
 
-          {/* Steps Indicator */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {[
               { n: 1, label: 'Kontaktdaten', done: step > 1 },
@@ -176,13 +199,13 @@ export default function RegisterPage() {
           {step === 1 ? (
             <form onSubmit={e => { e.preventDefault(); if (validateStep1()) setStep(2) }}>
               <div className="form-row">
-                <Field label="Vollständiger Name" name="name" placeholder="Max Mustermann" />
-                <Field label="Telefon" name="phone" type="tel" placeholder="+41 61 ..." required={false} />
+                <Field label="Vollständiger Name" name="name" placeholder="Max Mustermann" autoFocus value={form.name} error={errors.name} onChange={set} />
+                <Field label="Telefon" name="phone" type="tel" placeholder="+41 61 ..." required={false} value={form.phone} error={errors.phone} onChange={set} />
               </div>
-              <Field label="E-Mail-Adresse" name="email" type="email" placeholder="name@unternehmen.ch" />
+              <Field label="E-Mail-Adresse" name="email" type="email" placeholder="name@unternehmen.ch" value={form.email} error={errors.email} onChange={set} />
               <div className="form-row">
-                <Field label="Passwort" name="password" type="password" placeholder="Mindestens 8 Zeichen" />
-                <Field label="Passwort bestätigen" name="confirmPassword" type="password" placeholder="Wiederholen" />
+                <Field label="Passwort" name="password" type="password" placeholder="Mindestens 8 Zeichen" value={form.password} error={errors.password} onChange={set} />
+                <Field label="Passwort bestätigen" name="confirmPassword" type="password" placeholder="Wiederholen" value={form.confirmPassword} error={errors.confirmPassword} onChange={set} />
               </div>
 
               <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '14px', fontSize: 15, marginTop: 8, borderRadius: 'var(--radius-lg)' }}>
@@ -191,7 +214,7 @@ export default function RegisterPage() {
             </form>
           ) : (
             <form onSubmit={handleSubmit}>
-              <Field label="Firmenname" name="company" placeholder="Mustermann GmbH" />
+              <Field label="Firmenname" name="company" placeholder="Mustermann GmbH" autoFocus value={form.company} error={errors.company} onChange={set} />
               <div className="form-group">
                 <label className="form-label">Branche<span style={{ color: 'var(--warn)', marginLeft: 2 }}>*</span></label>
                 <select className={`form-input${errors.industry ? ' error' : ''}`} value={form.industry} onChange={e => set('industry', e.target.value)}>
@@ -200,12 +223,12 @@ export default function RegisterPage() {
                 </select>
                 {errors.industry && <div className="form-error">{errors.industry}</div>}
               </div>
-              <Field label="Strasse & Hausnummer" name="address" placeholder="Musterstrasse 1" />
+              <Field label="Strasse & Hausnummer" name="address" placeholder="Musterstrasse 1" value={form.address} error={errors.address} onChange={set} />
               <div className="form-row">
-                <Field label="PLZ" name="zip" placeholder="4000" />
-                <Field label="Ort / Stadt" name="city" placeholder="Basel" />
+                <Field label="PLZ" name="zip" placeholder="4000" value={form.zip} error={errors.zip} onChange={set} />
+                <Field label="Ort / Stadt" name="city" placeholder="Basel" value={form.city} error={errors.city} onChange={set} />
               </div>
-              <Field label="UID-Nummer (optional)" name="uid" placeholder="CHE-123.456.789" required={false} />
+              <Field label="UID-Nummer (optional)" name="uid" placeholder="CHE-123.456.789" required={false} value={form.uid} error={errors.uid} onChange={set} />
 
               <div style={{ display: 'flex', gap: 10, marginTop: 8 }}>
                 <button type="button" className="btn btn-outline" style={{ flex: '0 0 auto', padding: '14px 20px', borderRadius: 'var(--radius-lg)' }} onClick={() => setStep(1)}>
