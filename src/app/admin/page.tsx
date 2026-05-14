@@ -159,11 +159,12 @@ export default async function AdminDashboard() {
       </div>
 
       {/* Quick Actions */}
-      <div style={{ marginTop: 24, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+      <div style={{ marginTop: 24, display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 16 }}>
         {[
           { href: '/admin/customers', icon: '👥', label: 'Kunden verwalten', sub: 'Freigaben & Preisgruppen' },
           { href: '/admin/orders',    icon: '📦', label: 'Bestellungen',      sub: 'Status & Zahlungen' },
           { href: '/admin/products',  icon: '🛍️', label: 'Produkte',           sub: 'Lagerbestand & Status' },
+          { href: '/admin/sync',      icon: '🔄', label: 'Lieferanten-Sync',  sub: 'Migroweb · tägl. 02:00 Uhr' },
         ].map(a => (
           <Link key={a.href} href={a.href} className="quick-action" style={{
             display: 'flex', alignItems: 'center', gap: 14, padding: '18px 20px',

@@ -135,7 +135,7 @@ model Product {
   brand        String
   emoji        String      @default("📦")
   bgGradient   String?     // CSS gradient for card background
-  price        Decimal     // Base CHF price per VE
+  price        Decimal     // Base CHF price per VE (Verkaufspreis)
   comparePrice Decimal?    // Crossed-out price
   unit         String      // e.g. "12er Tray (250ml)"
   moq          Int         @default(6)  // Minimum order quantity
@@ -148,11 +148,33 @@ model Product {
   details      Json        @default("{}")  // Key-value product specs
   variants     Json        @default("[]")  // [{label, price, unit, moq}]
   images       String[]    @default([])
+  // ── Supplier sync fields ──────────────────────────────────────
+  supplierSku      String?   // Artikelnummer beim Lieferanten
+  supplierSource   String?   // e.g. "migroweb"
+  costPrice        Decimal?  // Einkaufspreis vom Lieferanten
+  lastSyncedAt     DateTime? // Wann zuletzt synchronisiert
+  syncManaged      Boolean   @default(false) // true = wird durch Sync verwaltet
   orderItems   OrderItem[]
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
 
   @@map("products")
+}
+
+model SyncLog {
+  id            String   @id @default(cuid())
+  source        String   // "migroweb"
+  status        String   // "success" | "error" | "running"
+  productsFound Int      @default(0)
+  productsNew   Int      @default(0)
+  productsUpdated Int    @default(0)
+  productsDeactivated Int @default(0)
+  errorMessage  String?
+  durationMs    Int?
+  startedAt     DateTime @default(now())
+  finishedAt    DateTime?
+
+  @@map("sync_logs")
 }
 
 // ─────────────────────────────────────────────────────────────────
