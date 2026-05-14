@@ -8,6 +8,10 @@
  *       DATABASE_URL, DIRECT_URL
  *       MARKUP_FACTOR (default 1.35 = 35% Marge)
  *       SYNC_DRY_RUN=true  → only logs, no DB writes
+ *
+ * Login: uses "Codice CediCash" + "Codice Spedizione" + "Genera Password" button
+ * Catalog: insordiniCat.jsp → click "Vai" → scrape div.div_totcella cards
+ * Pagination: GOPAG input + vaiapagina() JS function (69 pages confirmed)
  */
 
 'use strict'
@@ -24,7 +28,6 @@ const CONFIG = {
   markupFactor: parseFloat(process.env.MARKUP_FACTOR || '1.35'),
   dryRun:       process.env.SYNC_DRY_RUN === 'true',
   source:       'migroweb',
-  imageBase:    'https://www.wmphoto.it/products/',
 }
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
@@ -50,7 +53,6 @@ function parsePrice(str) {
  */
 function parseStock(str) {
   if (!str) return 0
-  // "11 x 36 Pz" → first number = number of cartons
   const m = str.match(/(\d+)\s*[xX×]/)
   if (m) return parseInt(m[1], 10)
   const n = parseInt(str.replace(/[^0-9]/g, ''), 10)
@@ -78,10 +80,19 @@ function buildSlug(name, sku) {
   return sku ? `${base}-${sku.toLowerCase().replace(/[^a-z0-9]/g, '')}` : base
 }
 
-// ─── Scraping helpers (run inside page.evaluate) ─────────────────────────
+// ─── Scraping helper (runs inside page.evaluate — must be self-contained) ──
 /**
  * Extract all products from the current catalog page DOM.
- * Called via page.evaluate() — must be self-contained (no closures over Node vars).
+ * Confirmed selectors from live page inspection (May 2026):
+ *   - Cards:   div.div_totcella
+ *   - Image:   img.foto_catalog  → src = https://www.wmphoto.it/products/{articolo}.jpg
+ *   - Name:    strong[3].innerText
+ *   - Price:   first "n,nnn" match in card.innerText
+ *   - SKU:     "Articolo XXXXXX" in card.innerText
+ *   - Stock:   "DISPONIBILITA' : XX x YY" in card.innerText
+ *   - EAN:     "CODICE EAN : XXXXXXXXXX" in card.innerText
+ *   - IVA:     "Iva XX%" in card.innerText
+ *   - Qty:     "X NN Pz" in card.innerText
  */
 function extractPageProducts() {
   const cards = document.querySelectorAll('div.div_totcella')
@@ -93,48 +104,41 @@ function extractPageProducts() {
       const imgEl = card.querySelector('img.foto_catalog')
       const imgSrc = imgEl ? imgEl.src : ''
 
-      // ── Description block ──────────────────────────────────────────────
-      const descrBlock = card.querySelector('div.div_descr')
-      if (!descrBlock) return
+      // ── Full text for regex extraction ─────────────────────────────────
+      const text = card.innerText || ''
 
-      const strongs = descrBlock.querySelectorAll('strong')
-      // strong[0] = product name, strong[2] = "Articolo XXXXXX Fornitore YYYYYY Iva ZZ%"
-      const name    = strongs[0] ? strongs[0].innerText.trim() : ''
-      const artLine = strongs[2] ? strongs[2].innerText.trim() : ''
+      // ── Name: strong[3] is the product name ────────────────────────────
+      const strongs = card.querySelectorAll('strong')
+      const name = strongs[3] ? strongs[3].innerText.trim() : ''
+      if (!name || name.length < 2) return
 
-      if (!name) return
-
-      // Parse Articolo (supplier SKU)
-      const artMatch = artLine.match(/Articolo\s+(\S+)/)
+      // ── SKU: "Articolo 212022" ──────────────────────────────────────────
+      const artMatch = text.match(/Articolo\s+(\d+)/)
       const sku = artMatch ? artMatch[1] : ''
 
-      // Parse IVA
-      const ivaMatch = artLine.match(/Iva\s+(\d+)%/)
+      // ── IVA: "Iva 22%" ─────────────────────────────────────────────────
+      const ivaMatch = text.match(/Iva\s+(\d+)%/)
       const iva = ivaMatch ? parseInt(ivaMatch[1], 10) : 22
 
-      // ── b tags: [0]=DISPONIBILITA', [1]=STRATO, [2]=CODICE EAN ─────────
-      const bTags = descrBlock.querySelectorAll('b')
-      const stockText = bTags[0] ? bTags[0].innerText.trim() : ''
-      const ean       = bTags[2] ? bTags[2].innerText.trim() : ''
+      // ── Stock: "DISPONIBILITA' : 11 x 36" ──────────────────────────────
+      const dispMatch = text.match(/DISPONIBILITA'?\s*:\s*([\d\s xX×]+)/)
+      const stockText = dispMatch ? dispMatch[1].trim() : ''
 
-      // ── Price block ────────────────────────────────────────────────────
-      const codiceBlock = card.querySelector('div.div_codice')
-      let priceText = ''
-      let qtyText   = ''
+      // ── EAN: "CODICE EAN : 8021684153808" ──────────────────────────────
+      const eanMatch = text.match(/CODICE EAN\s*:\s*(\d+)/)
+      const ean = eanMatch ? eanMatch[1] : ''
 
-      if (codiceBlock) {
-        // Data TDs = those without strong or input children
-        const tds = Array.from(codiceBlock.querySelectorAll('td'))
-        const dataTds = tds.filter(td =>
-          !td.querySelector('strong') && !td.querySelector('input')
-        )
-        // [0]=unit price "1,496", [1]=carton qty "X 36 Pz"
-        priceText = dataTds[0] ? dataTds[0].innerText.trim() : ''
-        qtyText   = dataTds[1] ? dataTds[1].innerText.trim() : ''
-      }
+      // ── Price: first decimal number e.g. "1,496" (Imballi price) ───────
+      const prices = text.match(/\d+,\d+/g)
+      const priceText = prices ? prices[0] : ''
+      if (!priceText) return
 
-      results.push({ name, sku, ean, iva, imgSrc, stockText, priceText, qtyText, artLine })
-    } catch (e) {
+      // ── Qty per carton: "X 36 Pz" ──────────────────────────────────────
+      const qtyMatch = text.match(/X\s*(\d+)\s*Pz/i)
+      const qtyText = qtyMatch ? qtyMatch[0] : ''
+
+      results.push({ name, sku, ean, iva, imgSrc, stockText, priceText, qtyText })
+    } catch (_) {
       // skip malformed card
     }
   })
@@ -147,7 +151,6 @@ async function main() {
   const startedAt = Date.now()
   const prisma = new PrismaClient()
 
-  // Create SyncLog entry
   const syncLog = await prisma.syncLog.create({
     data: { source: CONFIG.source, status: 'running' },
   })
@@ -162,7 +165,7 @@ async function main() {
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
-        '--ignore-certificate-errors',   // migroweb.it uses self-signed cert
+        '--ignore-certificate-errors',
         '--disable-dev-shm-usage',
         '--disable-gpu',
       ],
@@ -172,39 +175,53 @@ async function main() {
     await page.setViewport({ width: 1280, height: 900 })
 
     // ── 1. LOGIN ─────────────────────────────────────────────────────────
+    // Form: Codice CediCash + Codice Spedizione → click "Genera Password"
     const loginUrl = `${CONFIG.baseUrl}/MigroWeb/`
     log('Navigating to login page:', loginUrl)
     await page.goto(loginUrl, { waitUntil: 'networkidle2', timeout: 30000 })
 
-    // Find and fill login form (JSP form — typically name/password text inputs)
-    await page.waitForSelector('input[type="text"], input[name*="user"], input[name*="code"]', { timeout: 10000 })
+    // Step 1: Fill Codice CediCash + Codice Spedizione, click "Genera Password"
+    await page.waitForSelector('input[placeholder="Codice CediCash"]', { timeout: 10000 })
 
-    // Fill username field (first text input)
-    const userField = await page.$('input[type="text"]') ||
-                      await page.$('input[name*="user"]') ||
-                      await page.$('input[name*="cod"]')
-    if (!userField) throw new Error('Login: username field not found')
-    await userField.click({ clickCount: 3 })
-    await userField.type(CONFIG.user, { delay: 40 })
+    // Use evaluate to set values directly (more reliable in headless mode)
+    await page.evaluate((user) => {
+      const f1 = document.querySelector('input[placeholder="Codice CediCash"]')
+      const f2 = document.querySelector('input[placeholder="Codice Spedizione"]')
+      if (f1) f1.value = user
+      if (f2) f2.value = user
+    }, CONFIG.user)
 
-    // Fill password field
-    const passField = await page.$('input[type="password"]')
-    if (!passField) throw new Error('Login: password field not found')
-    await passField.click({ clickCount: 3 })
-    await passField.type(CONFIG.pass, { delay: 40 })
-
-    // Submit
     await Promise.all([
       page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 30000 }),
-      passField.press('Enter'),
+      page.evaluate(() => {
+        const btn = [...document.querySelectorAll('input[type=button], button')]
+          .find(el => (el.value || el.innerText || '').toLowerCase().includes('genera'))
+        if (btn) btn.click()
+      }),
+    ])
+
+    // Step 2: Enter password in the field that appears after "Genera Password"
+    await page.waitForSelector('input#password', { timeout: 10000 })
+    await page.evaluate((pass) => {
+      const f = document.getElementById('password')
+      if (f) f.value = pass
+    }, CONFIG.pass)
+
+    await Promise.all([
+      page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 30000 }),
+      page.evaluate(() => {
+        // Click the "L o g i n" button (value has spaces between letters)
+        const btn = [...document.querySelectorAll('input[type=button], input[type=submit], button')]
+          .find(el => (el.value || el.innerText || '').replace(/\s/g, '').toLowerCase() === 'login')
+        if (btn) btn.click()
+        else document.querySelector('form')?.submit()
+      }),
     ])
 
     const afterLoginUrl = page.url()
     log('After login URL:', afterLoginUrl)
-    if (afterLoginUrl.toLowerCase().includes('login') ||
-        afterLoginUrl.toLowerCase().includes('error') ||
-        afterLoginUrl === loginUrl) {
-      throw new Error(`Login failed — still at: ${afterLoginUrl}`)
+    if (!afterLoginUrl.includes('homepage.jsp')) {
+      throw new Error(`Login failed — unexpected URL: ${afterLoginUrl}`)
     }
     log('✅ Login successful')
 
@@ -213,8 +230,13 @@ async function main() {
     log('Loading product catalog:', catalogUrl)
     await page.goto(catalogUrl, { waitUntil: 'networkidle2', timeout: 30000 })
 
-    // Wait for first product card
-    await page.waitForSelector('div.div_totcella', { timeout: 20000 })
+    // Click "Vai" to load all products (without search filter = all items)
+    await page.waitForSelector('input[name="Vai"]', { timeout: 10000 })
+    await Promise.all([
+      page.waitForSelector('div.div_totcella', { timeout: 20000 }),
+      page.click('input[name="Vai"]'),
+    ])
+    log('✅ Catalog loaded')
 
     // ── 3. DETERMINE TOTAL PAGES ─────────────────────────────────────────
     const totalPages = await page.evaluate(() => {
@@ -230,38 +252,27 @@ async function main() {
     while (pageNum <= totalPages) {
       log(`Scraping page ${pageNum} / ${totalPages}...`)
 
-      // Wait for products to be visible
       await page.waitForSelector('div.div_totcella', { timeout: 15000 })
-
-      // Extract current page products
       const pageProducts = await page.evaluate(extractPageProducts)
 
-      const valid = pageProducts.filter(p => p.name && p.name.length > 1 && p.priceText)
-      log(`  → ${valid.length} products found (${pageProducts.length} total cards)`)
-      allProducts.push(...valid)
+      log(`  → ${pageProducts.length} products found`)
+      allProducts.push(...pageProducts)
 
       if (pageNum >= totalPages) break
 
-      // Navigate to next page by evaluating contapiu() JS function
-      // This increments vedipag1 and submits the form
+      // Navigate to next page via vaiapagina() JS function
+      const nextPage = pageNum + 1
       await Promise.all([
         page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 30000 }),
-        page.evaluate(() => {
-          // Try standard pagination function first
-          if (typeof contapiu === 'function') {
-            contapiu()
-          } else {
-            // Fallback: click next image button
-            const nextBtn = document.querySelector('img.next, img[onclick*="contapiu"]')
-            if (nextBtn) nextBtn.click()
-          }
-        }),
+        page.evaluate((n) => {
+          const gopag = document.getElementById('GOPAG')
+          if (gopag) gopag.value = String(n)
+          if (typeof vaiapagina === 'function') vaiapagina()
+        }, nextPage),
       ])
 
       pageNum++
-
-      // Small delay to be respectful to the server
-      await new Promise(r => setTimeout(r, 800))
+      await new Promise(r => setTimeout(r, 500))
     }
 
     log(`Total scraped: ${allProducts.length} products across ${pageNum} pages`)
@@ -282,11 +293,9 @@ async function main() {
       })
       log('DRY RUN complete — no DB changes made')
     } else {
-      // Close browser before DB ops to free memory
       await browser.close()
       browser = null
 
-      // Get default category (fallback for new products)
       const defaultCategory =
         await prisma.category.findFirst({ where: { slug: 'getranke' } }) ||
         await prisma.category.findFirst({ where: { slug: 'all' } }) ||
@@ -294,7 +303,6 @@ async function main() {
 
       if (!defaultCategory) throw new Error('No category found in DB — run seed first')
 
-      // Track all supplier SKUs seen in this sync
       const seenSkus = new Set()
 
       for (const item of allProducts) {
@@ -308,13 +316,10 @@ async function main() {
         const stockCount = parseStock(item.stockText)
         const unitQty    = parseUnitQty(item.qtyText)
         const sku        = item.sku || null
-
-        // Build unit label: "X 36 Pz" → "36 Stk/Karton"
-        const unitLabel = unitQty > 1 ? `${unitQty} Stk/Karton` : '1 Stk'
+        const unitLabel  = unitQty > 1 ? `${unitQty} Stk/Karton` : '1 Stk'
 
         if (sku) seenSkus.add(sku)
 
-        // Build image URL from articolo number
         const imgUrl = sku
           ? `https://www.wmphoto.it/products/${sku}.jpg`
           : (item.imgSrc || '')
@@ -324,14 +329,12 @@ async function main() {
           : await prisma.product.findFirst({ where: { name: item.name, supplierSource: CONFIG.source } })
 
         if (existing) {
-          // UPDATE price + stock
           const updates = {
             stock:        stockCount,
             costPrice:    costPrice,
-            active:       existing.active, // keep current active state
+            active:       existing.active,
             lastSyncedAt: new Date(),
           }
-          // Update sell price only if it changed by more than 2%
           const currentPrice = Number(existing.price)
           if (currentPrice > 0) {
             const priceDiff = Math.abs(currentPrice - sellPrice) / currentPrice
@@ -340,13 +343,10 @@ async function main() {
               log(`  💰 Price update: "${existing.name}" ${currentPrice.toFixed(2)} → ${sellPrice.toFixed(2)} CHF`)
             }
           }
-
           await prisma.product.update({ where: { id: existing.id }, data: updates })
           stats.updated++
         } else {
-          // NEW product — create inactive for admin review
           const slug = buildSlug(item.name, sku)
-
           await prisma.product.create({
             data: {
               name:           item.name,
@@ -358,7 +358,7 @@ async function main() {
               unit:           unitLabel,
               moq:            1,
               stock:          stockCount,
-              active:         false,  // admin must review + activate
+              active:         false,
               categoryId:     defaultCategory.id,
               supplierSku:    sku,
               supplierSource: CONFIG.source,
@@ -394,11 +394,11 @@ async function main() {
       }
     }
 
-    // ── 7. FINALIZE SYNC LOG ─────────────────────────────────────────────
+    // ── 7. FINALIZE ──────────────────────────────────────────────────────
     await prisma.syncLog.update({
       where: { id: syncLog.id },
       data: {
-        status:              CONFIG.dryRun ? 'success' : 'success',
+        status:              'success',
         productsFound:       stats.found,
         productsNew:         stats.new,
         productsUpdated:     stats.updated,
@@ -414,7 +414,6 @@ async function main() {
   } catch (err) {
     log('❌ Sync failed:', err.message)
     console.error(err)
-
     await prisma.syncLog.update({
       where: { id: syncLog.id },
       data: {
@@ -424,7 +423,6 @@ async function main() {
         finishedAt:   new Date(),
       },
     }).catch(() => {})
-
     process.exit(1)
   } finally {
     if (browser) await browser.close().catch(() => {})
