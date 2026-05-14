@@ -238,10 +238,14 @@ async function main() {
     await page.waitForSelector('input[value="Nuovo Ordine Catalogo"]', { timeout: 30000 })
     log('✅ Order page ready')
 
-    // Click button — may navigate main page OR load content in a child frame.
-    // Do NOT use waitForNavigation: if the button navigates a frame (not the main page),
-    // waitForNavigation never fires and we get a 60s timeout.
-    await page.click('input[value="Nuovo Ordine Catalogo"]')
+    // Click button via evaluate (not page.click) to avoid CDP protocol timeout.
+    // page.click() dispatches a real mouse event via CDP which can hang if the
+    // page is busy loading JS — evaluate() uses the in-DOM .click() method directly.
+    await page.evaluate(() => {
+      const btn = document.querySelector('input[value="Nuovo Ordine Catalogo"]')
+      if (!btn) throw new Error('Nuovo Ordine Catalogo button not found in DOM')
+      btn.click()
+    })
     log('Clicked Nuovo Ordine Catalogo — waiting for frames to load...')
 
     // Give the server time to create the order context and load frames
