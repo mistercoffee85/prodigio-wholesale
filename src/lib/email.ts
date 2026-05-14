@@ -1,13 +1,18 @@
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+// Lazy init — API key only needed at runtime, not at build time
+let _resend: Resend | null = null
+function getResend() {
+  if (!_resend) _resend = new Resend(process.env.RESEND_API_KEY!)
+  return _resend
+}
 
-const FROM    = process.env.EMAIL_FROM    ?? 'PRO.DI.GIO Grosshandel <contact@prodigio.ch>'
+const FROM    = process.env.EMAIL_FROM    ?? 'PRO.DI.GIO Grosshandel <onboarding@resend.dev>'
 const ADMIN   = process.env.ADMIN_EMAIL   ?? 'contact@prodigio.ch'
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://b2b.prodigio.ch'
 
 async function sendMail({ to, subject, html }: { to: string; subject: string; html: string }) {
-  const { error } = await resend.emails.send({ from: FROM, to, subject, html })
+  const { error } = await getResend().emails.send({ from: FROM, to, subject, html })
   if (error) throw new Error(`Resend error: ${error.message}`)
 }
 
