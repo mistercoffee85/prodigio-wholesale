@@ -18,7 +18,7 @@ export default function SuccessPage({ searchParams }: { searchParams: { order?: 
             </div>
           )}
           <p style={{ color: 'var(--gray-600)', marginBottom: 28, lineHeight: 1.75, fontSize: 15 }}>
-            Vielen Dank für Ihre Bestellung! Sie erhalten in Kürze eine Bestätigung per E-Mail mit allen Details. Bei Fragen: <a href="mailto:wholesale@prodigio.ch" style={{ color: 'var(--accent)' }}>wholesale@prodigio.ch</a>
+            Vielen Dank für Ihre Bestellung! Sie erhalten in Kürze eine Bestätigung per E-Mail mit allen Details. Bei Fragen: <a href="mailto:contact@prodigio.ch" style={{ color: 'var(--accent)' }}>contact@prodigio.ch</a>
           </p>
           <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link href="/dashboard" className="btn btn-black btn-lg">Meine Bestellungen</Link>

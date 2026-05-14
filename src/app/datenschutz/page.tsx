@@ -21,7 +21,7 @@ export default function DatenschutzPage() {
           <div className="card" style={{ padding: 'clamp(24px,4vw,48px)', lineHeight: 1.8, fontSize: 14.5 }}>
 
             <Section title="1. Verantwortliche Stelle">
-              PRO.DI.GIO GmbH, Dreispitz, 4142 Basel, Schweiz. E-Mail: wholesale@prodigio.ch. Telefon: +41 61 212 34 56.
+              PRO.DI.GIO GmbH, Dreispitz, 4142 Basel, Schweiz. E-Mail: contact@prodigio.ch. Telefon: +41 61 212 34 56.
             </Section>
 
             <Section title="2. Erhobene Daten">
@@ -41,7 +41,7 @@ export default function DatenschutzPage() {
             </Section>
 
             <Section title="6. Ihre Rechte">
-              Sie haben das Recht auf Auskunft, Berichtigung, Löschung und Einschränkung der Verarbeitung Ihrer Daten. Wenden Sie sich dazu an: wholesale@prodigio.ch.
+              Sie haben das Recht auf Auskunft, Berichtigung, Löschung und Einschränkung der Verarbeitung Ihrer Daten. Wenden Sie sich dazu an: contact@prodigio.ch.
             </Section>
 
             <Section title="7. Cookies">
@@ -49,7 +49,7 @@ export default function DatenschutzPage() {
             </Section>
 
             <Section title="8. Anwendbares Recht">
-              Es gilt das Schweizer Datenschutzgesetz (DSG). Bei Fragen zum Datenschutz wenden Sie sich bitte an wholesale@prodigio.ch.
+              Es gilt das Schweizer Datenschutzgesetz (DSG). Bei Fragen zum Datenschutz wenden Sie sich bitte an contact@prodigio.ch.
             </Section>
 
           </div>

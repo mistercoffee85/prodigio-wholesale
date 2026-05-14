@@ -26,7 +26,7 @@ export default function ImpressumPage() {
                   ['Firma', 'PRO.DI.GIO GmbH'],
                   ['Adresse', 'Dreispitz, 4142 Basel, Schweiz'],
                   ['Telefon', '+41 61 212 34 56'],
-                  ['E-Mail', 'wholesale@prodigio.ch'],
+                  ['E-Mail', 'contact@prodigio.ch'],
                   ['Web', 'www.prodigio.ch'],
                   ['Rechtsform', 'GmbH (Gesellschaft mit beschränkter Haftung)'],
                   ['Handelsregister', 'Kanton Basel-Stadt'],

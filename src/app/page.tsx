@@ -543,7 +543,7 @@ export default async function HomePage() {
             }}>
               Kostenlos registrieren →
             </Link>
-            <a href="mailto:wholesale@prodigio.ch" style={{
+            <a href="mailto:contact@prodigio.ch" style={{
               display:'inline-flex', alignItems:'center', gap:9,
               border:'1.5px solid var(--gray-200)', color:'var(--black)',
               padding:'15px 32px', borderRadius:14,

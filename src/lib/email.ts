@@ -10,7 +10,7 @@ const transporter = nodemailer.createTransport({
   },
 })
 
-const FROM = process.env.EMAIL_FROM ?? 'PRO.DI.GIO Grosshandel <wholesale@prodigio.ch>'
+const FROM = process.env.EMAIL_FROM ?? 'PRO.DI.GIO Grosshandel <contact@prodigio.ch>'
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
 
 function baseTemplate(content: string): string {
@@ -45,7 +45,7 @@ function baseTemplate(content: string): string {
     </div>
     <div class="body">${content}</div>
     <div class="footer">
-      PRO.DI.GIO GmbH · Dreispitz, 4142 Basel · wholesale@prodigio.ch · +41 61 212 34 56<br/>
+      PRO.DI.GIO GmbH · Dreispitz, 4142 Basel · contact@prodigio.ch · +41 61 212 34 56<br/>
       <a href="${APP_URL}" style="color:#1a9e7a;">wholesale.prodigio.ch</a>
     </div>
   </div>
@@ -64,7 +64,7 @@ export async function sendWelcomeEmail(to: string, name: string, companyName: st
       <p>Vielen Dank für Ihre Registrierung als B2B-Kunde bei PRO.DI.GIO Grosshandel.</p>
       <p>Ihr Konto für <strong>${companyName}</strong> wird momentan von unserem Team geprüft. Sie erhalten innerhalb von 1 Werktag eine Bestätigung.</p>
       <p>Bei Fragen stehen wir Ihnen gerne zur Verfügung:</p>
-      <a href="mailto:wholesale@prodigio.ch" class="btn">Kontakt aufnehmen</a>
+      <a href="mailto:contact@prodigio.ch" class="btn">Kontakt aufnehmen</a>
       <p style="color:#9e9e9e; font-size:13px;">PRO.DI.GIO GmbH · Basel, Schweiz</p>
     `),
   })
@@ -80,7 +80,7 @@ export async function sendApprovalEmail(to: string, name: string) {
       <p>Ihr B2B-Konto wurde erfolgreich von unserem Team geprüft und <span class="badge badge-green">freigegeben</span>.</p>
       <p>Sie können sich jetzt anmelden und unser komplettes Sortiment zu Grosshandelspreisen bestellen.</p>
       <a href="${APP_URL}/login" class="btn">Jetzt einloggen →</a>
-      <p>Bei Fragen: <a href="mailto:wholesale@prodigio.ch" style="color:#1a9e7a;">wholesale@prodigio.ch</a></p>
+      <p>Bei Fragen: <a href="mailto:contact@prodigio.ch" style="color:#1a9e7a;">contact@prodigio.ch</a></p>
     `),
   })
 }
@@ -93,7 +93,7 @@ export async function sendRejectionEmail(to: string, name: string) {
       <h2>Hallo ${name}</h2>
       <p>Leider können wir Ihre Registrierung aktuell nicht genehmigen.</p>
       <p>Für weitere Informationen kontaktieren Sie uns bitte direkt:</p>
-      <a href="mailto:wholesale@prodigio.ch" class="btn">E-Mail senden</a>
+      <a href="mailto:contact@prodigio.ch" class="btn">E-Mail senden</a>
     `),
   })
 }

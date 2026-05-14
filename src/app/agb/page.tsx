@@ -53,7 +53,7 @@ export default function AGBPage() {
             </Section>
 
             <Section title="9. Kontakt">
-              PRO.DI.GIO GmbH · Dreispitz, 4142 Basel · Tel: +41 61 212 34 56 · E-Mail: wholesale@prodigio.ch
+              PRO.DI.GIO GmbH · Dreispitz, 4142 Basel · Tel: +41 61 212 34 56 · E-Mail: contact@prodigio.ch
             </Section>
 
           </div>

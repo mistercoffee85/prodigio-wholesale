@@ -258,12 +258,12 @@ export default async function DashboardPage() {
               <p style={{ fontSize: 12.5, opacity: .7, lineHeight: 1.6, marginBottom: 14 }}>
                 Fragen zu Ihrer Bestellung oder zum Sortiment?
               </p>
-              <a href="mailto:wholesale@prodigio.ch" style={{
+              <a href="mailto:contact@prodigio.ch" style={{
                 display: 'block', textAlign: 'center', padding: '10px',
                 background: 'rgba(255,255,255,.15)', borderRadius: 'var(--radius)',
                 color: 'white', textDecoration: 'none', fontSize: 13, fontWeight: 600,
               }}>
-                wholesale@prodigio.ch
+                contact@prodigio.ch
               </a>
             </div>
           </div>

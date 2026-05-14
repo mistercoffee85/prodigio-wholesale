@@ -78,7 +78,7 @@ export default function Footer() {
               { icon: '🏢', text: 'PRO.DI.GIO GmbH' },
               { icon: '📍', text: 'Dreispitz, 4142 Basel' },
               { icon: '📞', text: '+41 61 212 34 56', href: 'tel:+41612123456' },
-              { icon: '✉️', text: 'wholesale@prodigio.ch', href: 'mailto:wholesale@prodigio.ch' },
+              { icon: '✉️', text: 'contact@prodigio.ch', href: 'mailto:contact@prodigio.ch' },
             ].map(({ icon, text, href }) => (
               <li key={text} style={{ display: 'flex', gap: 10, fontSize: 13.5, color: 'rgba(255,255,255,.65)' }}>
                 <span style={{ flexShrink: 0, opacity: .6 }}>{icon}</span>

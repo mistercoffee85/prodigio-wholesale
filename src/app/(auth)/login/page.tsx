@@ -121,7 +121,7 @@ function LoginForm() {
           <div style={{ marginTop: 28, padding: '18px 20px', background: 'white', borderRadius: 'var(--radius-lg)', border: '1px solid var(--gray-100)', textAlign: 'center' }}>
             <p style={{ fontSize: 13, color: 'var(--gray-400)', lineHeight: 1.6 }}>
               Nur für registrierte B2B-Kunden.<br />
-              Fragen? <a href="mailto:wholesale@prodigio.ch" style={{ color: 'var(--accent)', fontWeight: 600 }}>wholesale@prodigio.ch</a>
+              Fragen? <a href="mailto:contact@prodigio.ch" style={{ color: 'var(--accent)', fontWeight: 600 }}>contact@prodigio.ch</a>
             </p>
           </div>
         </div>
