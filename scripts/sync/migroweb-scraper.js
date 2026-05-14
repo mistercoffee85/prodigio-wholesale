@@ -256,24 +256,13 @@ async function main() {
       } catch (_) {}
     }
 
-    // Click "Vai" — triggers form submit/page reload with all products
-    await Promise.all([
-      page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 60000 }),
-      catalogFrame.evaluate(() => {
-        document.querySelector('input[name="Vai"]')?.click()
-      }),
-    ])
-    await page.waitForSelector('div.div_totcella', { timeout: 30000 })
+    // Click "Vai" — loads products into the page (AJAX, no navigation)
+    await catalogFrame.evaluate(() => {
+      document.querySelector('input[name="Vai"]')?.click()
+    })
+    // Wait for products to appear (AJAX load, can take a while)
+    await catalogFrame.waitForSelector('div.div_totcella', { timeout: 90000 })
     log('✅ Products loaded')
-
-    // Re-detect catalogFrame after reload
-    const framesAfter = page.frames()
-    for (const frame of framesAfter) {
-      try {
-        const hasCards = await frame.evaluate(() => !!document.querySelector('div.div_totcella'))
-        if (hasCards) { catalogFrame = frame; break }
-      } catch (_) {}
-    }
 
     // ── 3. DETERMINE TOTAL PAGES ─────────────────────────────────────────
     const totalPages = await catalogFrame.evaluate(() => {
