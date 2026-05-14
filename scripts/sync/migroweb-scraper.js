@@ -226,15 +226,26 @@ async function main() {
     log('✅ Login successful')
 
     // ── 2. NAVIGATE TO PRODUCT CATALOG ───────────────────────────────────
-    // Navigate directly to catalog — domcontentloaded is enough for JSP pages
-    const catalogUrl = `${CONFIG.baseUrl}/MigroWeb/insordiniCat.jsp`
-    log('Loading catalog page:', catalogUrl)
-    await page.goto(catalogUrl, { waitUntil: 'domcontentloaded', timeout: 60000 })
-    // Wait for the filter form to be ready
-    await page.waitForSelector('input[name="Vai"]', { timeout: 20000 })
-    log('✅ Catalog page ready')
+    // Go through gestione_ordini.jsp first (required for catalog session context)
+    const ordiniUrl = `${CONFIG.baseUrl}/MigroWeb/gestione_ordini.jsp`
+    log('Loading order page:', ordiniUrl)
+    await page.goto(ordiniUrl, { waitUntil: 'domcontentloaded', timeout: 60000 })
+    await page.waitForSelector('input[value="Nuovo Ordine Catalogo"]', { timeout: 30000 })
+    log('✅ Order page ready')
+
+    // Click "Nuovo Ordine Catalogo" → navigates to insordiniCat.jsp
+    await Promise.all([
+      page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 60000 }),
+      page.evaluate(() => {
+        const btn = [...document.querySelectorAll('input[type=button], button')]
+          .find(el => (el.value || el.innerText || '').includes('Catalogo'))
+        if (btn) btn.click()
+      }),
+    ])
+    log('✅ Catalog page ready:', page.url())
 
     // Click "Vai" to load all products (no filter = full catalog)
+    await page.waitForSelector('input[name="Vai"]', { timeout: 20000 })
     await Promise.all([
       page.waitForSelector('div.div_totcella', { timeout: 30000 }),
       page.evaluate(() => {
