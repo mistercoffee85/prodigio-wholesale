@@ -226,17 +226,33 @@ async function main() {
     log('✅ Login successful')
 
     // ── 2. NAVIGATE TO PRODUCT CATALOG ───────────────────────────────────
-    const catalogUrl = `${CONFIG.baseUrl}/MigroWeb/insordiniCat.jsp`
-    log('Loading product catalog:', catalogUrl)
-    await page.goto(catalogUrl, { waitUntil: 'networkidle2', timeout: 30000 })
+    // Must go through gestione_ordini.jsp → click "Nuovo Ordine Catalogo"
+    const ordiniUrl = `${CONFIG.baseUrl}/MigroWeb/gestione_ordini.jsp`
+    log('Loading order management page:', ordiniUrl)
+    await page.goto(ordiniUrl, { waitUntil: 'networkidle2', timeout: 30000 })
 
-    // Click "Vai" to load all products (without search filter = all items)
+    // Click "Nuovo Ordine Catalogo" button
+    await page.waitForSelector('input[value="Nuovo Ordine Catalogo"]', { timeout: 10000 })
+    await Promise.all([
+      page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 30000 }),
+      page.evaluate(() => {
+        const btn = [...document.querySelectorAll('input[type=button], button')]
+          .find(el => (el.value || el.innerText || '').includes('Catalogo'))
+        if (btn) btn.click()
+      }),
+    ])
+    log('✅ Catalog page loaded:', page.url())
+
+    // Click "Vai" to load all products
     await page.waitForSelector('input[name="Vai"]', { timeout: 10000 })
     await Promise.all([
       page.waitForSelector('div.div_totcella', { timeout: 20000 }),
-      page.click('input[name="Vai"]'),
+      page.evaluate(() => {
+        const btn = document.querySelector('input[name="Vai"]')
+        if (btn) btn.click()
+      }),
     ])
-    log('✅ Catalog loaded')
+    log('✅ Products loaded')
 
     // ── 3. DETERMINE TOTAL PAGES ─────────────────────────────────────────
     const totalPages = await page.evaluate(() => {
