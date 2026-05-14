@@ -295,35 +295,89 @@ async function main() {
     })
     log('Button details:', JSON.stringify(btnDetails))
 
-    // Intercept requests made by the button click
+    // Log the onclick JS function body so we know what it does
+    const funcBody = await ordiniFound.frame.evaluate(() => {
+      return typeof nuovo_ordine_car === 'function' ? nuovo_ordine_car.toString() : 'FUNCTION NOT FOUND'
+    })
+    log('nuovo_ordine_car():', funcBody)
+
+    // Auto-accept any dialogs (confirm/alert) that the onclick function might show.
+    // In headless mode, confirm() returns false by default, preventing form submission.
+    page.on('dialog', async dialog => {
+      log('Dialog intercepted:', dialog.type(), dialog.message())
+      await dialog.accept()
+    })
+
+    // Intercept network requests to see what the button click does
     const capturedRequests = []
     page.on('request', req => {
-      if (!req.url().includes('static') && !req.url().includes('.js') && !req.url().includes('.css')) {
+      if (!req.url().includes('.js') && !req.url().includes('.css') && !req.url().includes('.ico')) {
         capturedRequests.push(`${req.method()} ${req.url()}`)
       }
     })
 
-    // Click the button via evaluate (fire-and-forget to avoid context-destroyed timeout)
+    // Click via evaluate (fire-and-forget to avoid CDP context-destroyed timeout)
     ordiniFound.frame.evaluate(() => {
       const btn = document.querySelector('input[value="Nuovo Ordine Catalogo"]')
       if (btn) btn.click()
-    }).catch(() => {}) // context destroyed on navigation is expected
+    }).catch(() => {})
 
-    log('Clicked Nuovo Ordine Catalogo — waiting 20s for catalog to load...')
+    log('Clicked — waiting 20s...')
     await new Promise(r => setTimeout(r, 20000))
 
     page.removeAllListeners('request')
-    log('Requests captured:', JSON.stringify(capturedRequests.slice(0, 15)))
-    log('Main page URL after click:', page.url())
+    page.removeAllListeners('dialog')
+    log('Requests after click:', JSON.stringify(capturedRequests.slice(0, 15)))
+    log('URL after click:', page.url())
 
     allFrames = page.frames()
     log(`Frames after click: ${allFrames.length}`)
     for (const f of allFrames) log(`  Frame: ${f.url()}`)
 
-    // Find Vai button in any frame (with 3s per-frame timeout to avoid CDP freeze)
+    // If click didn't navigate, try submitting the form directly (bypass onclick)
+    if (capturedRequests.length === 0) {
+      log('No requests from click — submitting form directly (bypassing onclick)...')
+
+      // Re-setup dialog handler
+      page.on('dialog', async dialog => {
+        log('Dialog (form submit):', dialog.type(), dialog.message())
+        await dialog.accept()
+      })
+
+      const capturedRequests2 = []
+      page.on('request', req => {
+        if (!req.url().includes('.js') && !req.url().includes('.css') && !req.url().includes('.ico')) {
+          capturedRequests2.push(`${req.method()} ${req.url()}`)
+        }
+      })
+
+      // Submit form directly, bypassing onclick
+      ordiniFound.frame.evaluate(() => {
+        // Set tastopremuto to signal which action was taken
+        const tastone = document.querySelector('input[name="tastopremuto"]')
+        if (tastone) tastone.value = 'nuovocar'
+        // Submit form natively without triggering onclick
+        const form = document.forms[0]
+        if (form) HTMLFormElement.prototype.submit.call(form)
+      }).catch(() => {})
+
+      log('Form submitted directly — waiting 20s...')
+      await new Promise(r => setTimeout(r, 20000))
+
+      page.removeAllListeners('request')
+      page.removeAllListeners('dialog')
+      log('Requests (direct submit):', JSON.stringify(capturedRequests2.slice(0, 15)))
+      log('URL after form submit:', page.url())
+
+      allFrames = page.frames()
+      log(`Frames after form submit: ${allFrames.length}`)
+      for (const f of allFrames) log(`  Frame: ${f.url()}`)
+    }
+
+    // Find Vai button in any frame
     const vaiFound = await findFrameWithSelector(allFrames, 'input[name="Vai"]')
     if (!vaiFound) {
-      throw new Error('Vai button not found in any frame after clicking Nuovo Ordine Catalogo')
+      throw new Error('Vai button not found in any frame — check button onclick and form action')
     }
 
     let catalogFrame = vaiFound.frame
