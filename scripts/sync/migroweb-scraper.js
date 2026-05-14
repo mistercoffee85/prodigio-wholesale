@@ -464,6 +464,11 @@ async function main() {
       const fallbackCatId = catIdBySlug[CATEGORY_FALLBACK]
       if (!fallbackCatId) throw new Error('Grosshandel categories not found — run scripts/setup-categories.js first')
 
+      // Load per-category markup factors from DB settings (fallback: CONFIG.markupFactor)
+      const markupSetting = await prisma.setting.findUnique({ where: { key: 'markup_factors' } })
+      const markupFactors = markupSetting ? JSON.parse(markupSetting.value) : {}
+      log(`Loaded markup factors: ${JSON.stringify(markupFactors)}`)
+
       // ── BULK DB SYNC (fast: 1 findMany + 1 createMany + batched updates) ──
       // Load all existing migroweb products in one query (avoid N+1 queries)
       log('Loading existing products from DB...')
@@ -484,7 +489,9 @@ async function main() {
         const costPrice = parsePrice(item.priceText)
         if (!costPrice || costPrice <= 0) continue
 
-        const sellPrice  = calcSellPrice(costPrice, CONFIG.markupFactor)
+        const catSlugForMarkup = categorizeName(item.name)
+        const factor = markupFactors[catSlugForMarkup] ?? CONFIG.markupFactor
+        const sellPrice  = calcSellPrice(costPrice, factor)
         const stockCount = parseStock(item.stockText)
         const unitQty    = parseUnitQty(item.qtyText)
         const sku        = item.sku || null
@@ -538,6 +545,8 @@ async function main() {
         } else {
           const catSlug = categorizeName(item.name)
           const categoryId = catIdBySlug[catSlug] || fallbackCatId
+          // Use per-category markup if configured, else global MARKUP_FACTOR
+          const effectiveFactor = markupFactors[catSlug] ?? CONFIG.markupFactor
 
           toCreate.push({
             name:           item.name,
