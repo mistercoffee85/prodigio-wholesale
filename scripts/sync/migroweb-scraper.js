@@ -84,15 +84,17 @@ function buildSlug(name, sku) {
 /**
  * Extract all products from the current catalog page DOM.
  * Confirmed selectors from live page inspection (May 2026):
- *   - Cards:   div.div_totcella
- *   - Image:   img.foto_catalog  → src = https://www.wmphoto.it/products/{articolo}.jpg
- *   - Name:    strong[3].innerText
- *   - Price:   first "n,nnn" match in card.innerText
- *   - SKU:     "Articolo XXXXXX" in card.innerText
- *   - Stock:   "DISPONIBILITA' : XX x YY" in card.innerText
- *   - EAN:     "CODICE EAN : XXXXXXXXXX" in card.innerText
- *   - IVA:     "Iva XX%" in card.innerText
- *   - Qty:     "X NN Pz" in card.innerText
+ *   - Cards:      div.div_totcella
+ *   - Image:      img.foto_catalog  (real URL from Migroweb CDN)
+ *   - Name:       strong[3].innerText
+ *   - Brand:      strong[0] or strong[1] (producer/brand label)
+ *   - Price:      first "n,nnn" match in card.innerText (cost price per carton)
+ *   - SKU:        "Articolo XXXXXX" in card.innerText
+ *   - Stock:      "DISPONIBILITA' : XX x YY" in card.innerText
+ *   - EAN:        "CODICE EAN : XXXXXXXXXX" in card.innerText
+ *   - IVA:        "Iva XX%" in card.innerText
+ *   - VE:         "X NN Pz" in card.innerText  (Verkaufseinheit / sales unit)
+ *   - Description: all td/span text blocks for additional product info
  */
 function extractPageProducts() {
   const cards = document.querySelectorAll('div.div_totcella')
@@ -112,32 +114,50 @@ function extractPageProducts() {
       const name = strongs[3] ? strongs[3].innerText.trim() : ''
       if (!name || name.length < 2) return
 
+      // ── Brand: try strong[0], strong[1], strong[2] for producer name ───
+      let brand = ''
+      for (let i = 0; i <= 2; i++) {
+        const t = strongs[i] ? strongs[i].innerText.trim() : ''
+        if (t && t.length > 1 && !/^\d+$/.test(t) && !t.toLowerCase().includes('articolo')) {
+          brand = t
+          break
+        }
+      }
+
       // ── SKU: "Articolo 212022" ──────────────────────────────────────────
-      const artMatch = text.match(/Articolo\s+(\d+)/)
+      const artMatch = text.match(/Articolo\s+(\d+)/i)
       const sku = artMatch ? artMatch[1] : ''
 
       // ── IVA: "Iva 22%" ─────────────────────────────────────────────────
-      const ivaMatch = text.match(/Iva\s+(\d+)%/)
+      const ivaMatch = text.match(/Iva\s+(\d+)%/i)
       const iva = ivaMatch ? parseInt(ivaMatch[1], 10) : 22
 
       // ── Stock: "DISPONIBILITA' : 11 x 36" ──────────────────────────────
-      const dispMatch = text.match(/DISPONIBILITA'?\s*:\s*([\d\s xX×]+)/)
+      const dispMatch = text.match(/DISPONIBILITA'?\s*:\s*([\d\s xX×]+)/i)
       const stockText = dispMatch ? dispMatch[1].trim() : ''
 
       // ── EAN: "CODICE EAN : 8021684153808" ──────────────────────────────
-      const eanMatch = text.match(/CODICE EAN\s*:\s*(\d+)/)
+      const eanMatch = text.match(/CODICE EAN\s*:\s*(\d+)/i)
       const ean = eanMatch ? eanMatch[1] : ''
 
-      // ── Price: first decimal number e.g. "1,496" (Imballi price) ───────
+      // ── Price: first decimal number e.g. "1,496" (Imballi/carton price) ─
       const prices = text.match(/\d+,\d+/g)
       const priceText = prices ? prices[0] : ''
       if (!priceText) return
 
-      // ── Qty per carton: "X 36 Pz" ──────────────────────────────────────
-      const qtyMatch = text.match(/X\s*(\d+)\s*Pz/i)
-      const qtyText = qtyMatch ? qtyMatch[0] : ''
+      // ── VE: "X 36 Pz" → store as "36 Pz" (1:1 from Migroweb) ──────────
+      const veMatch = text.match(/X\s*(\d+)\s*Pz/i)
+      const veText = veMatch ? veMatch[0].replace(/^X\s*/i, '').trim() : ''  // "36 Pz"
+      const qtyText = veMatch ? veMatch[0] : ''  // kept for parseUnitQty compat
 
-      results.push({ name, sku, ean, iva, imgSrc, stockText, priceText, qtyText })
+      // ── Extra description lines (td content beyond the name) ──────────
+      // Grab all visible text cells that look like product attributes
+      const descParts = []
+      if (ean)       descParts.push(`EAN: ${ean}`)
+      if (veText)    descParts.push(`VE: ${veText}`)
+      if (brand)     descParts.push(`Marke: ${brand}`)
+
+      results.push({ name, brand, sku, ean, iva, imgSrc, stockText, priceText, qtyText, veText, descParts })
     } catch (_) {
       // skip malformed card
     }
@@ -405,7 +425,8 @@ async function main() {
         const cost = parsePrice(p.priceText)
         const sell = cost ? calcSellPrice(cost, CONFIG.markupFactor) : null
         log(`  [${i + 1}] ${p.name}`)
-        log(`       SKU=${p.sku}  EAN=${p.ean}  cost=${p.priceText}(${cost})  sell=${sell}  stock="${p.stockText}"  qty="${p.qtyText}"`)
+        log(`       SKU=${p.sku}  EAN=${p.ean}  brand="${p.brand}"  VE="${p.veText}"  img="${p.imgSrc}"`)
+        log(`       cost=${p.priceText}(${cost})  sell=${sell}  stock="${p.stockText}"`)
       })
       log('DRY RUN complete — no DB changes made')
     } else {
@@ -424,7 +445,7 @@ async function main() {
       log('Loading existing products from DB...')
       const existingRows = await prisma.product.findMany({
         where: { supplierSource: CONFIG.source },
-        select: { id: true, supplierSku: true, name: true, price: true },
+        select: { id: true, supplierSku: true, name: true, price: true, images: true },
       })
       const bySkuMap  = new Map(existingRows.filter(p => p.supplierSku).map(p => [p.supplierSku, p]))
       const byNameMap = new Map(existingRows.filter(p => !p.supplierSku).map(p => [p.name, p]))
@@ -443,40 +464,73 @@ async function main() {
         const stockCount = parseStock(item.stockText)
         const unitQty    = parseUnitQty(item.qtyText)
         const sku        = item.sku || null
-        const unitLabel  = unitQty > 1 ? `${unitQty} Stk/Karton` : '1 Stk'
+
+        // ── VE: use Migroweb text 1:1 (e.g. "36 Pz"), fallback computed ──
+        const unitLabel = item.veText || (unitQty > 1 ? `${unitQty} Pz` : '1 Pz')
+
+        // ── Brand: from card, fallback to 'Migroweb' ─────────────────────
+        const brand = item.brand || 'Migroweb'
+
+        // ── Image: direct src from img.foto_catalog ───────────────────────
+        const imgUrl = item.imgSrc || (sku ? `https://www.wmphoto.it/products/${sku}.jpg` : '')
+
+        // ── Details: structured info from Migroweb card ───────────────────
+        const details = {}
+        if (item.ean)      details['EAN']            = item.ean
+        if (item.iva)      details['MwSt']           = `${item.iva}%`
+        if (unitLabel)     details['VE']             = unitLabel
+        if (item.stockText) details['Verfügbarkeit'] = item.stockText
+        if (sku)           details['Artikelnr.']     = sku
+
+        // ── Description: name + key details (min 10 chars) ───────────────
+        const descParts = [item.name]
+        if (item.veText) descParts.push(`VE: ${item.veText}`)
+        if (item.ean)    descParts.push(`EAN: ${item.ean}`)
+        const description = descParts.join(' | ').padEnd(10, '.')
 
         if (sku) seenSkus.add(sku)
 
         const existing = sku ? bySkuMap.get(sku) : byNameMap.get(item.name)
 
         if (existing) {
-          const data = { stock: stockCount, costPrice, lastSyncedAt: now }
+          const data = {
+            stock:        stockCount,
+            costPrice,
+            lastSyncedAt: now,
+            unit:         unitLabel,   // always keep VE in sync with supplier
+            details,                   // refresh details each sync
+          }
+          // Only update sell price if drift > 2%
           const currentPrice = Number(existing.price)
           if (currentPrice > 0 && Math.abs(currentPrice - sellPrice) / currentPrice > 0.02) {
             data.price = sellPrice
           }
+          // Update image if currently empty
+          if (imgUrl && (!existing.images || existing.images.length === 0)) {
+            data.images = [imgUrl]
+          }
           toUpdate.push({ id: existing.id, data })
           stats.updated++
         } else {
-          const imgUrl = sku ? `https://www.wmphoto.it/products/${sku}.jpg` : (item.imgSrc || '')
           toCreate.push({
             name:           item.name,
             slug:           buildSlug(item.name, sku),
-            description:    item.name,
-            brand:          'Migroweb',
+            description,
+            brand,
             emoji:          '📦',
             price:          sellPrice,
             unit:           unitLabel,
             moq:            1,
             stock:          stockCount,
-            active:         false,
+            active:         true,      // visible immediately
             categoryId:     defaultCategory.id,
             supplierSku:    sku,
             supplierSource: CONFIG.source,
-            costPrice:      costPrice,
+            costPrice,
             lastSyncedAt:   now,
             syncManaged:    true,
             images:         imgUrl ? [imgUrl] : [],
+            details,
           })
           stats.new++
         }
