@@ -236,32 +236,35 @@ async function main() {
     // Session is now established — navigate directly to catalog
     const catalogUrl = `${CONFIG.baseUrl}/MigroWeb/insordiniCat.jsp`
     log('Loading catalog:', catalogUrl)
-    await page.goto(catalogUrl, { waitUntil: 'domcontentloaded', timeout: 60000 })
+    await page.goto(catalogUrl, { waitUntil: 'networkidle2', timeout: 90000 })
 
-    // Debug: log current URL and page title
-    const catUrl = page.url()
-    const catTitle = await page.title()
-    const catInputs = await page.evaluate(() =>
-      [...document.querySelectorAll('input')].map(i => i.name + '|' + i.type + '|' + i.value).join(', ')
-    )
-    log('Catalog URL:', catUrl)
-    log('Catalog title:', catTitle)
-    log('Catalog inputs:', catInputs.substring(0, 300))
+    // Find the frame that contains the catalog form (may be in a child frame)
+    const allFrames = page.frames()
+    log(`Page frames: ${allFrames.length}`)
+    allFrames.forEach((f, i) => log(`  Frame ${i}: ${f.url()}`))
 
-    await page.waitForSelector('input[name="Vai"]', { timeout: 20000 })
-    log('✅ Catalog page ready')
+    // Find the frame that has input[name="Vai"]
+    let catalogFrame = page.mainFrame()
+    for (const frame of allFrames) {
+      try {
+        const hasVai = await frame.evaluate(() => !!document.querySelector('input[name="Vai"]'))
+        if (hasVai) {
+          catalogFrame = frame
+          log('Found Vai button in frame:', frame.url())
+          break
+        }
+      } catch (_) {}
+    }
 
-    // Click "Vai" to load all products (no filter = full catalog)
-    await Promise.all([
-      page.waitForSelector('div.div_totcella', { timeout: 30000 }),
-      page.evaluate(() => {
-        document.querySelector('input[name="Vai"]')?.click()
-      }),
-    ])
+    // Click "Vai" to load all products
+    await catalogFrame.evaluate(() => {
+      document.querySelector('input[name="Vai"]')?.click()
+    })
+    await catalogFrame.waitForSelector('div.div_totcella', { timeout: 30000 })
     log('✅ Products loaded')
 
     // ── 3. DETERMINE TOTAL PAGES ─────────────────────────────────────────
-    const totalPages = await page.evaluate(() => {
+    const totalPages = await catalogFrame.evaluate(() => {
       const el = document.querySelector('input#PAGTOT')
       return el ? parseInt(el.value, 10) : 1
     })
@@ -274,8 +277,8 @@ async function main() {
     while (pageNum <= totalPages) {
       log(`Scraping page ${pageNum} / ${totalPages}...`)
 
-      await page.waitForSelector('div.div_totcella', { timeout: 15000 })
-      const pageProducts = await page.evaluate(extractPageProducts)
+      await catalogFrame.waitForSelector('div.div_totcella', { timeout: 15000 })
+      const pageProducts = await catalogFrame.evaluate(extractPageProducts)
 
       log(`  → ${pageProducts.length} products found`)
       allProducts.push(...pageProducts)
@@ -285,8 +288,8 @@ async function main() {
       // Navigate to next page via vaiapagina() JS function
       const nextPage = pageNum + 1
       await Promise.all([
-        page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 30000 }),
-        page.evaluate((n) => {
+        catalogFrame.waitForNavigation({ waitUntil: 'networkidle2', timeout: 30000 }),
+        catalogFrame.evaluate((n) => {
           const gopag = document.getElementById('GOPAG')
           if (gopag) gopag.value = String(n)
           if (typeof vaiapagina === 'function') vaiapagina()
