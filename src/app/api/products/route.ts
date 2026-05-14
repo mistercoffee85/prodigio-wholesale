@@ -11,6 +11,7 @@ export async function GET(req: NextRequest) {
     const category = searchParams.get('category')
     const search   = searchParams.get('search')
     const badge    = searchParams.get('badge')
+    const supplier = searchParams.get('supplier') // 'own' = no supplierSource, else exact match
     const page     = Number(searchParams.get('page') ?? 1)
     const limit    = Number(searchParams.get('limit') ?? 100)
 
@@ -32,9 +33,14 @@ export async function GET(req: NextRequest) {
       }
     }
 
+    const supplierFilter = supplier === 'own'
+      ? { supplierSource: null }
+      : supplier ? { supplierSource: supplier } : {}
+
     const where = {
       active: true,
       ...categoryFilter,
+      ...supplierFilter,
       ...(badge && { badge }),
       ...(search && {
         OR: [

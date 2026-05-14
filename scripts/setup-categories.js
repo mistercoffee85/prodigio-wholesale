@@ -95,8 +95,8 @@ async function main() {
   // 1. Create "Grosshandel" parent
   const parent = await p.category.upsert({
     where: { slug: 'grosshandel' },
-    update: { name: 'Grosshandel', emoji: '🏭', sortOrder: 10 },
-    create: { name: 'Grosshandel', slug: 'grosshandel', emoji: '🏭', sortOrder: 10, active: true },
+    update: { name: 'Cash & Carry', emoji: '🏪', sortOrder: 10 },
+    create: { name: 'Cash & Carry', slug: 'grosshandel', emoji: '🏪', sortOrder: 10, active: true },
   })
   console.log('✅ Parent: Grosshandel', parent.id)
 

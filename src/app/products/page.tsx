@@ -24,7 +24,7 @@ const TOP_CATS = [
   { slug: 'patislove',        label: 'Patislove',      icon: '🍫' },
   { slug: 'the-mallows',      label: 'The Mallows',    icon: '☁️' },
   { slug: 'gastro-reinigung', label: 'Gastro/Reinigung', icon: '🧹' },
-  { slug: 'grosshandel',      label: 'Grosshandel',    icon: '🏭' },
+  { slug: 'grosshandel',      label: 'Cash & Carry',   icon: '🏪' },
 ]
 
 // Subcategory pills per parent
@@ -145,10 +145,20 @@ function ProductsContent() {
   const fetchProducts = useCallback(async () => {
     setLoading(true)
     const params = new URLSearchParams()
-    if (category !== 'all') params.set('category', category)
+
+    if (category === 'all') {
+      // "Alle Produkte" brand-grouped view: only own brands (no Migroweb)
+      params.set('supplier', 'own')
+      params.set('limit', '500')
+    } else {
+      params.set('category', category)
+      // For Cash & Carry categories use a higher limit (many products)
+      const isCashCarry = category === 'grosshandel' || category.startsWith('grosshandel-')
+      params.set('limit', isCashCarry ? '200' : '500')
+    }
+
     if (search) params.set('search', search)
     if (initBadge) params.set('badge', initBadge)
-    params.set('limit', '100')
     const res = await fetch(`/api/products?${params}`)
     const data = await res.json()
     let prods: Product[] = data.products ?? []
@@ -189,7 +199,7 @@ function ProductsContent() {
         <div className="page-header">
           <div style={{ maxWidth: 1280, margin: '0 auto' }}>
             <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, color: 'var(--accent)', marginBottom: 12, textTransform: 'uppercase' }}>
-              Grosshandel Sortiment
+              Cash & Carry Sortiment
             </div>
             <h1>Unsere Produkte</h1>
             <p style={{ marginTop: 8 }} suppressHydrationWarning>
@@ -307,7 +317,7 @@ function ProductsContent() {
               </button>
             </div>
           ) : category === 'all' && !search && sort === 'default' ? (
-            /* ── Marken-gruppierte Ansicht mit Unterkategorien ── */
+            /* ── Marken-gruppierte Ansicht + Cash & Carry Teaser ── */
             <div style={{ display: 'flex', flexDirection: 'column', gap: 56 }}>
               {BRAND_ORDER
                 .map(brand => ({ brand, prods: products.filter(p => p.brand === brand) }))
@@ -383,6 +393,52 @@ function ProductsContent() {
                     </section>
                   )
                 })}
+
+              {/* ── Cash & Carry Teaser ── */}
+              <section>
+                <div style={{
+                  display: 'flex', alignItems: 'center', gap: 14, marginBottom: 24,
+                  paddingBottom: 16, borderBottom: '2px solid #e8a72033',
+                }}>
+                  <div style={{
+                    width: 48, height: 48, borderRadius: 12, flexShrink: 0,
+                    background: '#e8a72018',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24,
+                  }}>🏪</div>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                      <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--black)', margin: 0 }}>Cash & Carry</h2>
+                      <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 9px', borderRadius: 20, background: '#e8a72018', color: '#e8a720' }}>6.800+ Produkte</span>
+                    </div>
+                    <div style={{ fontSize: 12.5, color: 'var(--gray-400)', marginTop: 2 }}>Getränke · Bier & Wein · Kaffee & Tee · Lebensmittel · Süsswaren · Hygiene</div>
+                  </div>
+                  <button
+                    onClick={() => navigate('grosshandel')}
+                    className="btn btn-ghost"
+                    style={{ marginLeft: 'auto', whiteSpace: 'nowrap' }}
+                  >
+                    Alle anzeigen →
+                  </button>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 12 }}>
+                  {SUB_CATS['grosshandel'].map(sub => (
+                    <button
+                      key={sub.slug}
+                      onClick={() => navigate(sub.slug)}
+                      style={{
+                        padding: '20px 16px', borderRadius: 12,
+                        border: '1.5px solid var(--gray-200)', background: 'white',
+                        cursor: 'pointer', textAlign: 'center', transition: 'all .15s',
+                      }}
+                      onMouseOver={e => (e.currentTarget.style.borderColor = 'var(--accent)', e.currentTarget.style.background = '#faf9f7')}
+                      onMouseOut={e => (e.currentTarget.style.borderColor = 'var(--gray-200)', e.currentTarget.style.background = 'white')}
+                    >
+                      <div style={{ fontSize: 28, marginBottom: 8 }}>{sub.icon}</div>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--black)' }}>{sub.label}</div>
+                    </button>
+                  ))}
+                </div>
+              </section>
             </div>
           ) : (
             /* ── Gefilterte / sortierte Ansicht ── */
