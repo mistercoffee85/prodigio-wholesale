@@ -316,12 +316,25 @@ function ProductsContent() {
                 Alle Produkte anzeigen
               </button>
             </div>
-          ) : category === 'all' && !search && sort === 'default' ? (
+          ) : category === 'all' && !search && sort === 'default' ? (() => {
             /* ── Marken-gruppierte Ansicht + Cash & Carry Teaser ── */
+            const brandSections = BRAND_ORDER
+              .map(brand => ({ brand, prods: products.filter(p => p.brand === brand) }))
+              .filter(({ prods }) => prods.length > 0)
+
+            // Fallback: wenn keine eigenen Marken matchen (z.B. API-Mismatch),
+            // zeige alle Produkte als flat grid
+            if (brandSections.length === 0) {
+              return (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 'clamp(12px,2vw,20px)' }}>
+                  {products.map((p, i) => <ProductCard key={p.id} product={p} priority={i === 0} approved={approved} />)}
+                </div>
+              )
+            }
+
+            return (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 56 }}>
-              {BRAND_ORDER
-                .map(brand => ({ brand, prods: products.filter(p => p.brand === brand) }))
-                .filter(({ prods }) => prods.length > 0)
+              {brandSections
                 .map(({ brand, prods }) => {
                   const meta = BRAND_META[brand] ?? { emoji: '📦', color: 'var(--accent)', desc: '' }
                   const subcatOrder = BRAND_SUBCAT_ORDER[brand] ?? []
@@ -440,7 +453,8 @@ function ProductsContent() {
                 </div>
               </section>
             </div>
-          ) : (
+            )
+          })() : (
             /* ── Gefilterte / sortierte Ansicht ── */
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 'clamp(12px,2vw,20px)' }}>
               {products.map((p, i) => <ProductCard key={p.id} product={p} priority={i === 0} approved={approved} />)}
