@@ -319,24 +319,38 @@ async function main() {
       if (btn) btn.click()
     }).catch(() => {})
 
-    log('Clicked Vai — waiting 5s for catalog to initialize...')
-    await new Promise(r => setTimeout(r, 5000))
+    log('Clicked Vai — waiting for catalog to fully initialize (PAGTOT + products)...')
 
-    // IMPORTANT: Re-fetch a fresh frame reference after Vai click.
-    // The frame reloads after Vai, making the old catalogFrame reference stale.
-    // Search all frames again for the one with product cards.
-    const freshFrames = page.frames()
-    let freshProductFrame = null
-    for (const f of freshFrames) {
-      try {
-        const count = await Promise.race([
-          f.evaluate(() => document.querySelectorAll('div.div_totcella').length),
-          new Promise((_, r) => setTimeout(() => r(0), 3000)),
-        ])
-        if (count > 0) { freshProductFrame = f; break }
-      } catch (_) {}
+    // IMPORTANT: After Vai click the frame reloads, making the old catalogFrame stale.
+    // Wait for PAGTOT to appear (this confirms the catalog is fully loaded with pagination).
+    // Re-search frames to get a fresh reference.
+    await new Promise(r => setTimeout(r, 3000)) // brief pause for reload to start
+    let pagtotFound = false
+    for (let attempt = 0; attempt < 6; attempt++) { // max 6 × 5s = 30s
+      await new Promise(r => setTimeout(r, 5000))
+      const frames = page.frames()
+      for (const f of frames) {
+        try {
+          const pagtot = await Promise.race([
+            f.evaluate(() => {
+              const el = document.querySelector('input#PAGTOT')
+              return el ? parseInt(el.value, 10) : 0
+            }),
+            new Promise((_, r) => setTimeout(() => r(0), 3000)),
+          ])
+          if (pagtot > 0) {
+            catalogFrame = f
+            pagtotFound = true
+            log(`Catalog initialized: PAGTOT=${pagtot} in frame ${f.url()}`)
+            break
+          }
+        } catch (_) {}
+      }
+      if (pagtotFound) break
+      log(`Waiting for PAGTOT (attempt ${attempt + 1}/6)...`)
     }
-    if (freshProductFrame) catalogFrame = freshProductFrame
+
+    if (!pagtotFound) throw new Error('PAGTOT not found after Vai click — catalog did not initialize')
     log('✅ Products loaded')
 
     // ── 3. DETERMINE TOTAL PAGES ─────────────────────────────────────────
