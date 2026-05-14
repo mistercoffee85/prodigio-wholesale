@@ -1,17 +1,15 @@
-import nodemailer from 'nodemailer'
+import { Resend } from 'resend'
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: Number(process.env.SMTP_PORT ?? 587),
-  secure: false,
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-})
+const resend = new Resend(process.env.RESEND_API_KEY)
 
-const FROM = process.env.EMAIL_FROM ?? 'PRO.DI.GIO Grosshandel <contact@prodigio.ch>'
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
+const FROM    = process.env.EMAIL_FROM    ?? 'PRO.DI.GIO Grosshandel <contact@prodigio.ch>'
+const ADMIN   = process.env.ADMIN_EMAIL   ?? 'contact@prodigio.ch'
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://b2b.prodigio.ch'
+
+async function sendMail({ to, subject, html }: { to: string; subject: string; html: string }) {
+  const { error } = await resend.emails.send({ from: FROM, to, subject, html })
+  if (error) throw new Error(`Resend error: ${error.message}`)
+}
 
 function baseTemplate(content: string): string {
   return `
@@ -46,7 +44,7 @@ function baseTemplate(content: string): string {
     <div class="body">${content}</div>
     <div class="footer">
       PRO.DI.GIO GmbH · Dreispitz, 4142 Basel · contact@prodigio.ch · +41 61 212 34 56<br/>
-      <a href="${APP_URL}" style="color:#1a9e7a;">wholesale.prodigio.ch</a>
+      <a href="${APP_URL}" style="color:#1a9e7a;">b2b.prodigio.ch</a>
     </div>
   </div>
 </body>
@@ -56,8 +54,8 @@ function baseTemplate(content: string): string {
 // ── Email Templates ─────────────────────────────────────────────
 
 export async function sendWelcomeEmail(to: string, name: string, companyName: string) {
-  await transporter.sendMail({
-    from: FROM, to,
+  await sendMail({
+    to,
     subject: 'Ihre Registrierung bei PRO.DI.GIO Grosshandel',
     html: baseTemplate(`
       <h2>Willkommen, ${name}!</h2>
@@ -71,8 +69,8 @@ export async function sendWelcomeEmail(to: string, name: string, companyName: st
 }
 
 export async function sendApprovalEmail(to: string, name: string) {
-  await transporter.sendMail({
-    from: FROM, to,
+  await sendMail({
+    to,
     subject: '✅ Ihr B2B-Konto wurde freigegeben',
     html: baseTemplate(`
       <h2>Ihr Konto ist aktiv!</h2>
@@ -86,8 +84,8 @@ export async function sendApprovalEmail(to: string, name: string) {
 }
 
 export async function sendRejectionEmail(to: string, name: string) {
-  await transporter.sendMail({
-    from: FROM, to,
+  await sendMail({
+    to,
     subject: 'Ihre Registrierung bei PRO.DI.GIO',
     html: baseTemplate(`
       <h2>Hallo ${name}</h2>
@@ -99,9 +97,8 @@ export async function sendRejectionEmail(to: string, name: string) {
 }
 
 export async function sendAdminNewCustomerEmail(customerName: string, companyName: string, email: string) {
-  await transporter.sendMail({
-    from: FROM,
-    to: process.env.SMTP_USER ?? 'gionatan.devita@gmail.com',
+  await sendMail({
+    to: ADMIN,
     subject: `🆕 Neuer B2B-Kunde: ${companyName}`,
     html: baseTemplate(`
       <h2>Neuer Kunde wartet auf Freigabe</h2>
@@ -135,8 +132,8 @@ export async function sendOrderConfirmationEmail(
     NET_30: 'Rechnung (Net 30)',
   }
 
-  await transporter.sendMail({
-    from: FROM, to,
+  await sendMail({
+    to,
     subject: `Bestellbestätigung #${order.orderNumber}`,
     html: baseTemplate(`
       <h2>Vielen Dank für Ihre Bestellung!</h2>
@@ -162,8 +159,8 @@ export async function sendOrderConfirmationEmail(
 }
 
 export async function sendPasswordResetEmail(to: string, resetUrl: string) {
-  await transporter.sendMail({
-    from: FROM, to,
+  await sendMail({
+    to,
     subject: 'Passwort zurücksetzen',
     html: baseTemplate(`
       <h2>Passwort zurücksetzen</h2>
