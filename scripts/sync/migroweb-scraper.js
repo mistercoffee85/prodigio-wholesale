@@ -419,14 +419,25 @@ async function main() {
 
       if (!defaultCategory) throw new Error('No category found in DB — run seed first')
 
-      const seenSkus = new Set()
+      // ── BULK DB SYNC (fast: 1 findMany + 1 createMany + batched updates) ──
+      // Load all existing migroweb products in one query (avoid N+1 queries)
+      log('Loading existing products from DB...')
+      const existingRows = await prisma.product.findMany({
+        where: { supplierSource: CONFIG.source },
+        select: { id: true, supplierSku: true, name: true, price: true },
+      })
+      const bySkuMap  = new Map(existingRows.filter(p => p.supplierSku).map(p => [p.supplierSku, p]))
+      const byNameMap = new Map(existingRows.filter(p => !p.supplierSku).map(p => [p.name, p]))
+      log(`Loaded ${existingRows.length} existing products from DB`)
+
+      const now = new Date()
+      const seenSkus  = new Set()
+      const toCreate  = []
+      const toUpdate  = [] // { id, data }
 
       for (const item of allProducts) {
         const costPrice = parsePrice(item.priceText)
-        if (!costPrice || costPrice <= 0) {
-          log(`  Skipping "${item.name}" — invalid price: "${item.priceText}"`)
-          continue
-        }
+        if (!costPrice || costPrice <= 0) continue
 
         const sellPrice  = calcSellPrice(costPrice, CONFIG.markupFactor)
         const stockCount = parseStock(item.stockText)
@@ -436,77 +447,77 @@ async function main() {
 
         if (sku) seenSkus.add(sku)
 
-        const imgUrl = sku
-          ? `https://www.wmphoto.it/products/${sku}.jpg`
-          : (item.imgSrc || '')
-
-        const existing = sku
-          ? await prisma.product.findFirst({ where: { supplierSku: sku, supplierSource: CONFIG.source } })
-          : await prisma.product.findFirst({ where: { name: item.name, supplierSource: CONFIG.source } })
+        const existing = sku ? bySkuMap.get(sku) : byNameMap.get(item.name)
 
         if (existing) {
-          const updates = {
-            stock:        stockCount,
-            costPrice:    costPrice,
-            active:       existing.active,
-            lastSyncedAt: new Date(),
-          }
+          const data = { stock: stockCount, costPrice, lastSyncedAt: now }
           const currentPrice = Number(existing.price)
-          if (currentPrice > 0) {
-            const priceDiff = Math.abs(currentPrice - sellPrice) / currentPrice
-            if (priceDiff > 0.02) {
-              updates.price = sellPrice
-              log(`  💰 Price update: "${existing.name}" ${currentPrice.toFixed(2)} → ${sellPrice.toFixed(2)} CHF`)
-            }
+          if (currentPrice > 0 && Math.abs(currentPrice - sellPrice) / currentPrice > 0.02) {
+            data.price = sellPrice
           }
-          await prisma.product.update({ where: { id: existing.id }, data: updates })
+          toUpdate.push({ id: existing.id, data })
           stats.updated++
         } else {
-          const slug = buildSlug(item.name, sku)
-          await prisma.product.create({
-            data: {
-              name:           item.name,
-              slug:           slug,
-              description:    item.name,
-              brand:          'Migroweb',
-              emoji:          '📦',
-              price:          sellPrice,
-              unit:           unitLabel,
-              moq:            1,
-              stock:          stockCount,
-              active:         false,
-              categoryId:     defaultCategory.id,
-              supplierSku:    sku,
-              supplierSource: CONFIG.source,
-              costPrice:      costPrice,
-              lastSyncedAt:   new Date(),
-              syncManaged:    true,
-              images:         imgUrl ? [imgUrl] : [],
-            },
+          const imgUrl = sku ? `https://www.wmphoto.it/products/${sku}.jpg` : (item.imgSrc || '')
+          toCreate.push({
+            name:           item.name,
+            slug:           buildSlug(item.name, sku),
+            description:    item.name,
+            brand:          'Migroweb',
+            emoji:          '📦',
+            price:          sellPrice,
+            unit:           unitLabel,
+            moq:            1,
+            stock:          stockCount,
+            active:         false,
+            categoryId:     defaultCategory.id,
+            supplierSku:    sku,
+            supplierSource: CONFIG.source,
+            costPrice:      costPrice,
+            lastSyncedAt:   now,
+            syncManaged:    true,
+            images:         imgUrl ? [imgUrl] : [],
           })
-          log(`  ✨ NEW: "${item.name}" → CHF ${sellPrice.toFixed(2)} (cost: ${costPrice.toFixed(3)}, stock: ${stockCount})`)
           stats.new++
         }
       }
 
+      // Bulk create (one query)
+      if (toCreate.length > 0) {
+        log(`Creating ${toCreate.length} new products (bulk)...`)
+        await prisma.product.createMany({ data: toCreate, skipDuplicates: true })
+        log(`✅ Created ${toCreate.length} products`)
+      }
+
+      // Batched updates: 50 in parallel per batch (~200ms per batch vs 50s sequential)
+      if (toUpdate.length > 0) {
+        log(`Updating ${toUpdate.length} existing products (batched)...`)
+        const BATCH = 50
+        for (let i = 0; i < toUpdate.length; i += BATCH) {
+          const batch = toUpdate.slice(i, i + BATCH)
+          await Promise.all(batch.map(({ id, data }) =>
+            prisma.product.update({ where: { id }, data })
+          ))
+          if ((i + BATCH) % 2000 === 0 || i + BATCH >= toUpdate.length) {
+            log(`  Updated ${Math.min(i + BATCH, toUpdate.length)} / ${toUpdate.length}`)
+          }
+        }
+        log(`✅ Updated ${toUpdate.length} products`)
+      }
+
       // ── 6. DEACTIVATE MISSING PRODUCTS ────────────────────────────────
       if (seenSkus.size > 0) {
-        const missing = await prisma.product.findMany({
+        const result = await prisma.product.updateMany({
           where: {
             supplierSource: CONFIG.source,
             syncManaged:    true,
             active:         true,
             supplierSku:    { notIn: Array.from(seenSkus) },
           },
+          data: { active: false, stock: 0 },
         })
-        for (const p of missing) {
-          await prisma.product.update({
-            where: { id: p.id },
-            data: { active: false, stock: 0 },
-          })
-          log(`  ⛔ Deactivated: "${p.name}" (not in supplier catalog)`)
-          stats.deactivated++
-        }
+        stats.deactivated = result.count
+        if (result.count > 0) log(`⛔ Deactivated ${result.count} products not in supplier catalog`)
       }
     }
 
