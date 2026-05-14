@@ -18,23 +18,24 @@ interface Product {
 
 // Top-level nav pills
 const TOP_CATS = [
-  { slug: 'all',         label: 'Alle Produkte', icon: '🏪' },
-  { slug: 'bubble-tea',  label: 'Bubble Tea',    icon: '🧋' },
-  { slug: 'teaballs',    label: 'TEABALLS',      icon: '🍵' },
-  { slug: 'patislove',   label: 'Patislove',     icon: '🍫' },
-  { slug: 'the-mallows',        label: 'The Mallows',       icon: '☁️' },
-  { slug: 'gastro-reinigung',   label: 'Gastro/Reinigung',  icon: '🧹' },
+  { slug: 'all',              label: 'Alle Produkte',  icon: '🏪' },
+  { slug: 'bubble-tea',       label: 'Bubble Tea',     icon: '🧋' },
+  { slug: 'teaballs',         label: 'TEABALLS',       icon: '🍵' },
+  { slug: 'patislove',        label: 'Patislove',      icon: '🍫' },
+  { slug: 'the-mallows',      label: 'The Mallows',    icon: '☁️' },
+  { slug: 'gastro-reinigung', label: 'Gastro/Reinigung', icon: '🧹' },
+  { slug: 'grosshandel',      label: 'Grosshandel',    icon: '🏭' },
 ]
 
 // Subcategory pills per parent
 const SUB_CATS: Record<string, { slug: string; label: string; icon: string }[]> = {
   'bubble-tea': [
-    { slug: 'bubble-tea-rtd',              label: 'Ready to Drink',  icon: '🥤' },
-    { slug: 'bubble-tea-sets',             label: 'Sets',            icon: '🧋' },
-    { slug: 'bubble-tea-fruchtperlen-240g',  label: 'Fruchtperlen 240g', icon: '🫧' },
-    { slug: 'bubble-tea-1-5kg',              label: 'Fruchtperlen 1.5kg', icon: '🫐' },
-    { slug: 'bubble-tea-tapioka',          label: 'Tapioka',         icon: '⚫' },
-    { slug: 'bubble-tea-zubehoer',         label: 'Zubehör',         icon: '🥤' },
+    { slug: 'bubble-tea-rtd',               label: 'Ready to Drink',     icon: '🥤' },
+    { slug: 'bubble-tea-sets',              label: 'Sets',               icon: '🧋' },
+    { slug: 'bubble-tea-fruchtperlen-240g', label: 'Fruchtperlen 240g',  icon: '🫧' },
+    { slug: 'bubble-tea-1-5kg',             label: 'Fruchtperlen 1.5kg', icon: '🫐' },
+    { slug: 'bubble-tea-tapioka',           label: 'Tapioka',            icon: '⚫' },
+    { slug: 'bubble-tea-zubehoer',          label: 'Zubehör',            icon: '🥤' },
   ],
   'teaballs': [
     { slug: 'teaballs-glasflaschen',     label: 'Glasflaschen',     icon: '🍶' },
@@ -47,6 +48,15 @@ const SUB_CATS: Record<string, { slug: string; label: string; icon: string }[]> 
     { slug: 'patislove-dragees', label: 'Dragées', icon: '🫐' },
     { slug: 'patislove-cookies', label: 'Cookies', icon: '🍪' },
     { slug: 'patislove-sticks',  label: 'Sticks',  icon: '🍬' },
+  ],
+  'grosshandel': [
+    { slug: 'grosshandel-getraenke',    label: 'Getränke',            icon: '🥤' },
+    { slug: 'grosshandel-bier-wein',    label: 'Bier & Wein',         icon: '🍺' },
+    { slug: 'grosshandel-kaffee-tee',   label: 'Kaffee & Tee',        icon: '☕' },
+    { slug: 'grosshandel-lebensmittel', label: 'Lebensmittel',        icon: '🍝' },
+    { slug: 'grosshandel-suesswaren',   label: 'Süsswaren & Snacks',  icon: '🍫' },
+    { slug: 'grosshandel-hygiene',      label: 'Hygiene & Reinigung', icon: '🧴' },
+    { slug: 'grosshandel-sonstiges',    label: 'Haushalt & Sonstiges',icon: '🏠' },
   ],
 }
 

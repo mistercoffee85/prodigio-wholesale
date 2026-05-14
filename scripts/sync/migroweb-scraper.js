@@ -80,6 +80,28 @@ function buildSlug(name, sku) {
   return sku ? `${base}-${sku.toLowerCase().replace(/[^a-z0-9]/g, '')}` : base
 }
 
+/**
+ * Map product name to a Grosshandel subcategory slug via keyword matching.
+ * Same logic as scripts/setup-categories.js — must stay in sync.
+ */
+const CATEGORY_RULES = [
+  { slug: 'grosshandel-getraenke', kw: ['acqua','water','wasser','succo','juice','saft','cola','fanta','sprite','pepsi','aranciata','limonata','cedrata','gassosa','bibita','bevanda','drink','soft','energy','monster','redbull','gatorade','powerade','lucozade','tonic','limon','arancia','chinotto','san pellegrino','ferrarelle','fiuggi','levissima','uliveto','vera','fonte','frizzante','naturale','minerale','succo di','nettare','smoothie','ice tea','iced tea','the freddo','frutta'] },
+  { slug: 'grosshandel-bier-wein', kw: ['birra','beer','bier','vino','wine','wein','prosecco','spumante','champagne','grappa','amaro','whisky','whiskey','vodka','gin ','rum ','liquore','aperitivo','aperol','campari','martini','vermut','sambuca','limoncello','nocino','mirto','spritz','sangria','cava','asti','peroni','moretti','heineken','corona','budweiser','carlsberg','bottiglia','75cl','33cl','66cl'] },
+  { slug: 'grosshandel-kaffee-tee', kw: ['caffè','caffe','kaffee','coffee','espresso','capsule','capsula','nespresso','lavazza','illy','kimbo','borbone','bialetti','moka','macinato','arabica','tè ','tea ','tee ','tisana','camomilla','infuso','infusion','orzo','cicoria','matcha','chai','oolong','verde ','verde,','nero '] },
+  { slug: 'grosshandel-suesswaren', kw: ['caramell','candy','bonbon','cioccolat','chocolat','schokolad','nutella','kinder','ferrero','lindt','toblerone','kitkat','bounty','snickers','twix','biscotti','kekse','cookie','wafer','cracker','grissini','cereali','patatine','chips ','snack','popcorn','nachos','tortilla','pretzel','torrone','confetti','gomm','jelly','gummy','marshmallow','lecca','menta','mentine','pastiglie','caramelle','drops ','gelato','ghiacciolo','ice cream','eis '] },
+  { slug: 'grosshandel-lebensmittel', kw: ['pasta','spaghetti','rigatoni','penne','fusilli','farfalle','tagliatelle','lasagna','lasagne','gnocchi','ravioli','tortellini','riso','rice','reis','basmati','arborio','parboiled','farina','mehl','flour','semola','amido','maizena','olio','oil','öl','oliva','girasole','sale ','sale,','salz','zucchero','zucker','sugar','miele','honey','aceto','vinegar','essig','balsamico','conserva','pelati','passata','pomodoro','tomaten','tomato','sugo','ragù','tonno','tuna','sardine','sgombro','acciughe','pesce ','legumi','fagioli','ceci','lenticchie','piselli','brodo','bouillon','dado','maggi','pesto','aioli','maionese','mayonnaise','senape','mostarda','ketchup','spezie','pepe ','paprika ','latte ','latte,','milch','milk','panna','crema','burro','butter','formaggio','käse','cheese','parmigia','grana','pecorino','mozzarella','prosciutto','salame','salami','bresaola','mortadella','pane ','pane,','marmellata','konfitüre','jam','confettura','marmelad'] },
+  { slug: 'grosshandel-hygiene', kw: ['detersivo','detergent','reinigung','pulizia','pulitore','sgrassator','sapone','soap','seife','shampoo','balsamo','bagnoschiuma','docciaschiuma','dentifricio','zahnpasta','collutorio','deodorant','profum','carta igienica','fazzoletti','scottex','kleenex','salviette','tovaglioli','candeggina','amuchina','lysol','domestos','ajax','wc gel','anticalcare','spugna','panno','straccio','mocio','scopa','sacchetti','buste','imballagg','pellicola','alluminio','stagnola','piatti','bicchieri','posate','assorbente','pannolino','baby','pampers','huggies'] },
+]
+const CATEGORY_FALLBACK = 'grosshandel-sonstiges'
+
+function categorizeName(name) {
+  const lower = name.toLowerCase()
+  for (const rule of CATEGORY_RULES) {
+    if (rule.kw.some(kw => lower.includes(kw))) return rule.slug
+  }
+  return CATEGORY_FALLBACK
+}
+
 // ─── Scraping helper (runs inside page.evaluate — must be self-contained) ──
 /**
  * Extract all products from the current catalog page DOM.
@@ -433,12 +455,14 @@ async function main() {
       await browser.close()
       browser = null
 
-      const defaultCategory =
-        await prisma.category.findFirst({ where: { slug: 'getranke' } }) ||
-        await prisma.category.findFirst({ where: { slug: 'all' } }) ||
-        await prisma.category.findFirst()
-
-      if (!defaultCategory) throw new Error('No category found in DB — run seed first')
+      // Load Grosshandel subcategory slugs → ids for keyword-based assignment
+      const ghCats = await prisma.category.findMany({
+        where: { slug: { startsWith: 'grosshandel-' } },
+        select: { id: true, slug: true },
+      })
+      const catIdBySlug = Object.fromEntries(ghCats.map(c => [c.slug, c.id]))
+      const fallbackCatId = catIdBySlug[CATEGORY_FALLBACK]
+      if (!fallbackCatId) throw new Error('Grosshandel categories not found — run scripts/setup-categories.js first')
 
       // ── BULK DB SYNC (fast: 1 findMany + 1 createMany + batched updates) ──
       // Load all existing migroweb products in one query (avoid N+1 queries)
@@ -512,6 +536,9 @@ async function main() {
           toUpdate.push({ id: existing.id, data })
           stats.updated++
         } else {
+          const catSlug = categorizeName(item.name)
+          const categoryId = catIdBySlug[catSlug] || fallbackCatId
+
           toCreate.push({
             name:           item.name,
             slug:           buildSlug(item.name, sku),
@@ -523,7 +550,7 @@ async function main() {
             moq:            1,
             stock:          stockCount,
             active:         true,      // visible immediately
-            categoryId:     defaultCategory.id,
+            categoryId,
             supplierSku:    sku,
             supplierSource: CONFIG.source,
             costPrice,
