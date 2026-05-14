@@ -226,28 +226,26 @@ async function main() {
     log('✅ Login successful')
 
     // ── 2. NAVIGATE TO PRODUCT CATALOG ───────────────────────────────────
-    // KEY INSIGHT: homepage.jsp is a frameset. gestione_ordini.jsp is the MENU frame
-    // inside that frameset. "Nuovo Ordine Catalogo" navigates the CONTENT frame to
-    // insordiniCat.jsp. When gestione_ordini.jsp is loaded standalone (page.goto),
-    // the target frame doesn't exist and the browser freezes.
+    // How it works:
+    //   - After login, navigate to gestione_ordini.jsp (the order management page)
+    //   - Click "Nuovo Ordine Catalogo" which calls nuovo_ordine_car() via onclick
+    //   - That function shows an alert("Inserire la piattaforma") — accept it
+    //   - Accepting the alert triggers a navigation to insordiniCat.jsp
+    //   - insordiniCat.jsp already has 200 product cards loaded (no Vai needed)
+    //   - Pagination: GOPAG input + vaiapagina() JS function (69 pages total)
     //
-    // Solution: Stay on homepage.jsp after login, let the frameset load, then find
-    // and click "Nuovo Ordine Catalogo" in whichever frame it lives in.
+    // CDP notes:
+    //   - page.click() and await evaluate() both hang 3min (protocolTimeout) on this page
+    //   - Use fire-and-forget evaluate().catch(() => {}) for all button clicks
+    //   - Auto-accept dialogs to prevent headless confirm() returning false
 
-    // Log the homepage frameset structure
-    log('Checking homepage frameset...')
-    let allFrames = page.frames()
-    log(`Frames on homepage: ${allFrames.length}`)
-    for (const f of allFrames) log(`  Frame: ${f.url()}`)
-
-    // Search all frames for the "Nuovo Ordine Catalogo" button
-    // It lives in the menu/navigation frame of the homepage frameset
+    // Helper: search frames for a selector (3s timeout per frame to avoid CDP freeze)
     async function findFrameWithSelector(frames, selector) {
       for (const frame of frames) {
         try {
           const el = await Promise.race([
             frame.$(selector),
-            new Promise((_, r) => setTimeout(() => r(null), 3000)), // 3s per frame max
+            new Promise((_, r) => setTimeout(() => r(null), 3000)),
           ])
           if (el) return { frame, el }
         } catch (_) {}
@@ -255,201 +253,64 @@ async function main() {
       return null
     }
 
-    // First try to find the button on the current homepage (which may be a frameset)
-    let ordiniFound = await findFrameWithSelector(allFrames, 'input[value="Nuovo Ordine Catalogo"]')
+    // Load the order management page
+    const ordiniUrl = `${CONFIG.baseUrl}/MigroWeb/gestione_ordini.jsp`
+    log('Loading:', ordiniUrl)
+    await page.goto(ordiniUrl, { waitUntil: 'domcontentloaded', timeout: 60000 })
+    await new Promise(r => setTimeout(r, 2000))
 
-    if (!ordiniFound) {
-      // Navigate the homepage to load the order management section
-      log('Button not found on homepage — navigating to gestione_ordini.jsp in content frame...')
-      // Try navigating with domcontentloaded to find the button
-      const ordiniUrl = `${CONFIG.baseUrl}/MigroWeb/gestione_ordini.jsp`
-      await page.goto(ordiniUrl, { waitUntil: 'domcontentloaded', timeout: 60000 })
-      await new Promise(r => setTimeout(r, 2000))
-      allFrames = page.frames()
-      log(`Frames after gestione_ordini nav: ${allFrames.length}`)
-      for (const f of allFrames) log(`  Frame: ${f.url()}`)
-      ordiniFound = await findFrameWithSelector(allFrames, 'input[value="Nuovo Ordine Catalogo"]')
-    }
+    let allFrames = page.frames()
+    const ordiniFound = await findFrameWithSelector(allFrames, 'input[value="Nuovo Ordine Catalogo"]')
+    if (!ordiniFound) throw new Error('Nuovo Ordine Catalogo button not found')
+    log('✅ Order page ready')
 
-    if (!ordiniFound) {
-      throw new Error('Nuovo Ordine Catalogo button not found in any frame')
-    }
-    log('Found button in frame:', ordiniFound.frame.url())
+    // Auto-accept alerts from nuovo_ordine_car() — headless dismisses them by default
+    // which blocks navigation. Accepting the alert is what triggers the nav to insordiniCat.jsp.
+    page.on('dialog', async dialog => { await dialog.accept() })
 
-    // Log button details to understand its target/form
-    const btnDetails = await ordiniFound.frame.evaluate(() => {
-      const btn = document.querySelector('input[value="Nuovo Ordine Catalogo"]')
-      if (!btn) return null
-      const form = btn.form
-      return {
-        type: btn.type,
-        name: btn.name,
-        formAction: form?.action,
-        formMethod: form?.method,
-        onclick: btn.getAttribute('onclick'),
-        formTarget: form?.target,
-        buttonTarget: btn.getAttribute('target'),
-        // All form fields
-        fields: form ? [...form.elements].filter(e => e.name).map(e => ({ name: e.name, value: e.value, type: e.type })) : [],
-      }
-    })
-    log('Button details:', JSON.stringify(btnDetails))
-
-    // Log the onclick JS function body so we know what it does
-    const funcBody = await ordiniFound.frame.evaluate(() => {
-      return typeof nuovo_ordine_car === 'function' ? nuovo_ordine_car.toString() : 'FUNCTION NOT FOUND'
-    })
-    log('nuovo_ordine_car():', funcBody)
-
-    // Auto-accept any dialogs (confirm/alert) that the onclick function might show.
-    // In headless mode, confirm() returns false by default, preventing form submission.
-    page.on('dialog', async dialog => {
-      log('Dialog intercepted:', dialog.type(), dialog.message())
-      await dialog.accept()
-    })
-
-    // Intercept network requests to see what the button click does
-    const capturedRequests = []
-    page.on('request', req => {
-      if (!req.url().includes('.js') && !req.url().includes('.css') && !req.url().includes('.ico')) {
-        capturedRequests.push(`${req.method()} ${req.url()}`)
-      }
-    })
-
-    // Click via evaluate (fire-and-forget to avoid CDP context-destroyed timeout)
+    // Fire-and-forget click (awaiting evaluate causes 3min CDP protocolTimeout)
     ordiniFound.frame.evaluate(() => {
       const btn = document.querySelector('input[value="Nuovo Ordine Catalogo"]')
       if (btn) btn.click()
     }).catch(() => {})
 
-    log('Clicked — waiting 20s...')
+    log('Clicked Nuovo Ordine Catalogo — waiting 20s for catalog...')
     await new Promise(r => setTimeout(r, 20000))
-
-    page.removeAllListeners('request')
     page.removeAllListeners('dialog')
-    log('Requests after click:', JSON.stringify(capturedRequests.slice(0, 15)))
-    log('URL after click:', page.url())
+    log('Catalog URL:', page.url())
 
+    // Find the frame containing product cards (div.div_totcella)
     allFrames = page.frames()
-    log(`Frames after click: ${allFrames.length}`)
-    for (const f of allFrames) log(`  Frame: ${f.url()}`)
-
-    // If click didn't navigate, try submitting the form directly (bypass onclick)
-    if (capturedRequests.length === 0) {
-      log('No requests from click — submitting form directly (bypassing onclick)...')
-
-      // Re-setup dialog handler
-      page.on('dialog', async dialog => {
-        log('Dialog (form submit):', dialog.type(), dialog.message())
-        await dialog.accept()
-      })
-
-      const capturedRequests2 = []
-      page.on('request', req => {
-        if (!req.url().includes('.js') && !req.url().includes('.css') && !req.url().includes('.ico')) {
-          capturedRequests2.push(`${req.method()} ${req.url()}`)
-        }
-      })
-
-      // Submit form directly, bypassing onclick
-      ordiniFound.frame.evaluate(() => {
-        // Set tastopremuto to signal which action was taken
-        const tastone = document.querySelector('input[name="tastopremuto"]')
-        if (tastone) tastone.value = 'nuovocar'
-        // Submit form natively without triggering onclick
-        const form = document.forms[0]
-        if (form) HTMLFormElement.prototype.submit.call(form)
-      }).catch(() => {})
-
-      log('Form submitted directly — waiting 20s...')
-      await new Promise(r => setTimeout(r, 20000))
-
-      page.removeAllListeners('request')
-      page.removeAllListeners('dialog')
-      log('Requests (direct submit):', JSON.stringify(capturedRequests2.slice(0, 15)))
-      log('URL after form submit:', page.url())
-
-      allFrames = page.frames()
-      log(`Frames after form submit: ${allFrames.length}`)
-      for (const f of allFrames) log(`  Frame: ${f.url()}`)
-    }
-
-    // Find Vai button in any frame
-    const vaiFound = await findFrameWithSelector(allFrames, 'input[name="Vai"]')
-    if (!vaiFound) {
-      throw new Error('Vai button not found in any frame — check button onclick and form action')
-    }
-
-    let catalogFrame = vaiFound.frame
-    log('Found Vai in frame:', catalogFrame.url())
-
-    // Log current frame structure before clicking Vai
-    const preVaiFrames = page.frames()
-    log(`Frames before Vai: ${preVaiFrames.length}`)
-    for (const f of preVaiFrames) log(`  Frame: ${f.url()}`)
-
-    // Check if div.div_totcella already present (products pre-loaded after navigate)
-    const preVaiCardCount = await catalogFrame.evaluate(() =>
-      document.querySelectorAll('div.div_totcella').length
-    )
-    log(`div.div_totcella before Vai click: ${preVaiCardCount}`)
-
-    // Click Vai → loads full catalog (no filter = all products)
-    catalogFrame.evaluate(() => {
-      const btn = document.querySelector('input[name="Vai"]')
-      if (btn) btn.click()
-    }).catch(() => {})
-
-    log('Clicked Vai — waiting for products...')
-    await new Promise(r => setTimeout(r, 5000))
-
-    // Check all frames for products (insordiniCat.jsp may be a frameset)
-    const postVaiFrames = page.frames()
-    log(`Frames after Vai: ${postVaiFrames.length}`)
-    for (const f of postVaiFrames) log(`  Frame: ${f.url()}`)
-
-    // Search all frames for div.div_totcella
     let productFrame = null
-    for (const f of postVaiFrames) {
+    for (const f of allFrames) {
       try {
         const count = await Promise.race([
           f.evaluate(() => document.querySelectorAll('div.div_totcella').length),
           new Promise((_, r) => setTimeout(() => r(0), 3000)),
         ])
-        log(`  Frame ${f.url()} has ${count} product cards`)
-        if (count > 0) productFrame = f
+        if (count > 0) { productFrame = f; break }
       } catch (_) {}
     }
 
     if (!productFrame) {
-      // Wait longer and retry
-      log('No product cards yet — waiting 15 more seconds...')
+      log('No products yet — waiting 15 more seconds...')
       await new Promise(r => setTimeout(r, 15000))
-
-      const retryFrames = page.frames()
-      for (const f of retryFrames) {
+      allFrames = page.frames()
+      for (const f of allFrames) {
         try {
           const count = await Promise.race([
             f.evaluate(() => document.querySelectorAll('div.div_totcella').length),
             new Promise((_, r) => setTimeout(() => r(0), 3000)),
           ])
-          log(`  Retry: Frame ${f.url()} has ${count} cards`)
-          if (count > 0) productFrame = f
+          if (count > 0) { productFrame = f; break }
         } catch (_) {}
       }
     }
 
-    if (!productFrame) {
-      // Log HTML of catalogFrame for diagnosis
-      const htmlSnippet = await catalogFrame.evaluate(() =>
-        document.body ? document.body.innerHTML.substring(0, 1000) : 'no body'
-      ).catch(() => 'evaluate failed')
-      log('catalogFrame HTML:', htmlSnippet)
-      throw new Error('No div.div_totcella found in any frame after Vai click')
-    }
+    if (!productFrame) throw new Error('No div.div_totcella found after navigation to catalog')
 
-    catalogFrame = productFrame
-    log('✅ Products frame:', catalogFrame.url())
+    let catalogFrame = productFrame
+    log('✅ Products loaded in:', catalogFrame.url())
 
     // ── 3. DETERMINE TOTAL PAGES ─────────────────────────────────────────
     const totalPages = await catalogFrame.evaluate(() => {
