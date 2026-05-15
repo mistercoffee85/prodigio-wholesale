@@ -56,8 +56,11 @@ export default function ProductCard({ product: p, priority, approved = false }: 
   const activeMoq     = selectedVariant ? selectedVariant.moq   : p.moq
   const activeUnit    = selectedVariant ? selectedVariant.unit  : p.unit
   // Total price for MOQ (what customer actually pays minimum)
-  const moqTotal      = Math.round(activePrice * activeMoq * 100) / 100
+  const moqTotal        = Math.round(activePrice * activeMoq * 100) / 100
   const compareMoqTotal = p.comparePrice ? Math.round(Number(p.comparePrice) * activeMoq * 100) / 100 : null
+  // Price per single piece (Pz) — parsed from unit string e.g. "24 Pz" → 24
+  const unitPieceCount  = parseInt(activeUnit?.match(/(\d+)/)?.[1] ?? '1', 10)
+  const pricePerPiece   = unitPieceCount > 1 ? Math.round(activePrice / unitPieceCount * 100) / 100 : null
 
   const [qty, setQty] = useState(activeMoq)
   const [modalOpen, setModalOpen] = useState(false)
@@ -207,7 +210,10 @@ export default function ProductCard({ product: p, priority, approved = false }: 
                   <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--black)', lineHeight: 1 }}>
                     {formatPrice(moqTotal)}
                   </div>
-                  <div style={{ fontSize: 10, color: 'var(--gray-400)', marginTop: 2 }}>{formatPrice(activePrice)}/VE</div>
+                  <div style={{ fontSize: 10, color: 'var(--gray-400)', marginTop: 2 }}>
+                    {formatPrice(activePrice)}/VE
+                    {pricePerPiece && <span> · {formatPrice(pricePerPiece)}/Pz</span>}
+                  </div>
                 </div>
                 {/* UVP */}
                 <div style={{ borderLeft: '1px solid var(--gray-100)', paddingLeft: 12 }}>
@@ -249,7 +255,10 @@ export default function ProductCard({ product: p, priority, approved = false }: 
                   Einkaufspreis (ab {activeMoq} VE)
                 </div>
                 <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--black)' }}>{formatPrice(moqTotal)}</div>
-                <div style={{ fontSize: 10, color: 'var(--gray-400)', marginTop: 2 }}>{activeMoq} VE × {formatPrice(activePrice)}/VE</div>
+                <div style={{ fontSize: 10, color: 'var(--gray-400)', marginTop: 2 }}>
+                  {activeMoq} VE × {formatPrice(activePrice)}/VE
+                  {pricePerPiece && <span style={{ marginLeft: 6, color: 'var(--gray-300)' }}>· {formatPrice(pricePerPiece)}/Pz</span>}
+                </div>
               </div>
             )}
           </div>
@@ -405,6 +414,7 @@ export default function ProductCard({ product: p, priority, approved = false }: 
                         </div>
                         <div style={{ fontSize: 11.5, color: 'var(--gray-400)', marginTop: 6 }}>
                           {formatPrice(activePrice)}/VE · {activeUnit}
+                          {pricePerPiece && <span> · {formatPrice(pricePerPiece)}/Pz</span>}
                           {p.stock > 0 && p.stock < 20 && <div style={{ color: '#c2430c', marginTop: 4 }}>⚠ Nur {p.stock} VE</div>}
                         </div>
                       </div>
@@ -429,6 +439,7 @@ export default function ProductCard({ product: p, priority, approved = false }: 
                       <div style={{ fontSize: 30, fontWeight: 800 }}>{formatPrice(moqTotal)}</div>
                       <div style={{ fontSize: 12, color: 'var(--gray-400)', marginTop: 6 }}>
                         {formatPrice(activePrice)}/VE · {activeUnit}
+                        {pricePerPiece && <span> · {formatPrice(pricePerPiece)}/Pz</span>}
                         {p.stock > 0 && p.stock < 20 && <span style={{ color: '#c2430c', marginLeft: 8 }}>· Nur {p.stock} VE</span>}
                       </div>
                     </div>
