@@ -169,7 +169,7 @@ function extractPageProducts() {
 
       // ── VE: "X 36 Pz" → store as "36 Pz" (1:1 from Migroweb) ──────────
       const veMatch = text.match(/X\s*(\d+)\s*Pz/i)
-      const veText = veMatch ? veMatch[0].replace(/^X\s*/i, '').trim() : ''  // "36 Pz"
+      const veText = veMatch ? veMatch[0].replace(/^X\s*/i, '').trim().replace('Pz', 'Stk') : ''  // "36 Stk"
       const qtyText = veMatch ? veMatch[0] : ''  // kept for parseUnitQty compat
 
       // ── Extra description lines (td content beyond the name) ──────────
@@ -528,7 +528,7 @@ async function main() {
         const sku        = item.sku || null
 
         // ── VE: use Migroweb text 1:1 (e.g. "36 Pz"), fallback computed ──
-        const unitLabel = item.veText || (unitQty > 1 ? `${unitQty} Pz` : '1 Pz')
+        const unitLabel = item.veText || (unitQty > 1 ? `${unitQty} Stk` : '1 Stk')
 
         // ── Brand: from card, fallback to 'Migroweb' ─────────────────────
         const brand = item.brand || 'Migroweb'
