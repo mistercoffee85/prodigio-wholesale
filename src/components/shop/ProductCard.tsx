@@ -52,9 +52,12 @@ export default function ProductCard({ product: p, priority, approved = false }: 
   const hasVariants = p.variants && p.variants.length > 0
   const [selectedVariant, setSelectedVariant] = useState<Variant | null>(hasVariants ? p.variants![0] : null)
 
-  const activePrice = selectedVariant ? selectedVariant.price : p.price
-  const activeMoq   = selectedVariant ? selectedVariant.moq   : p.moq
-  const activeUnit  = selectedVariant ? selectedVariant.unit  : p.unit
+  const activePrice    = selectedVariant ? selectedVariant.price : p.price
+  const activeMoq     = selectedVariant ? selectedVariant.moq   : p.moq
+  const activeUnit    = selectedVariant ? selectedVariant.unit  : p.unit
+  // Total price for MOQ (what customer actually pays minimum)
+  const moqTotal      = Math.round(activePrice * activeMoq * 100) / 100
+  const compareMoqTotal = p.comparePrice ? Math.round(Number(p.comparePrice) * activeMoq * 100) / 100 : null
 
   const [qty, setQty] = useState(activeMoq)
   const [modalOpen, setModalOpen] = useState(false)
@@ -199,12 +202,12 @@ export default function ProductCard({ product: p, priority, approved = false }: 
                 {/* EK */}
                 <div>
                   <div style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: 'var(--gray-400)', marginBottom: 2 }}>
-                    Einkaufspreis
+                    EK ab {activeMoq} VE
                   </div>
                   <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--black)', lineHeight: 1 }}>
-                    {formatPrice(activePrice)}
+                    {formatPrice(moqTotal)}
                   </div>
-                  <div style={{ fontSize: 10, color: 'var(--gray-400)', marginTop: 2 }}>ab {activeMoq} VE</div>
+                  <div style={{ fontSize: 10, color: 'var(--gray-400)', marginTop: 2 }}>{formatPrice(activePrice)}/VE</div>
                 </div>
                 {/* UVP */}
                 <div style={{ borderLeft: '1px solid var(--gray-100)', paddingLeft: 12 }}>
@@ -212,10 +215,10 @@ export default function ProductCard({ product: p, priority, approved = false }: 
                     Empf. VK-Preis
                   </div>
                   <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--accent)', lineHeight: 1 }}>
-                    {formatPrice(p.comparePrice)}
+                    {compareMoqTotal !== null ? formatPrice(compareMoqTotal) : formatPrice(Number(p.comparePrice))}
                   </div>
                   <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--accent)', marginTop: 2 }}>
-                    +{Math.round((p.comparePrice / p.price - 1) * 100)}% Marge
+                    +{Math.round((Number(p.comparePrice) / p.price - 1) * 100)}% Marge
                   </div>
                 </div>
               </div>
@@ -243,12 +246,10 @@ export default function ProductCard({ product: p, priority, approved = false }: 
             ) : (
               <div>
                 <div style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: 'var(--gray-400)', marginBottom: 2 }}>
-                  Einkaufspreis
+                  Einkaufspreis (ab {activeMoq} VE)
                 </div>
-                <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
-                  <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--black)' }}>{formatPrice(activePrice)}</div>
-                  <span style={{ fontSize: 10, color: 'var(--gray-400)', fontWeight: 500 }}>ab {activeMoq} VE</span>
-                </div>
+                <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--black)' }}>{formatPrice(moqTotal)}</div>
+                <div style={{ fontSize: 10, color: 'var(--gray-400)', marginTop: 2 }}>{activeMoq} VE × {formatPrice(activePrice)}/VE</div>
               </div>
             )}
           </div>
@@ -397,13 +398,13 @@ export default function ProductCard({ product: p, priority, approved = false }: 
                       {/* EK */}
                       <div style={{ padding: '16px 20px', background: 'var(--cream)' }}>
                         <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.2, textTransform: 'uppercase', color: 'var(--gray-400)', marginBottom: 6 }}>
-                          Einkaufspreis
+                          EK ab {activeMoq} VE
                         </div>
                         <div style={{ fontSize: 28, fontWeight: 800, color: 'var(--black)', lineHeight: 1 }}>
-                          {formatPrice(activePrice)}
+                          {formatPrice(moqTotal)}
                         </div>
                         <div style={{ fontSize: 11.5, color: 'var(--gray-400)', marginTop: 6 }}>
-                          {activeUnit} · ab {activeMoq} VE
+                          {formatPrice(activePrice)}/VE · {activeUnit}
                           {p.stock > 0 && p.stock < 20 && <div style={{ color: '#c2430c', marginTop: 4 }}>⚠ Nur {p.stock} VE</div>}
                         </div>
                       </div>
@@ -413,21 +414,21 @@ export default function ProductCard({ product: p, priority, approved = false }: 
                           Empf. VK-Preis (UVP)
                         </div>
                         <div style={{ fontSize: 28, fontWeight: 800, color: 'var(--accent)', lineHeight: 1 }}>
-                          {formatPrice(p.comparePrice)}
+                          {compareMoqTotal !== null ? formatPrice(compareMoqTotal) : formatPrice(Number(p.comparePrice))}
                         </div>
                         <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--accent-dark)', marginTop: 6 }}>
-                          +{Math.round((p.comparePrice / p.price - 1) * 100)}% Marge
+                          +{Math.round((Number(p.comparePrice) / p.price - 1) * 100)}% Marge
                         </div>
                       </div>
                     </div>
                   ) : (
                     <div style={{ padding: '16px 20px', background: 'var(--cream)', borderRadius: 12, border: '1px solid var(--gray-100)' }}>
                       <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.2, textTransform: 'uppercase', color: 'var(--gray-400)', marginBottom: 6 }}>
-                        Einkaufspreis
+                        Einkaufspreis ab {activeMoq} VE
                       </div>
-                      <div style={{ fontSize: 30, fontWeight: 800 }}>{formatPrice(activePrice)}</div>
+                      <div style={{ fontSize: 30, fontWeight: 800 }}>{formatPrice(moqTotal)}</div>
                       <div style={{ fontSize: 12, color: 'var(--gray-400)', marginTop: 6 }}>
-                        {activeUnit} · ab {activeMoq} VE
+                        {formatPrice(activePrice)}/VE · {activeUnit}
                         {p.stock > 0 && p.stock < 20 && <span style={{ color: '#c2430c', marginLeft: 8 }}>· Nur {p.stock} VE</span>}
                       </div>
                     </div>
