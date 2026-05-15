@@ -11,7 +11,7 @@ import StripePaymentForm from '@/components/checkout/StripePaymentForm'
 import toast from 'react-hot-toast'
 
 type PaymentMethod  = 'BANK_TRANSFER' | 'NET_30' | 'STRIPE_CARD'
-type ShippingOption = 'PRODIGIO_DELIVERS' | 'SELF_PICKUP'
+type ShippingOption = 'PRODIGIO_DELIVERS' | 'SELF_PICKUP' | 'LOCAL_PICKUP' | 'LOCAL_DELIVERY'
 type CheckoutStep   = 'form' | 'stripe-payment'
 
 interface StripeData {
@@ -27,8 +27,13 @@ export default function CheckoutPage() {
   const { subtotal, shipping, tax, taxFood, taxStandard, total } = useCartTotals()
 
   const hydrated = useCartHydrated()
+
+  // Detect if cart is Cash & Carry (Migroweb/Italy) or local stock
+  const isCashAndCarry = items.some(i => i.supplierSource === 'migroweb')
+  const defaultShipping: ShippingOption = isCashAndCarry ? 'PRODIGIO_DELIVERS' : 'LOCAL_DELIVERY'
+
   const [paymentMethod,  setPaymentMethod]  = useState<PaymentMethod>('BANK_TRANSFER')
-  const [shippingOption, setShippingOption] = useState<ShippingOption>('PRODIGIO_DELIVERS')
+  const [shippingOption, setShippingOption] = useState<ShippingOption>(defaultShipping)
   const [notes,   setNotes]   = useState('')
   const [loading, setLoading] = useState(false)
   const [step,    setStep]    = useState<CheckoutStep>('form')
@@ -194,92 +199,132 @@ export default function CheckoutPage() {
                 <div className="card" style={{ padding: 28 }}>
                   <h2 style={{ fontSize: 17, fontWeight: 700, marginBottom: 6 }}>Lieferoption</h2>
                   <p style={{ fontSize: 12.5, color: 'var(--gray-400)', marginBottom: 18 }}>
-                    Ware wird ab Lager Italien (Ex Works) bereitgestellt.
+                    {isCashAndCarry
+                      ? 'Ware wird ab Lager des Lieferanten in Italien (Ex Works) bereitgestellt.'
+                      : 'Ware ab Lager PRO.DI.GIO GmbH, Basel.'}
                   </p>
 
-                  {/* Option 1: Prodigio liefert */}
-                  <label style={{
-                    display: 'block', padding: '18px 20px',
-                    border: '2px solid',
-                    borderColor: shippingOption === 'PRODIGIO_DELIVERS' ? 'var(--accent)' : 'var(--gray-200)',
-                    borderRadius: 12, cursor: 'pointer', marginBottom: 10,
-                    background: shippingOption === 'PRODIGIO_DELIVERS' ? 'var(--accent-light)' : 'white',
-                    transition: 'all .15s',
-                  }}>
-                    <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-                      <input
-                        type="radio" name="so" value="PRODIGIO_DELIVERS"
-                        checked={shippingOption === 'PRODIGIO_DELIVERS'}
-                        onChange={() => setShippingOption('PRODIGIO_DELIVERS')}
-                        style={{ marginTop: 3, accentColor: 'var(--accent)', flexShrink: 0 }}
-                      />
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 10 }}>
-                          🚚 Transport &amp; Verzollung durch PRO.DI.GIO GmbH
-                        </div>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-                          {[
+                  {isCashAndCarry ? (
+                    /* ── Cash & Carry: IT options ── */
+                    <>
+                      {([
+                        {
+                          value: 'PRODIGIO_DELIVERS' as ShippingOption,
+                          title: '🚚 Transport & Verzollung durch PRO.DI.GIO GmbH',
+                          items: [
                             ['📦', 'Abholung', 'Wir holen die Ware beim Lieferanten in Italien ab'],
                             ['🛃', 'Verzollung', 'Wir übernehmen die Schweizer Zollanmeldung'],
-                            ['🚛', 'Transport', 'Lieferung direkt zu Ihnen in der Schweiz'],
+                            ['🚛', 'Transport', 'Lieferung direkt zu Ihnen in die Schweiz'],
                             ['💶', 'Kosten', 'Transportkosten werden 1:1 weiterverrechnet'],
-                          ].map(([icon, title, desc]) => (
-                            <div key={title} style={{ background: 'rgba(255,255,255,0.6)', borderRadius: 8, padding: '10px 12px' }}>
-                              <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 3 }}>{icon} {title}</div>
-                              <div style={{ fontSize: 11.5, color: 'var(--gray-500)', lineHeight: 1.4 }}>{desc}</div>
-                            </div>
-                          ))}
-                        </div>
-                        {shippingOption === 'PRODIGIO_DELIVERS' && (
-                          <div style={{ marginTop: 12, fontSize: 12, color: 'var(--accent)', fontWeight: 600 }}>
-                            ✓ Transportkosten werden nach Bestellung separat bestätigt
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </label>
-
-                  {/* Option 2: Selbstabholung */}
-                  <label style={{
-                    display: 'block', padding: '18px 20px',
-                    border: '2px solid',
-                    borderColor: shippingOption === 'SELF_PICKUP' ? 'var(--accent)' : 'var(--gray-200)',
-                    borderRadius: 12, cursor: 'pointer',
-                    background: shippingOption === 'SELF_PICKUP' ? 'var(--accent-light)' : 'white',
-                    transition: 'all .15s',
-                  }}>
-                    <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-                      <input
-                        type="radio" name="so" value="SELF_PICKUP"
-                        checked={shippingOption === 'SELF_PICKUP'}
-                        onChange={() => setShippingOption('SELF_PICKUP')}
-                        style={{ marginTop: 3, accentColor: 'var(--accent)', flexShrink: 0 }}
-                      />
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 10 }}>
-                          🚗 Selbstabholung (Ex Works Italien)
-                        </div>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-                          {[
+                          ],
+                          note: { color: 'var(--accent)', text: '✓ Transportkosten werden nach Bestellung separat bestätigt' },
+                        },
+                        {
+                          value: 'SELF_PICKUP' as ShippingOption,
+                          title: '🚗 Selbstabholung (Ex Works Italien)',
+                          items: [
                             ['📍', 'Abholung', 'Sie holen direkt beim Lieferanten in Italien ab'],
                             ['🛃', 'Verzollung', 'Liegt vollständig bei Ihnen'],
                             ['🚛', 'Transport', 'Organisation und Kosten bei Ihnen'],
                             ['📋', 'Voraussetzung', 'EORI-Nummer für EU-Export erforderlich'],
-                          ].map(([icon, title, desc]) => (
-                            <div key={title} style={{ background: 'rgba(255,255,255,0.6)', borderRadius: 8, padding: '10px 12px' }}>
-                              <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 3 }}>{icon} {title}</div>
-                              <div style={{ fontSize: 11.5, color: 'var(--gray-500)', lineHeight: 1.4 }}>{desc}</div>
+                          ],
+                          note: { color: '#92400e', text: '⚠ Sie tragen alle Kosten ab Lager Italien' },
+                        },
+                      ] as const).map(opt => (
+                        <label key={opt.value} style={{
+                          display: 'block', padding: '18px 20px',
+                          border: '2px solid',
+                          borderColor: shippingOption === opt.value ? 'var(--accent)' : 'var(--gray-200)',
+                          borderRadius: 12, cursor: 'pointer', marginBottom: 10,
+                          background: shippingOption === opt.value ? 'var(--accent-light)' : 'white',
+                          transition: 'all .15s',
+                        }}>
+                          <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                            <input type="radio" name="so" value={opt.value}
+                              checked={shippingOption === opt.value}
+                              onChange={() => setShippingOption(opt.value)}
+                              style={{ marginTop: 3, accentColor: 'var(--accent)', flexShrink: 0 }} />
+                            <div style={{ flex: 1 }}>
+                              <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 10 }}>{opt.title}</div>
+                              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                                {opt.items.map(([icon, title, desc]) => (
+                                  <div key={title} style={{ background: 'rgba(255,255,255,0.6)', borderRadius: 8, padding: '10px 12px' }}>
+                                    <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 3 }}>{icon} {title}</div>
+                                    <div style={{ fontSize: 11.5, color: 'var(--gray-500)', lineHeight: 1.4 }}>{desc}</div>
+                                  </div>
+                                ))}
+                              </div>
+                              {shippingOption === opt.value && (
+                                <div style={{ marginTop: 12, fontSize: 12, color: opt.note.color, fontWeight: 600 }}>
+                                  {opt.note.text}
+                                </div>
+                              )}
                             </div>
-                          ))}
-                        </div>
-                        {shippingOption === 'SELF_PICKUP' && (
-                          <div style={{ marginTop: 12, fontSize: 12, color: '#92400e', fontWeight: 600 }}>
-                            ⚠ Keine Transportkosten — Sie tragen alle Kosten ab Lager Italien
                           </div>
-                        )}
-                      </div>
-                    </div>
-                  </label>
+                        </label>
+                      ))}
+                    </>
+                  ) : (
+                    /* ── Lagerprodukte: lokale Optionen ── */
+                    <>
+                      {([
+                        {
+                          value: 'LOCAL_DELIVERY' as ShippingOption,
+                          title: '🚚 Lieferung durch PRO.DI.GIO GmbH',
+                          items: [
+                            ['📦', 'Versand', 'Wir liefern direkt zu Ihnen'],
+                            ['💶', 'Kosten', 'Lieferkosten werden separat mitgeteilt'],
+                            ['📅', 'Lieferzeit', 'Nach Bestätigung der Bestellung'],
+                            ['📞', 'Kontakt', 'Wir melden uns zur Koordination'],
+                          ],
+                          note: { color: 'var(--accent)', text: '✓ Lieferkosten werden nach Bestellung bekanntgegeben' },
+                        },
+                        {
+                          value: 'LOCAL_PICKUP' as ShippingOption,
+                          title: '🏢 Abholung bei PRO.DI.GIO GmbH',
+                          items: [
+                            ['📍', 'Adresse', 'Dreispitz, 4142 Basel'],
+                            ['🕐', 'Öffnungszeiten', 'Nach Absprache'],
+                            ['💶', 'Kosten', 'Kostenlos — keine Versandkosten'],
+                            ['📞', 'Terminvereinbarung', 'Wir kontaktieren Sie nach Bestellung'],
+                          ],
+                          note: { color: 'var(--accent)', text: '✓ Kein Versand — Sie holen direkt bei uns ab' },
+                        },
+                      ] as const).map(opt => (
+                        <label key={opt.value} style={{
+                          display: 'block', padding: '18px 20px',
+                          border: '2px solid',
+                          borderColor: shippingOption === opt.value ? 'var(--accent)' : 'var(--gray-200)',
+                          borderRadius: 12, cursor: 'pointer', marginBottom: 10,
+                          background: shippingOption === opt.value ? 'var(--accent-light)' : 'white',
+                          transition: 'all .15s',
+                        }}>
+                          <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                            <input type="radio" name="so" value={opt.value}
+                              checked={shippingOption === opt.value}
+                              onChange={() => setShippingOption(opt.value)}
+                              style={{ marginTop: 3, accentColor: 'var(--accent)', flexShrink: 0 }} />
+                            <div style={{ flex: 1 }}>
+                              <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 10 }}>{opt.title}</div>
+                              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                                {opt.items.map(([icon, title, desc]) => (
+                                  <div key={title} style={{ background: 'rgba(255,255,255,0.6)', borderRadius: 8, padding: '10px 12px' }}>
+                                    <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 3 }}>{icon} {title}</div>
+                                    <div style={{ fontSize: 11.5, color: 'var(--gray-500)', lineHeight: 1.4 }}>{desc}</div>
+                                  </div>
+                                ))}
+                              </div>
+                              {shippingOption === opt.value && (
+                                <div style={{ marginTop: 12, fontSize: 12, color: opt.note.color, fontWeight: 600 }}>
+                                  {opt.note.text}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </label>
+                      ))}
+                    </>
+                  )}
                 </div>
 
                 {/* Zahlungsmethode */}
@@ -355,7 +400,7 @@ export default function CheckoutPage() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
                   {[
                     ['Zwischensumme', formatPrice(subtotal)],
-                    ['Transport', shippingOption === 'SELF_PICKUP' ? '🚗 Selbstabholung' : '⏳ Wird separat bestätigt'],
+                    ['Transport', shippingOption === 'SELF_PICKUP' ? '🚗 Ex Works' : shippingOption === 'LOCAL_PICKUP' ? '🏢 Abholung Basel' : '⏳ Wird bestätigt'],
                     ...(taxFood > 0     ? [['MwSt. 2.6% (Lebensmittel)', formatPrice(taxFood)]]   : []),
                     ...(taxStandard > 0 ? [['MwSt. 8.1%',                formatPrice(taxStandard)]] : []),
                     ...(taxFood === 0 && taxStandard === 0 ? [['MwSt.', formatPrice(tax)]] : []),
@@ -392,7 +437,7 @@ export default function CheckoutPage() {
 
                 {/* Trust badges */}
                 <div style={{ display: 'flex', justifyContent: 'center', gap: 20, marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--gray-100)' }}>
-                  {['🔒 Sicher', '🇨🇭 Schweiz', shippingOption === 'SELF_PICKUP' ? '🚗 Ex Works' : '🚚 Transport inklusive'].map(b => (
+                  {['🔒 Sicher', '🇨🇭 Schweiz', shippingOption === 'SELF_PICKUP' ? '🚗 Ex Works' : shippingOption === 'LOCAL_PICKUP' ? '🏢 Abholung Basel' : '🚚 Lieferung'].map(b => (
                     <span key={b} style={{ fontSize: 11, color: 'var(--gray-400)', fontWeight: 500 }}>{b}</span>
                   ))}
                 </div>

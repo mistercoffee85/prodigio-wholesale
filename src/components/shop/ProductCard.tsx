@@ -15,7 +15,8 @@ interface Product {
   bgGradient: string | null; price: number; comparePrice: number | null
   unit: string; moq: number; stock: number; badge: string | null
   description: string; details: Record<string, string>
-  taxRate?: number   // 0.026 | 0.081
+  taxRate?: number        // 0.026 | 0.081
+  supplierSource?: string // 'migroweb' = Cash & Carry IT
   images?: string[]; variants?: Variant[]
 }
 
@@ -97,6 +98,7 @@ export default function ProductCard({ product: p, priority, approved = false }: 
       quantity: qty,
       unitPrice: cartUnitPrice,
       taxRate: p.taxRate ?? 0.081,
+      supplierSource: p.supplierSource,
     })
     toast.success(`${p.name}${label} hinzugefügt`, { icon: '🛒' })
   }

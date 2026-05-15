@@ -28,7 +28,8 @@ export interface CartItem {
   quantity: number
   unitPrice: number   // already discounted price
   total: number
-  taxRate?: number    // 0.026 Lebensmittel | 0.081 Normalsatz
+  taxRate?: number        // 0.026 Lebensmittel | 0.081 Normalsatz
+  supplierSource?: string // 'migroweb' = Cash & Carry IT, undefined/null = local stock
 }
 
 export interface CartState {

@@ -17,7 +17,7 @@ const itemSchema = z.object({
 const schema = z.object({
   items:          z.array(itemSchema).min(1),
   paymentMethod:  z.enum(['STRIPE_CARD', 'STRIPE_TWINT', 'BANK_TRANSFER', 'NET_30']),
-  shippingOption: z.enum(['PRODIGIO_DELIVERS', 'SELF_PICKUP']).default('PRODIGIO_DELIVERS'),
+  shippingOption: z.enum(['PRODIGIO_DELIVERS', 'SELF_PICKUP', 'LOCAL_PICKUP', 'LOCAL_DELIVERY']).default('LOCAL_DELIVERY'),
   notes:          z.string().optional(),
 })
 
@@ -98,7 +98,8 @@ export async function POST(req: NextRequest) {
     const taxBreak   = calcCartTaxBreakdown(orderItems, shipping)
     const tax        = taxBreak.total
     const total      = Math.round((subtotal + shipping + tax) * 100) / 100
-    const shippingPending = shippingOption === 'PRODIGIO_DELIVERS'
+    // Transport cost is pending when Prodigio organises logistics (C&C or local delivery)
+    const shippingPending = shippingOption === 'PRODIGIO_DELIVERS' || shippingOption === 'LOCAL_DELIVERY'
 
     const orderNumber = generateOrderNumber()
     const dueDate = paymentMethod === 'NET_30'

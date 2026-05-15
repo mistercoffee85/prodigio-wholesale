@@ -53,8 +53,12 @@ enum PaymentMethod {
 }
 
 enum ShippingOption {
-  PRODIGIO_DELIVERS  // Prodigio kümmert sich um Transport, Kosten werden 1:1 weitergegeben
-  SELF_PICKUP        // Kunde holt selbst ab (Ex Works Italien)
+  // ── Cash & Carry (Ware ab Italien) ──────────────────────────────
+  PRODIGIO_DELIVERS  // PRO.DI.GIO übernimmt Transport + Verzollung CH, Kosten 1:1 weiter
+  SELF_PICKUP        // Kunde holt selbst ab (Ex Works Italien), eigene Verzollung
+  // ── Lagerprodukte (ab Lager PRO.DI.GIO Basel) ───────────────────
+  LOCAL_PICKUP       // Kunde holt bei PRO.DI.GIO GmbH in Basel ab
+  LOCAL_DELIVERY     // Lieferung durch PRO.DI.GIO GmbH, Kosten werden mitgeteilt
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -197,7 +201,7 @@ model Order {
   status          OrderStatus   @default(PENDING)
   paymentStatus   PaymentStatus @default(UNPAID)
   paymentMethod    PaymentMethod  @default(BANK_TRANSFER)
-  shippingOption   ShippingOption @default(PRODIGIO_DELIVERS)
+  shippingOption   ShippingOption @default(LOCAL_DELIVERY)
   shippingPending  Boolean        @default(false) // true = Transportkosten noch offen
   stripePaymentId  String?
   stripeInvoiceId  String?
