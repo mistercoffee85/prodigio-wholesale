@@ -264,6 +264,59 @@ function ProductsContent() {
                   ? `${totalProducts(currentCat).toLocaleString()} Produkte${isParent ? ` · ${currentCat.children?.length} Unterkategorien` : ''}`
                   : ''}
             </p>
+
+            {/* ── Suchleiste im Header (sichtbar auf Übersicht + Parent-Seiten) ── */}
+            {(isAll || isParent) && (
+              <div style={{ marginTop: 20, display: 'flex', gap: 8, maxWidth: 560 }}>
+                <div style={{ position: 'relative', flex: 1 }}>
+                  <span style={{
+                    position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)',
+                    fontSize: 16, opacity: .6,
+                  }}>🔍</span>
+                  <input
+                    value={searchInput}
+                    onChange={e => setSearchInput(e.target.value)}
+                    onKeyDown={e => { if (e.key === 'Enter') setSearch(searchInput) }}
+                    placeholder={isParent
+                      ? `In ${currentCat?.name ?? 'Produkten'} suchen…`
+                      : 'Produkt, Marke oder Artikelnr. suchen…'}
+                    style={{
+                      width: '100%', padding: '12px 14px 12px 40px',
+                      borderRadius: 10, border: 'none',
+                      fontSize: 15, outline: 'none',
+                      background: 'rgba(255,255,255,.15)',
+                      color: 'white',
+                      backdropFilter: 'blur(4px)',
+                    }}
+                    onFocus={e => { e.currentTarget.style.background = 'rgba(255,255,255,.25)' }}
+                    onBlur={e => { e.currentTarget.style.background = 'rgba(255,255,255,.15)' }}
+                  />
+                </div>
+                <button
+                  onClick={() => setSearch(searchInput)}
+                  style={{
+                    padding: '12px 22px', borderRadius: 10, border: 'none',
+                    background: 'var(--accent)', color: 'white',
+                    fontWeight: 700, fontSize: 14, cursor: 'pointer',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  Suchen
+                </button>
+                {search && (
+                  <button
+                    onClick={() => { setSearch(''); setSearchInput('') }}
+                    style={{
+                      padding: '12px 16px', borderRadius: 10, border: 'none',
+                      background: 'rgba(255,255,255,.15)', color: 'white',
+                      cursor: 'pointer', fontSize: 14,
+                    }}
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
@@ -392,9 +445,9 @@ function ProductsContent() {
           )}
 
           {/* ══════════════════════════════════════════════════════════════ */}
-          {/* VIEW 3: Leaf-Kategorie oder Suche — Paginiertes Grid          */}
+          {/* VIEW 3: Leaf / Parent+Suche / Suche — Paginiertes Grid        */}
           {/* ══════════════════════════════════════════════════════════════ */}
-          {(!isAll && (isLeaf || search)) && (
+          {(!isAll && (isLeaf || (isParent && !!search) || (!isParent && !!search))) && (
             <div>
               {/* Search + Sort bar */}
               <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', marginBottom: 20, justifyContent: 'space-between' }}>
@@ -503,25 +556,6 @@ function ProductsContent() {
 
         </div>
 
-        {/* ── Global search bar ── */}
-        {(isAll || isParent) && (
-          <div style={{ background: 'white', borderTop: '1px solid var(--gray-100)', padding: '16px clamp(16px,3vw,32px)' }}>
-            <div style={{ maxWidth: 1280, margin: '0 auto', display: 'flex', gap: 8, alignItems: 'center' }}>
-              <span style={{ fontSize: 13, color: 'var(--gray-400)', whiteSpace: 'nowrap' }}>🔍 Produkt suchen:</span>
-              <input
-                value={searchInput}
-                onChange={e => setSearchInput(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && setSearch(searchInput)}
-                placeholder="Name, Marke, Artikelnr…"
-                className="form-input"
-                style={{ flex: 1, maxWidth: 400 }}
-              />
-              {searchInput && (
-                <button className="btn btn-primary btn-sm" onClick={() => setSearch(searchInput)}>Suchen</button>
-              )}
-            </div>
-          </div>
-        )}
 
       </main>
       <Footer />
