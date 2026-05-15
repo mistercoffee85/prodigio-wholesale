@@ -420,30 +420,58 @@ async function main() {
       // Navigate to next page via vaiapagina() JS function
       // vaiapagina() may be AJAX or frame reload — don't use waitForNavigation
       const nextPage = pageNum + 1
+
+      // Read first product name on current page for change-detection below
+      const prevFirstName = await catalogFrame.evaluate(() => {
+        const first = document.querySelector('div.div_totcella')
+        return first ? (first.innerText || '').slice(0, 60) : ''
+      }).catch(() => '')
+
       await catalogFrame.evaluate((n) => {
         const gopag = document.getElementById('GOPAG')
         if (gopag) gopag.value = String(n)
         if (typeof vaiapagina === 'function') vaiapagina()
       }, nextPage)
 
-      // Wait for page to reload (AJAX or frame refresh)
-      await new Promise(r => setTimeout(r, 2000))
+      // Wait for page to reload: poll until first product changes OR 8s max
+      let waited = 0
+      while (waited < 8000) {
+        await new Promise(r => setTimeout(r, 600))
+        waited += 600
+        const curFirstName = await catalogFrame.evaluate(() => {
+          const first = document.querySelector('div.div_totcella')
+          return first ? (first.innerText || '').slice(0, 60) : ''
+        }).catch(() => '')
+        if (curFirstName && curFirstName !== prevFirstName) break
+      }
+      // Extra safety buffer
+      await new Promise(r => setTimeout(r, 500))
       await catalogFrame.waitForSelector('div.div_totcella', { timeout: 30000 })
 
       pageNum++
     }
 
-    log(`Total scraped: ${allProducts.length} products across ${pageNum} pages`)
-    stats.found = allProducts.length
+    // ── Deduplicate by SKU (same product may appear on multiple pages) ────
+    const seenRaw = new Set()
+    const uniqueProducts = allProducts.filter(p => {
+      const key = p.sku || p.name
+      if (seenRaw.has(key)) return false
+      seenRaw.add(key)
+      return true
+    })
+    const dupes = allProducts.length - uniqueProducts.length
+    log(`Total scraped: ${allProducts.length} entries across ${pageNum} pages (${dupes} duplicates removed → ${uniqueProducts.length} unique)`)
+    stats.found = uniqueProducts.length
+    const allProductsDeduped = uniqueProducts
 
-    if (allProducts.length === 0) {
+    if (allProductsDeduped.length === 0) {
       throw new Error('No products found — check login or selectors')
     }
 
     // ── 5. DRY RUN or DB SYNC ────────────────────────────────────────────
     if (CONFIG.dryRun) {
       log('DRY RUN — sample of first 10 products:')
-      allProducts.slice(0, 10).forEach((p, i) => {
+      allProductsDeduped.slice(0, 10).forEach((p, i) => {
         const cost = parsePrice(p.priceText)
         const sell = cost ? calcSellPrice(cost, CONFIG.markupFactor) : null
         log(`  [${i + 1}] ${p.name}`)
@@ -485,7 +513,7 @@ async function main() {
       const toCreate  = []
       const toUpdate  = [] // { id, data }
 
-      for (const item of allProducts) {
+      for (const item of allProductsDeduped) {
         const costPrice = parsePrice(item.priceText)
         if (!costPrice || costPrice <= 0) continue
 
