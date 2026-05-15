@@ -213,14 +213,17 @@ model Order {
 }
 
 model OrderItem {
-  id        String  @id @default(cuid())
-  orderId   String
-  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  productId String
-  product   Product @relation(fields: [productId], references: [id])
-  quantity  Int
-  unitPrice Decimal // Price at time of order
-  total     Decimal
+  id          String  @id @default(cuid())
+  orderId     String
+  order       Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId   String
+  product     Product @relation(fields: [productId], references: [id])
+  quantity    Int
+  unitPrice   Decimal // Price at time of order (per VE)
+  total       Decimal
+  unit        String  @default("") // VE 1:1 from Migroweb, e.g. "24 Pz"
+  productName String  @default("") // Snapshot of name at order time
+  productSku  String  @default("") // Migroweb SKU for re-ordering
 
   @@map("order_items")
 }

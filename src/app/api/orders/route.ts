@@ -19,7 +19,9 @@ export async function GET(req: NextRequest) {
         where,
         include: {
           user: { select: { name: true, email: true, company: { select: { name: true } } } },
-          items: { include: { product: { select: { name: true, emoji: true } } } },
+          items: {
+            include: { product: { select: { name: true, emoji: true, unit: true, supplierSku: true } } },
+          },
         },
         orderBy: { createdAt: 'desc' },
         skip: (page - 1) * limit,

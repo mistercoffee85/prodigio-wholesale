@@ -120,13 +120,19 @@ export async function sendAdminNewCustomerEmail(customerName: string, companyNam
 export async function sendOrderConfirmationEmail(
   to: string,
   name: string,
-  order: { orderNumber: string; total: number; paymentMethod: string; items: Array<{ name: string; quantity: number; unitPrice: number }> }
+  order: { orderNumber: string; total: number; paymentMethod: string; items: Array<{ name: string; quantity: number; unitPrice: number; unit?: string; sku?: string }> }
 ) {
   const itemRows = order.items.map(i => `
     <tr>
-      <td>${i.name}</td>
-      <td style="text-align:center">${i.quantity}x</td>
-      <td style="text-align:right">CHF ${(i.unitPrice * i.quantity).toFixed(2)}</td>
+      <td>
+        <strong>${i.name}</strong>
+        ${i.sku ? `<br><span style="font-size:11px;color:#888;">Art.Nr.: ${i.sku}</span>` : ''}
+      </td>
+      <td style="text-align:center;white-space:nowrap">
+        ${i.quantity} VE
+        ${i.unit ? `<br><span style="font-size:11px;color:#888;">(${i.unit} / VE)</span>` : ''}
+      </td>
+      <td style="text-align:right;white-space:nowrap">CHF ${(i.unitPrice * i.quantity).toFixed(2)}</td>
     </tr>
   `).join('')
 

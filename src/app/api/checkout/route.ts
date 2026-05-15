@@ -80,11 +80,14 @@ export async function POST(req: NextRequest) {
       }
 
       return {
-        productId: item.productId,
-        quantity:  item.quantity,
+        productId:   item.productId,
+        quantity:    item.quantity,
         unitPrice,
-        total:     Math.round(unitPrice * item.quantity * 100) / 100,
-        taxRate:   Number(product.taxRate),
+        total:       Math.round(unitPrice * item.quantity * 100) / 100,
+        taxRate:     Number(product.taxRate),
+        unit:        product.unit ?? '',                      // VE 1:1 from Migroweb
+        productName: product.name,                           // snapshot at order time
+        productSku:  product.supplierSku ?? '',              // Migroweb SKU for re-order
       }
     })
 
@@ -115,10 +118,13 @@ export async function POST(req: NextRequest) {
         dueDate,
         items: {
           create: orderItems.map(i => ({
-            productId: i.productId,
-            quantity:  i.quantity,
-            unitPrice: i.unitPrice,
-            total:     i.total,
+            productId:   i.productId,
+            quantity:    i.quantity,
+            unitPrice:   i.unitPrice,
+            total:       i.total,
+            unit:        i.unit,
+            productName: i.productName,
+            productSku:  i.productSku,
           })),
         },
       },
@@ -172,6 +178,8 @@ export async function POST(req: NextRequest) {
         name:      i.product.name,
         quantity:  i.quantity,
         unitPrice: Number(i.unitPrice),
+        unit:      (i as any).unit      || i.product.unit || '',
+        sku:       (i as any).productSku || i.product.supplierSku || '',
       })),
     }).catch(console.error)
 
