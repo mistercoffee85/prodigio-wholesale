@@ -87,11 +87,16 @@ export function useCartTotals() {
 export function useCartHydrated() {
   const [hydrated, setHydrated] = useState(false)
   useEffect(() => {
-    // If already hydrated (SPA nav), resolve immediately; otherwise wait for rehydration
+    // Already hydrated (e.g. SPA navigation) — resolve immediately
+    if (useCartStore.persist.hasHydrated()) {
+      setHydrated(true)
+      return
+    }
+    // Wait for hydration event
     const unsub = useCartStore.persist.onFinishHydration(() => setHydrated(true))
-    // Check if already rehydrated (e.g. SPA navigation)
-    if (useCartStore.persist.hasHydrated()) setHydrated(true)
-    return unsub
+    // Safety fallback: always resolve after 600ms so the page never stays stuck
+    const timer = setTimeout(() => setHydrated(true), 600)
+    return () => { unsub(); clearTimeout(timer) }
   }, [])
   return hydrated
 }
