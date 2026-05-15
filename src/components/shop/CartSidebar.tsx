@@ -1,6 +1,6 @@
 'use client'
 import { useCartStore, useCartTotals } from '@/store/cart'
-import { formatPrice, FREE_SHIPPING_THRESHOLD } from '@/lib/utils'
+import { formatPrice } from '@/lib/utils'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useSession } from 'next-auth/react'
@@ -79,9 +79,6 @@ export default function CartSidebar({ open, onClose }: Props) {
 
   if (!open) return null
 
-  const shippingLeft = FREE_SHIPPING_THRESHOLD - subtotal
-  const progress     = Math.min((subtotal / FREE_SHIPPING_THRESHOLD) * 100, 100)
-
   return (
     <>
       <div className="sidebar-overlay" onClick={onClose} />
@@ -106,23 +103,13 @@ export default function CartSidebar({ open, onClose }: Props) {
           >✕</button>
         </div>
 
-        {/* ── Free Shipping Progress ──────────────── */}
+        {/* ── Transport info banner ──────────────── */}
         {subtotal > 0 && (
-          <div style={{ padding: '12px 24px', background: shippingLeft > 0 ? 'var(--cream)' : '#e8f7f1', borderBottom: '1px solid var(--gray-100)', flexShrink: 0 }}>
-            {shippingLeft > 0 ? (
-              <>
-                <div style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--gray-600)', marginBottom: 8 }}>
-                  Noch <span style={{ color: 'var(--accent)', fontWeight: 700 }}>{formatPrice(shippingLeft)}</span> bis zur Gratis-Lieferung
-                </div>
-                <div style={{ height: 5, background: 'var(--gray-200)', borderRadius: 3, overflow: 'hidden' }}>
-                  <div style={{ height: '100%', width: `${progress}%`, background: 'var(--accent)', borderRadius: 3, transition: 'width .4s' }} />
-                </div>
-              </>
-            ) : (
-              <div style={{ fontSize: 12.5, fontWeight: 700, color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: 6 }}>
-                ✓ Gratis-Lieferung freigeschaltet! 🎉
-              </div>
-            )}
+          <div style={{ padding: '10px 24px', background: '#f8f9fb', borderBottom: '1px solid var(--gray-100)', flexShrink: 0 }}>
+            <div style={{ fontSize: 12, color: 'var(--gray-500)', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span>⏳</span>
+              <span>Transportkosten werden nach Bestellung individuell bestätigt.</span>
+            </div>
           </div>
         )}
 
@@ -261,11 +248,9 @@ export default function CartSidebar({ open, onClose }: Props) {
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13.5, color: 'var(--gray-600)', marginBottom: 5 }}>
                 <span>Zwischensumme</span><span>{formatPrice(subtotal)}</span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13.5, color: 'var(--gray-600)', marginBottom: 10 }}>
-                <span>Versand {shipping > 0 && <span style={{ fontSize: 11, color: 'var(--gray-400)', fontWeight: 400 }}>DPD Tracking</span>}</span>
-                <span style={{ color: shipping === 0 ? 'var(--accent)' : 'inherit', fontWeight: shipping === 0 ? 600 : 400 }}>
-                  {shipping === 0 ? '✓ Kostenlos' : formatPrice(shipping)}
-                </span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: 'var(--gray-400)', marginBottom: 10 }}>
+                <span>Transport</span>
+                <span style={{ fontStyle: 'italic' }}>wird bestätigt</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 800, fontSize: 20, borderTop: '1px solid var(--gray-100)', paddingTop: 10 }}>
                 <span>Gesamt</span><span>{formatPrice(total)}</span>

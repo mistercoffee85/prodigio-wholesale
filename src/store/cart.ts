@@ -73,7 +73,7 @@ export const useCartStore = create<CartState>()(
 export function useCartTotals() {
   const items = useCartStore(s => s.items)
   const subtotal  = items.reduce((s, i) => s + i.total, 0)
-  const shipping  = calcShipping(subtotal)
+  const shipping  = 0  // Transport costs are always confirmed manually after order
   const taxBreak  = calcCartTaxBreakdown(items, shipping)
   const tax       = taxBreak.total
   const total     = Math.round((subtotal + shipping + tax) * 100) / 100
