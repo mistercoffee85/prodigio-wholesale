@@ -1,11 +1,23 @@
 'use client'
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
+import Image from 'next/image'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import ProductCard from '@/components/shop/ProductCard'
-import { Suspense } from 'react'
+
+// ── Types ──────────────────────────────────────────────────────────────────
+interface Category {
+  id: string
+  name: string
+  slug: string
+  emoji: string | null
+  parentId: string | null
+  sortOrder: number
+  _count: { products: number }
+  children?: Category[]
+}
 
 interface Product {
   id: string; name: string; slug: string; brand: string; emoji: string
@@ -16,150 +28,103 @@ interface Product {
   category: { name: string; slug: string }
 }
 
-// Top-level nav pills
-const TOP_CATS = [
-  { slug: 'all',              label: 'Alle Produkte',  icon: '🏪' },
-  { slug: 'bubble-tea',       label: 'Bubble Tea',     icon: '🧋' },
-  { slug: 'teaballs',         label: 'TEABALLS',       icon: '🍵' },
-  { slug: 'patislove',        label: 'Patislove',      icon: '🍫' },
-  { slug: 'the-mallows',      label: 'The Mallows',    icon: '☁️' },
-  { slug: 'gastro-reinigung', label: 'Gastro/Reinigung', icon: '🧹' },
-  { slug: 'grosshandel',      label: 'Cash & Carry',   icon: '🏪' },
-]
-
-// Subcategory pills per parent
-const SUB_CATS: Record<string, { slug: string; label: string; icon: string }[]> = {
-  'bubble-tea': [
-    { slug: 'bubble-tea-rtd',               label: 'Ready to Drink',     icon: '🥤' },
-    { slug: 'bubble-tea-sets',              label: 'Sets',               icon: '🧋' },
-    { slug: 'bubble-tea-fruchtperlen-240g', label: 'Fruchtperlen 240g',  icon: '🫧' },
-    { slug: 'bubble-tea-1-5kg',             label: 'Fruchtperlen 1.5kg', icon: '🫐' },
-    { slug: 'bubble-tea-tapioka',           label: 'Tapioka',            icon: '⚫' },
-    { slug: 'bubble-tea-zubehoer',          label: 'Zubehör',            icon: '🥤' },
-  ],
-  'teaballs': [
-    { slug: 'teaballs-glasflaschen',     label: 'Glasflaschen',     icon: '🍶' },
-    { slug: 'teaballs-glasflaschen-bio', label: 'Glasflaschen Bio', icon: '🌿' },
-    { slug: 'teaballs-vorratsglas-100g', label: 'Vorratsglas 100g', icon: '🫙' },
-    { slug: 'teaballs-vorratsglas-500g', label: 'Vorratsglas 500g', icon: '🫙' },
-  ],
-  'patislove': [
-    { slug: 'patislove-bars',    label: 'Bars',    icon: '🍫' },
-    { slug: 'patislove-dragees', label: 'Dragées', icon: '🫐' },
-    { slug: 'patislove-cookies', label: 'Cookies', icon: '🍪' },
-    { slug: 'patislove-sticks',  label: 'Sticks',  icon: '🍬' },
-  ],
-  'grosshandel': [
-    { slug: 'grosshandel-getraenke',    label: 'Getränke',            icon: '🥤' },
-    { slug: 'grosshandel-bier-wein',    label: 'Bier & Wein',         icon: '🍺' },
-    { slug: 'grosshandel-kaffee-tee',   label: 'Kaffee & Tee',        icon: '☕' },
-    { slug: 'grosshandel-lebensmittel', label: 'Lebensmittel',        icon: '🍝' },
-    { slug: 'grosshandel-suesswaren',   label: 'Süsswaren & Snacks',  icon: '🍫' },
-    { slug: 'grosshandel-hygiene',      label: 'Hygiene & Reinigung', icon: '🧴' },
-    { slug: 'grosshandel-sonstiges',    label: 'Haushalt & Sonstiges',icon: '🏠' },
-  ],
-}
-
-// Find which parent a slug belongs to
-function findParent(slug: string): string {
-  if (slug === 'all') return 'all'
-  for (const [parent, subs] of Object.entries(SUB_CATS)) {
-    if (slug === parent || subs.some(s => s.slug === slug)) return parent
-  }
-  return slug
-}
-
+// ── Constants ──────────────────────────────────────────────────────────────
 const SORT_OPTIONS = [
   { value: 'default',    label: 'Standard' },
   { value: 'price-asc',  label: 'Preis ↑' },
   { value: 'price-desc', label: 'Preis ↓' },
-  { value: 'name',       label: 'Name A–Z' },
+  { value: 'name',       label: 'A–Z' },
 ]
 
-// Brand display order + meta for the grouped "Alle Produkte" view
-const BRAND_META: Record<string, { emoji: string; color: string; desc: string }> = {
-  'My Bubble Tea':  { emoji: '🧋', color: '#1a9e7a', desc: 'Fruchtperlen, Sets, Tapioka & Zubehör' },
-  'BobaJoy':        { emoji: '🥤', color: '#e85c2a', desc: 'Ready-to-Drink Bubble Tea' },
-  'TEABALLS':       { emoji: '🍵', color: '#3d7a5e', desc: 'Glasflaschen & Vorratsglase' },
-  'Patislove':      { emoji: '🍫', color: '#8b4513', desc: 'Bars, Dragées, Cookies & Sticks' },
-  'The Mallows':    { emoji: '☁️', color: '#9b59b6', desc: 'Premium Marshmallows' },
-  'WhiteBear':      { emoji: '🧹', color: '#2c7bb6', desc: 'Gastro & Reinigung' },
-}
-const BRAND_ORDER = ['My Bubble Tea', 'BobaJoy', 'TEABALLS', 'Patislove', 'The Mallows', 'WhiteBear']
-
-// Subcategory order + clean labels within each brand section
-const BRAND_SUBCAT_ORDER: Record<string, { slug: string; label: string; icon: string }[]> = {
-  'My Bubble Tea': [
-    { slug: 'bubble-tea-rtd',               label: 'Ready to Drink',     icon: '🥤' },
-    { slug: 'bubble-tea-sets',              label: 'Sets',               icon: '🧋' },
-    { slug: 'bubble-tea-fruchtperlen-240g', label: 'Fruchtperlen 240g',  icon: '🫧' },
-    { slug: 'bubble-tea-1-5kg',             label: 'Fruchtperlen 1.5kg', icon: '🫐' },
-    { slug: 'bubble-tea-tapioka',           label: 'Tapioka',            icon: '⚫' },
-    { slug: 'bubble-tea-zubehoer',          label: 'Zubehör',            icon: '🥄' },
-  ],
-  'BobaJoy': [
-    { slug: 'bubble-tea-rtd', label: 'Ready to Drink', icon: '🥤' },
-  ],
-  'TEABALLS': [
-    { slug: 'teaballs-glasflaschen-bio', label: 'Glasflaschen Bio',  icon: '🌿' },
-    { slug: 'teaballs-glasflaschen',     label: 'Glasflaschen',      icon: '🍶' },
-    { slug: 'teaballs-vorratsglas-100g', label: 'Vorratsglas 100g',  icon: '🫙' },
-    { slug: 'teaballs-vorratsglas-500g', label: 'Vorratsglas 500g',  icon: '🫙' },
-  ],
-  'Patislove': [
-    { slug: 'patislove-bars',    label: 'Bars',    icon: '🍫' },
-    { slug: 'patislove-dragees', label: 'Dragées', icon: '🫐' },
-    { slug: 'patislove-cookies', label: 'Cookies', icon: '🍪' },
-    { slug: 'patislove-sticks',  label: 'Sticks',  icon: '🍬' },
-  ],
-  'The Mallows': [
-    { slug: 'the-mallows', label: 'The Mallows', icon: '☁️' },
-  ],
-  'WhiteBear': [
-    { slug: 'gastro-reinigung', label: 'Gastro & Reinigung', icon: '🧹' },
-  ],
+// ── Helpers ────────────────────────────────────────────────────────────────
+function buildCategoryTree(flat: Category[]): Category[] {
+  const roots: Category[] = []
+  const map = new Map(flat.map(c => [c.id, { ...c, children: [] as Category[] }]))
+  for (const c of Array.from(map.values())) {
+    if (c.parentId) map.get(c.parentId)?.children?.push(c)
+    else roots.push(c)
+  }
+  return roots.sort((a, b) => a.sortOrder - b.sortOrder)
 }
 
+function totalProducts(cat: Category): number {
+  return cat._count.products + (cat.children ?? []).reduce((s, c) => s + c._count.products, 0)
+}
+
+function findCategory(cats: Category[], slug: string): Category | undefined {
+  for (const c of cats) {
+    if (c.slug === slug) return c
+    const found = findCategory(c.children ?? [], slug)
+    if (found) return found
+  }
+}
+
+function findParentOf(cats: Category[], slug: string): Category | undefined {
+  for (const c of cats) {
+    if ((c.children ?? []).some(ch => ch.slug === slug)) return c
+    const found = findParentOf(c.children ?? [], slug)
+    if (found) return found
+  }
+}
+
+// ── Main Component ─────────────────────────────────────────────────────────
 function ProductsContent() {
-  const searchParams = useSearchParams()
-  const router = useRouter()
+  const searchParams    = useSearchParams()
+  const router          = useRouter()
   const { data: session } = useSession()
-  const approved = session?.user?.status === 'APPROVED'
-  const urlCategory = searchParams.get('category') ?? 'all'
-  const initBadge   = searchParams.get('badge') ?? ''
+  const approved        = session?.user?.status === 'APPROVED'
 
-  const [products, setProducts] = useState<Product[]>([])
-  const [loading, setLoading]   = useState(true)
-  const [category, setCategory] = useState(urlCategory)
-  const [search, setSearch]     = useState('')
-  const [searchInput, setSearchInput] = useState('')
-  const [sort, setSort]         = useState('default')
-  const [total, setTotal]       = useState(0)
+  const categorySlug = searchParams.get('category') ?? 'all'
 
-  // Sync category when URL changes (nav links, browser back/forward)
-  useEffect(() => { setCategory(urlCategory) }, [urlCategory])
+  const [allCategories, setAllCategories] = useState<Category[]>([])
+  const [tree, setTree]                   = useState<Category[]>([])
+  const [products, setProducts]           = useState<Product[]>([])
+  const [total, setTotal]                 = useState(0)
+  const [loading, setLoading]             = useState(true)
+  const [search, setSearch]               = useState('')
+  const [searchInput, setSearchInput]     = useState('')
+  const [sort, setSort]                   = useState('default')
 
-  const activeParent = findParent(category)
-  const subCats = SUB_CATS[activeParent] ?? []
+  // Load categories once
+  useEffect(() => {
+    fetch('/api/categories')
+      .then(r => r.json())
+      .then((cats: Category[]) => {
+        setAllCategories(cats)
+        setTree(buildCategoryTree(cats))
+      })
+  }, [])
 
+  // Reset search when category changes
+  useEffect(() => { setSearch(''); setSearchInput('') }, [categorySlug])
+
+  const currentCat  = categorySlug !== 'all' ? findCategory(tree, categorySlug) : undefined
+  const parentCat   = categorySlug !== 'all' ? findParentOf(tree, categorySlug) : undefined
+  const isParent    = (currentCat?.children?.length ?? 0) > 0
+  const isLeaf      = !!currentCat && !isParent
+  const isAll       = categorySlug === 'all'
+
+  // Fetch products
   const fetchProducts = useCallback(async () => {
+    if (isAll && !search) { setLoading(false); return } // overview: no products needed
+
     setLoading(true)
     const params = new URLSearchParams()
 
-    if (category === 'all') {
-      // "Alle Produkte": eigene Marken, keine Cash & Carry Produkte
-      params.set('excludeSupplier', 'migroweb')
-      params.set('limit', '500')
+    if (search) {
+      if (categorySlug !== 'all') params.set('category', categorySlug)
+      params.set('search', search)
+      params.set('limit', '200')
+    } else if (isParent) {
+      params.set('category', categorySlug)
+      const isCashCarry = categorySlug === 'grosshandel'
+      params.set('limit', isCashCarry ? '350' : '500')
     } else {
-      params.set('category', category)
-      // For Cash & Carry categories use a higher limit (many products)
-      const isCashCarry = category === 'grosshandel' || category.startsWith('grosshandel-')
-      params.set('limit', isCashCarry ? '200' : '500')
+      params.set('category', categorySlug)
+      params.set('limit', '500')
     }
 
-    if (search) params.set('search', search)
-    if (initBadge) params.set('badge', initBadge)
-    const res = await fetch(`/api/products?${params}`)
+    const res  = await fetch(`/api/products?${params}`)
     const data = await res.json()
     let prods: Product[] = data.products ?? []
 
@@ -167,19 +132,10 @@ function ProductsContent() {
     if (sort === 'price-desc') prods = [...prods].sort((a, b) => b.price - a.price)
     if (sort === 'name')       prods = [...prods].sort((a, b) => a.name.localeCompare(b.name))
 
-    // Patislove: sort by product type when showing all patislove
-    if (sort === 'default' && (category === 'patislove' || activeParent === 'patislove')) {
-      prods = [...prods].sort((a, b) => {
-        const sa = Number(a.details?._sort) || 99
-        const sb = Number(b.details?._sort) || 99
-        return sa !== sb ? sa - sb : a.name.localeCompare(b.name)
-      })
-    }
-
     setProducts(prods)
     setTotal(data.total ?? 0)
     setLoading(false)
-  }, [category, search, sort, initBadge])
+  }, [categorySlug, search, sort, isAll, isParent])
 
   useEffect(() => { fetchProducts() }, [fetchProducts])
 
@@ -187,280 +143,272 @@ function ProductsContent() {
     router.push(slug === 'all' ? '/products' : `/products?category=${slug}`)
   }
 
-  // Label for active category filter chip
-  const activeCatLabel = [...TOP_CATS, ...Object.values(SUB_CATS).flat()].find(c => c.slug === category)?.label
-    ?? category
-
+  // ── Render ─────────────────────────────────────────────────────────────
   return (
     <>
       <Header />
       <main style={{ minHeight: '80vh', background: 'var(--cream)' }}>
-        {/* Page Header */}
+
+        {/* ── Page header ── */}
         <div className="page-header">
           <div style={{ maxWidth: 1280, margin: '0 auto' }}>
-            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, color: 'var(--accent)', marginBottom: 12, textTransform: 'uppercase' }}>
-              Cash & Carry Sortiment
+            {/* Breadcrumb */}
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,.6)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+              <span style={{ cursor: 'pointer', textDecoration: 'underline' }} onClick={() => navigate('all')}>Alle Produkte</span>
+              {parentCat && <>
+                <span>›</span>
+                <span style={{ cursor: 'pointer', textDecoration: 'underline' }} onClick={() => navigate(parentCat.slug)}>
+                  {parentCat.emoji} {parentCat.name}
+                </span>
+              </>}
+              {currentCat && <>
+                <span>›</span>
+                <span>{currentCat.emoji} {currentCat.name}</span>
+              </>}
             </div>
-            <h1>Unsere Produkte</h1>
-            <p style={{ marginTop: 8 }} suppressHydrationWarning>
-              {loading ? '...' : total} {!loading && total === 1 ? 'Produkt' : 'Produkte'} zu exklusiven Grosshandelspreisen
+            <h1 style={{ margin: 0 }}>
+              {isAll ? 'Alle Produkte' : `${currentCat?.emoji ?? ''} ${currentCat?.name ?? ''}`}
+            </h1>
+            <p style={{ marginTop: 6, opacity: .8, fontSize: 14 }}>
+              {isAll
+                ? `${tree.reduce((s, c) => s + totalProducts(c), 0).toLocaleString()} Produkte in ${tree.length} Kategorien`
+                : currentCat
+                  ? `${totalProducts(currentCat).toLocaleString()} Produkte${isParent ? ` · ${currentCat.children?.length} Unterkategorien` : ''}`
+                  : ''}
             </p>
           </div>
         </div>
 
         <div style={{ maxWidth: 1280, margin: '0 auto', padding: 'clamp(24px,3vw,40px) clamp(16px,3vw,32px)' }}>
 
-          {/* ── Top-level category pills ─────────────────────────── */}
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: subCats.length ? 12 : 24 }}>
-            {TOP_CATS.map(cat => (
-              <button
-                key={cat.slug}
-                onClick={() => navigate(cat.slug)}
-                className={`filter-pill${activeParent === cat.slug || (cat.slug === 'all' && category === 'all') ? ' active' : ''}`}
-              >
-                {cat.icon} {cat.label}
-              </button>
-            ))}
-          </div>
+          {/* ── VIEW 1: Alle Produkte — Kategorie-Übersicht ── */}
+          {isAll && !search && (
+            <div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
+                {tree.filter(c => totalProducts(c) > 0).map(cat => (
+                  <div
+                    key={cat.slug}
+                    onClick={() => navigate(cat.slug)}
+                    className="card"
+                    style={{ padding: '24px', cursor: 'pointer', transition: 'all .2s' }}
+                    onMouseOver={e => (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'}
+                    onMouseOut={e => (e.currentTarget as HTMLElement).style.transform = ''}
+                  >
+                    <div style={{ fontSize: 40, marginBottom: 12 }}>{cat.emoji ?? '📦'}</div>
+                    <div style={{ fontWeight: 700, fontSize: 18, marginBottom: 4 }}>{cat.name}</div>
+                    <div style={{ fontSize: 13, color: 'var(--gray-400)', marginBottom: 16 }}>
+                      {totalProducts(cat).toLocaleString()} Produkte
+                      {(cat.children?.length ?? 0) > 0 && ` · ${cat.children!.length} Kategorien`}
+                    </div>
 
-          {/* ── Subcategory pills (shown when parent is selected) ─── */}
-          {subCats.length > 0 && (
-            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 24, paddingLeft: 4 }}>
-              {/* "Alle [Parent]" pill */}
-              <button
-                onClick={() => navigate(activeParent)}
-                style={{
-                  padding: '5px 14px', fontSize: 12.5, fontWeight: 500,
-                  borderRadius: 20, border: '1.5px solid var(--gray-200)',
-                  background: category === activeParent ? 'var(--forest)' : 'white',
-                  color: category === activeParent ? 'white' : 'var(--gray-600)',
-                  cursor: 'pointer', transition: 'all .15s',
-                }}
-              >
-                Alle
-              </button>
-              {subCats.map(sub => (
-                <button
-                  key={sub.slug}
-                  onClick={() => navigate(sub.slug)}
-                  style={{
-                    padding: '5px 14px', fontSize: 12.5, fontWeight: 500,
-                    borderRadius: 20, border: '1.5px solid var(--gray-200)',
-                    background: category === sub.slug ? 'var(--forest)' : 'white',
-                    color: category === sub.slug ? 'white' : 'var(--gray-600)',
-                    cursor: 'pointer', transition: 'all .15s',
-                  }}
-                >
-                  {sub.icon} {sub.label}
-                </button>
-              ))}
+                    {/* Subcategory pills */}
+                    {(cat.children?.length ?? 0) > 0 && (
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 16 }}>
+                        {cat.children!.slice(0, 5).map(sub => (
+                          <span key={sub.slug} style={{
+                            fontSize: 11.5, padding: '3px 10px', borderRadius: 20,
+                            background: 'var(--cream)', color: 'var(--gray-600)', fontWeight: 500,
+                          }}>
+                            {sub.emoji} {sub.name}
+                          </span>
+                        ))}
+                        {(cat.children?.length ?? 0) > 5 && (
+                          <span style={{ fontSize: 11.5, color: 'var(--gray-400)' }}>
+                            +{cat.children!.length - 5} weitere
+                          </span>
+                        )}
+                      </div>
+                    )}
+
+                    <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--accent)' }}>
+                      Ansehen →
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
-          {/* ── Search + Sort ────────────────────────────────────── */}
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', marginBottom: 24, justifyContent: 'flex-end' }}>
-            <div style={{ position: 'relative' }}>
-              <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 14, color: 'var(--gray-400)' }}>🔍</span>
+          {/* ── VIEW 2: Parent-Kategorie — Unterkategorien + Produkte ── */}
+          {!isAll && isParent && !search && (
+            <div>
+              {/* Subcategory cards */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 12, marginBottom: 40 }}>
+                {currentCat!.children!.sort((a, b) => a.sortOrder - b.sortOrder).map(sub => (
+                  <div
+                    key={sub.slug}
+                    onClick={() => navigate(sub.slug)}
+                    className="card"
+                    style={{ padding: '20px 16px', cursor: 'pointer', textAlign: 'center', transition: 'all .2s' }}
+                    onMouseOver={e => (e.currentTarget as HTMLElement).style.background = '#f5f3f0'}
+                    onMouseOut={e => (e.currentTarget as HTMLElement).style.background = ''}
+                  >
+                    <div style={{ fontSize: 30, marginBottom: 10 }}>{sub.emoji ?? '📦'}</div>
+                    <div style={{ fontWeight: 600, fontSize: 13.5, marginBottom: 4 }}>{sub.name}</div>
+                    <div style={{ fontSize: 12, color: 'var(--gray-400)' }}>
+                      {sub._count.products.toLocaleString()} Produkte
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Products grouped by subcategory */}
+              {loading ? (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 16 }}>
+                  {Array.from({ length: 8 }).map((_, i) => <div key={i} className="skeleton" style={{ height: 360, borderRadius: 12 }} />)}
+                </div>
+              ) : products.length > 0 ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 40 }}>
+                  {/* Group products by subcategory */}
+                  {currentCat!.children!
+                    .sort((a, b) => a.sortOrder - b.sortOrder)
+                    .map(sub => {
+                      const subProds = products.filter(p => p.category.slug === sub.slug)
+                      if (subProds.length === 0) return null
+                      return (
+                        <section key={sub.slug}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16, paddingBottom: 12, borderBottom: '2px solid var(--gray-100)' }}>
+                            <span style={{ fontSize: 22 }}>{sub.emoji}</span>
+                            <div>
+                              <div style={{ fontWeight: 700, fontSize: 16 }}>{sub.name}</div>
+                              <div style={{ fontSize: 12, color: 'var(--gray-400)' }}>
+                                {sub._count.products.toLocaleString()} Produkte
+                              </div>
+                            </div>
+                            {sub._count.products > subProds.length && (
+                              <button
+                                onClick={() => navigate(sub.slug)}
+                                className="btn btn-ghost btn-sm"
+                                style={{ marginLeft: 'auto' }}
+                              >
+                                Alle {sub._count.products.toLocaleString()} anzeigen →
+                              </button>
+                            )}
+                          </div>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 'clamp(12px,2vw,20px)' }}>
+                            {subProds.map((p, i) => <ProductCard key={p.id} product={p} priority={i === 0} approved={approved} />)}
+                          </div>
+                        </section>
+                      )
+                    })}
+                </div>
+              ) : null}
+            </div>
+          )}
+
+          {/* ── VIEW 3: Leaf-Kategorie oder Suche — Flat grid ── */}
+          {(!isAll && (isLeaf || search)) && (
+            <div>
+              {/* Search + Sort bar */}
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', marginBottom: 20, justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                  <div style={{ position: 'relative' }}>
+                    <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--gray-400)' }}>🔍</span>
+                    <input
+                      value={searchInput}
+                      onChange={e => setSearchInput(e.target.value)}
+                      onKeyDown={e => e.key === 'Enter' && setSearch(searchInput)}
+                      placeholder={`In ${currentCat?.name ?? 'Produkte'} suchen…`}
+                      className="form-input"
+                      style={{ paddingLeft: 36, width: 240 }}
+                    />
+                  </div>
+                  {searchInput && (
+                    <button className="btn btn-sm btn-outline" onClick={() => setSearch(searchInput)}>Suchen</button>
+                  )}
+                  {search && (
+                    <button className="btn btn-sm btn-ghost" onClick={() => { setSearch(''); setSearchInput('') }}>✕ Reset</button>
+                  )}
+                </div>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  {!loading && <span style={{ fontSize: 13, color: 'var(--gray-400)' }}>{total.toLocaleString()} Produkte</span>}
+                  <select value={sort} onChange={e => setSort(e.target.value)} className="form-input" style={{ width: 'auto' }}>
+                    {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                  </select>
+                </div>
+              </div>
+
+              {/* Back to parent link */}
+              {parentCat && !search && (
+                <button onClick={() => navigate(parentCat.slug)} className="btn btn-ghost btn-sm" style={{ marginBottom: 20 }}>
+                  ← {parentCat.emoji} {parentCat.name}
+                </button>
+              )}
+
+              {loading ? (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 16 }}>
+                  {Array.from({ length: 12 }).map((_, i) => <div key={i} className="skeleton" style={{ height: 360, borderRadius: 12 }} />)}
+                </div>
+              ) : products.length === 0 ? (
+                <div className="empty-state">
+                  <div className="icon">🔍</div>
+                  <p style={{ fontWeight: 600, fontSize: 17, marginBottom: 8 }}>Keine Produkte gefunden</p>
+                  <p style={{ fontSize: 14 }}>Versuche andere Suchbegriffe oder wähle eine andere Kategorie.</p>
+                  <button className="btn btn-black" style={{ marginTop: 20 }} onClick={() => { setSearch(''); setSearchInput(''); navigate('all') }}>
+                    Alle Kategorien anzeigen
+                  </button>
+                </div>
+              ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 'clamp(12px,2vw,20px)' }}>
+                  {products.map((p, i) => <ProductCard key={p.id} product={p} priority={i === 0} approved={approved} />)}
+                </div>
+              )}
+
+              {/* "Mehr anzeigen" hint wenn nicht alle geladen */}
+              {!loading && products.length > 0 && total > products.length && (
+                <div style={{ textAlign: 'center', marginTop: 32, padding: 24, background: 'white', borderRadius: 12, border: '1px solid var(--gray-100)' }}>
+                  <p style={{ color: 'var(--gray-400)', fontSize: 14, marginBottom: 12 }}>
+                    {products.length} von {total.toLocaleString()} Produkten geladen
+                  </p>
+                  <p style={{ fontSize: 13, color: 'var(--gray-400)' }}>
+                    Nutze die Suche um spezifische Produkte zu finden.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ── Suche von Alle Produkte aus ── */}
+          {isAll && search && (
+            <div>
+              <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
+                <button className="btn btn-ghost btn-sm" onClick={() => { setSearch(''); setSearchInput('') }}>✕ Suche zurücksetzen</button>
+                {!loading && <span style={{ fontSize: 13, color: 'var(--gray-400)', lineHeight: '32px' }}>{total.toLocaleString()} Ergebnisse</span>}
+              </div>
+              {loading ? (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 16 }}>
+                  {Array.from({ length: 8 }).map((_, i) => <div key={i} className="skeleton" style={{ height: 360, borderRadius: 12 }} />)}
+                </div>
+              ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 'clamp(12px,2vw,20px)' }}>
+                  {products.map((p, i) => <ProductCard key={p.id} product={p} priority={i === 0} approved={approved} />)}
+                </div>
+              )}
+            </div>
+          )}
+
+        </div>
+
+        {/* ── Global search bar (always visible on all views) ── */}
+        {(isAll || isParent) && (
+          <div style={{ background: 'white', borderTop: '1px solid var(--gray-100)', padding: '16px clamp(16px,3vw,32px)' }}>
+            <div style={{ maxWidth: 1280, margin: '0 auto', display: 'flex', gap: 8, alignItems: 'center' }}>
+              <span style={{ fontSize: 13, color: 'var(--gray-400)', whiteSpace: 'nowrap' }}>🔍 Produkt suchen:</span>
               <input
                 value={searchInput}
                 onChange={e => setSearchInput(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && setSearch(searchInput)}
-                placeholder="Produkt suchen..."
+                placeholder="Name, Marke, Artikelnr…"
                 className="form-input"
-                style={{ paddingLeft: 36, width: 220 }}
+                style={{ flex: 1, maxWidth: 400 }}
               />
+              {searchInput && (
+                <button className="btn btn-primary btn-sm" onClick={() => setSearch(searchInput)}>Suchen</button>
+              )}
             </div>
-            {searchInput && (
-              <button className="btn btn-sm btn-outline" onClick={() => { setSearch(searchInput); setSearchInput('') }}>Suchen</button>
-            )}
-            {search && (
-              <button className="btn btn-sm btn-ghost" onClick={() => { setSearch(''); setSearchInput('') }}>✕ Reset</button>
-            )}
-            <select value={sort} onChange={e => setSort(e.target.value)} className="form-input" style={{ width: 'auto', paddingRight: 36 }}>
-              {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-            </select>
           </div>
+        )}
 
-          {/* Active Filter Tags */}
-          {(search || (category !== 'all' && category !== activeParent)) && (
-            <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap', alignItems: 'center' }}>
-              <span style={{ fontSize: 13, color: 'var(--gray-400)' }}>Filter:</span>
-              {category !== 'all' && category !== activeParent && (
-                <span className="chip">
-                  {activeCatLabel}
-                  <button onClick={() => navigate(activeParent)} style={{ cursor: 'pointer', color: 'var(--gray-400)', fontSize: 12 }}>✕</button>
-                </span>
-              )}
-              {search && (
-                <span className="chip">
-                  „{search}"
-                  <button onClick={() => { setSearch(''); setSearchInput('') }} style={{ cursor: 'pointer', color: 'var(--gray-400)', fontSize: 12 }}>✕</button>
-                </span>
-              )}
-            </div>
-          )}
-
-          {/* Product Grid */}
-          {loading ? (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 'clamp(12px,2vw,20px)' }}>
-              {Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="skeleton" style={{ height: 360, borderRadius: 'var(--radius-lg)' }} />
-              ))}
-            </div>
-          ) : products.length === 0 ? (
-            <div className="empty-state">
-              <div className="icon">🔍</div>
-              <p style={{ fontWeight: 600, fontSize: 17, marginBottom: 8 }}>Keine Produkte gefunden</p>
-              <p style={{ fontSize: 14 }}>Versuchen Sie andere Suchbegriffe oder Filter.</p>
-              <button className="btn btn-black" style={{ marginTop: 20 }} onClick={() => { setSearch(''); setSearchInput(''); router.push('/products') }}>
-                Alle Produkte anzeigen
-              </button>
-            </div>
-          ) : category === 'all' && !search && sort === 'default' ? (() => {
-            /* ── Marken-gruppierte Ansicht + Cash & Carry Teaser ── */
-            const brandSections = BRAND_ORDER
-              .map(brand => ({ brand, prods: products.filter(p => p.brand === brand) }))
-              .filter(({ prods }) => prods.length > 0)
-
-            // Fallback: wenn keine eigenen Marken matchen (z.B. API-Mismatch),
-            // zeige alle Produkte als flat grid
-            if (brandSections.length === 0) {
-              return (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 'clamp(12px,2vw,20px)' }}>
-                  {products.map((p, i) => <ProductCard key={p.id} product={p} priority={i === 0} approved={approved} />)}
-                </div>
-              )
-            }
-
-            return (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 56 }}>
-              {brandSections
-                .map(({ brand, prods }) => {
-                  const meta = BRAND_META[brand] ?? { emoji: '📦', color: 'var(--accent)', desc: '' }
-                  const subcatOrder = BRAND_SUBCAT_ORDER[brand] ?? []
-
-                  // Group products by subcategory slug
-                  const grouped: { slug: string; label: string; icon: string; items: Product[] }[] = []
-                  // First: ordered subcategories
-                  for (const sub of subcatOrder) {
-                    const items = prods.filter(p => p.category.slug === sub.slug)
-                    if (items.length > 0) grouped.push({ ...sub, items })
-                  }
-                  // Then: any remaining (unknown subcategories, fallback)
-                  const handledSlugs = new Set(subcatOrder.map(s => s.slug))
-                  const remaining = prods.filter(p => !handledSlugs.has(p.category.slug))
-                  if (remaining.length > 0) {
-                    grouped.push({ slug: '__other', label: remaining[0].category.name, icon: '📦', items: remaining })
-                  }
-
-                  const showSubcatHeaders = grouped.length > 1
-
-                  return (
-                    <section key={brand}>
-                      {/* ── Brand Header ── */}
-                      <div style={{
-                        display: 'flex', alignItems: 'center', gap: 14, marginBottom: 24,
-                        paddingBottom: 16, borderBottom: `2px solid ${meta.color}33`,
-                      }}>
-                        <div style={{
-                          width: 48, height: 48, borderRadius: 12, flexShrink: 0,
-                          background: `${meta.color}18`,
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          fontSize: 24,
-                        }}>{meta.emoji}</div>
-                        <div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-                            <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--black)', margin: 0, letterSpacing: '-0.02em' }}>{brand}</h2>
-                            <span style={{
-                              fontSize: 11, fontWeight: 700, padding: '2px 9px', borderRadius: 20,
-                              background: `${meta.color}18`, color: meta.color,
-                            }}>{prods.length} Produkte</span>
-                          </div>
-                          {meta.desc && <div style={{ fontSize: 12.5, color: 'var(--gray-400)', marginTop: 2 }}>{meta.desc}</div>}
-                        </div>
-                      </div>
-
-                      {/* ── Subcategory groups ── */}
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
-                        {grouped.map(group => (
-                          <div key={group.slug}>
-                            {showSubcatHeaders && (
-                              <div style={{
-                                display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14,
-                              }}>
-                                <span style={{ fontSize: 15 }}>{group.icon}</span>
-                                <span style={{ fontSize: 13.5, fontWeight: 700, color: 'var(--gray-600)' }}>{group.label}</span>
-                                <span style={{
-                                  fontSize: 10.5, fontWeight: 600, color: 'var(--gray-400)',
-                                  background: 'var(--gray-100)', borderRadius: 20, padding: '1px 8px',
-                                }}>{group.items.length}</span>
-                                <div style={{ flex: 1, height: 1, background: 'var(--gray-100)', marginLeft: 4 }} />
-                              </div>
-                            )}
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 'clamp(12px,2vw,20px)' }}>
-                              {group.items.map((p, i) => <ProductCard key={p.id} product={p} priority={i === 0} approved={approved} />)}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </section>
-                  )
-                })}
-
-              {/* ── Cash & Carry Teaser ── */}
-              <section>
-                <div style={{
-                  display: 'flex', alignItems: 'center', gap: 14, marginBottom: 24,
-                  paddingBottom: 16, borderBottom: '2px solid #e8a72033',
-                }}>
-                  <div style={{
-                    width: 48, height: 48, borderRadius: 12, flexShrink: 0,
-                    background: '#e8a72018',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24,
-                  }}>🏪</div>
-                  <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-                      <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--black)', margin: 0 }}>Cash & Carry</h2>
-                      <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 9px', borderRadius: 20, background: '#e8a72018', color: '#e8a720' }}>6.800+ Produkte</span>
-                    </div>
-                    <div style={{ fontSize: 12.5, color: 'var(--gray-400)', marginTop: 2 }}>Getränke · Bier & Wein · Kaffee & Tee · Lebensmittel · Süsswaren · Hygiene</div>
-                  </div>
-                  <button
-                    onClick={() => navigate('grosshandel')}
-                    className="btn btn-ghost"
-                    style={{ marginLeft: 'auto', whiteSpace: 'nowrap' }}
-                  >
-                    Alle anzeigen →
-                  </button>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 12 }}>
-                  {SUB_CATS['grosshandel'].map(sub => (
-                    <button
-                      key={sub.slug}
-                      onClick={() => navigate(sub.slug)}
-                      style={{
-                        padding: '20px 16px', borderRadius: 12,
-                        border: '1.5px solid var(--gray-200)', background: 'white',
-                        cursor: 'pointer', textAlign: 'center', transition: 'all .15s',
-                      }}
-                      onMouseOver={e => (e.currentTarget.style.borderColor = 'var(--accent)', e.currentTarget.style.background = '#faf9f7')}
-                      onMouseOut={e => (e.currentTarget.style.borderColor = 'var(--gray-200)', e.currentTarget.style.background = 'white')}
-                    >
-                      <div style={{ fontSize: 28, marginBottom: 8 }}>{sub.icon}</div>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--black)' }}>{sub.label}</div>
-                    </button>
-                  ))}
-                </div>
-              </section>
-            </div>
-            )
-          })() : (
-            /* ── Gefilterte / sortierte Ansicht ── */
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 'clamp(12px,2vw,20px)' }}>
-              {products.map((p, i) => <ProductCard key={p.id} product={p} priority={i === 0} approved={approved} />)}
-            </div>
-          )}
-        </div>
       </main>
       <Footer />
     </>
