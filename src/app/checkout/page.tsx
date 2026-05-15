@@ -192,61 +192,94 @@ export default function CheckoutPage() {
 
                 {/* Lieferoption */}
                 <div className="card" style={{ padding: 28 }}>
-                  <h2 style={{ fontSize: 17, fontWeight: 700, marginBottom: 20 }}>Lieferoption</h2>
+                  <h2 style={{ fontSize: 17, fontWeight: 700, marginBottom: 6 }}>Lieferoption</h2>
+                  <p style={{ fontSize: 12.5, color: 'var(--gray-400)', marginBottom: 18 }}>
+                    Ware wird ab Lager Italien (Ex Works) bereitgestellt.
+                  </p>
 
                   {/* Option 1: Prodigio liefert */}
                   <label style={{
-                    display: 'flex', gap: 14, padding: '16px 18px',
-                    border: '1.5px solid',
+                    display: 'block', padding: '18px 20px',
+                    border: '2px solid',
                     borderColor: shippingOption === 'PRODIGIO_DELIVERS' ? 'var(--accent)' : 'var(--gray-200)',
-                    borderRadius: 10, cursor: 'pointer', marginBottom: 10,
+                    borderRadius: 12, cursor: 'pointer', marginBottom: 10,
                     background: shippingOption === 'PRODIGIO_DELIVERS' ? 'var(--accent-light)' : 'white',
                     transition: 'all .15s',
                   }}>
-                    <input
-                      type="radio" name="so" value="PRODIGIO_DELIVERS"
-                      checked={shippingOption === 'PRODIGIO_DELIVERS'}
-                      onChange={() => setShippingOption('PRODIGIO_DELIVERS')}
-                      style={{ marginTop: 4, accentColor: 'var(--accent)', flexShrink: 0 }}
-                    />
-                    <div>
-                      <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 4 }}>🚚 Prodigio übernimmt Transport</div>
-                      <div style={{ fontSize: 13, color: 'var(--gray-500)', lineHeight: 1.5 }}>
-                        Wir organisieren den Transport direkt vom Lieferanten in Italien bis zu Ihnen in der Schweiz.
-                        Die genauen Transportkosten werden Ihnen nach der Bestellung separat bestätigt und <strong>1:1 weiterverrechnet</strong>.
+                    <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                      <input
+                        type="radio" name="so" value="PRODIGIO_DELIVERS"
+                        checked={shippingOption === 'PRODIGIO_DELIVERS'}
+                        onChange={() => setShippingOption('PRODIGIO_DELIVERS')}
+                        style={{ marginTop: 3, accentColor: 'var(--accent)', flexShrink: 0 }}
+                      />
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 10 }}>
+                          🚚 Transport &amp; Verzollung durch PRO.DI.GIO GmbH
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                          {[
+                            ['📦', 'Abholung', 'Wir holen die Ware beim Lieferanten in Italien ab'],
+                            ['🛃', 'Verzollung', 'Wir übernehmen die Schweizer Zollanmeldung'],
+                            ['🚛', 'Transport', 'Lieferung direkt zu Ihnen in der Schweiz'],
+                            ['💶', 'Kosten', 'Transportkosten werden 1:1 weiterverrechnet'],
+                          ].map(([icon, title, desc]) => (
+                            <div key={title} style={{ background: 'rgba(255,255,255,0.6)', borderRadius: 8, padding: '10px 12px' }}>
+                              <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 3 }}>{icon} {title}</div>
+                              <div style={{ fontSize: 11.5, color: 'var(--gray-500)', lineHeight: 1.4 }}>{desc}</div>
+                            </div>
+                          ))}
+                        </div>
+                        {shippingOption === 'PRODIGIO_DELIVERS' && (
+                          <div style={{ marginTop: 12, fontSize: 12, color: 'var(--accent)', fontWeight: 600 }}>
+                            ✓ Transportkosten werden nach Bestellung separat bestätigt
+                          </div>
+                        )}
                       </div>
                     </div>
                   </label>
 
                   {/* Option 2: Selbstabholung */}
                   <label style={{
-                    display: 'flex', gap: 14, padding: '16px 18px',
-                    border: '1.5px solid',
+                    display: 'block', padding: '18px 20px',
+                    border: '2px solid',
                     borderColor: shippingOption === 'SELF_PICKUP' ? 'var(--accent)' : 'var(--gray-200)',
-                    borderRadius: 10, cursor: 'pointer', marginBottom: 0,
+                    borderRadius: 12, cursor: 'pointer',
                     background: shippingOption === 'SELF_PICKUP' ? 'var(--accent-light)' : 'white',
                     transition: 'all .15s',
                   }}>
-                    <input
-                      type="radio" name="so" value="SELF_PICKUP"
-                      checked={shippingOption === 'SELF_PICKUP'}
-                      onChange={() => setShippingOption('SELF_PICKUP')}
-                      style={{ marginTop: 4, accentColor: 'var(--accent)', flexShrink: 0 }}
-                    />
-                    <div>
-                      <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 4 }}>🚗 Selbstabholung (Ex Works Italien)</div>
-                      <div style={{ fontSize: 13, color: 'var(--gray-500)', lineHeight: 1.5 }}>
-                        Sie holen die Ware direkt beim Lieferanten in Italien ab. Verzollung, Transport und alle
-                        damit verbundenen Kosten liegen vollständig bei Ihnen.
+                    <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                      <input
+                        type="radio" name="so" value="SELF_PICKUP"
+                        checked={shippingOption === 'SELF_PICKUP'}
+                        onChange={() => setShippingOption('SELF_PICKUP')}
+                        style={{ marginTop: 3, accentColor: 'var(--accent)', flexShrink: 0 }}
+                      />
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 10 }}>
+                          🚗 Selbstabholung (Ex Works Italien)
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                          {[
+                            ['📍', 'Abholung', 'Sie holen direkt beim Lieferanten in Italien ab'],
+                            ['🛃', 'Verzollung', 'Liegt vollständig bei Ihnen'],
+                            ['🚛', 'Transport', 'Organisation und Kosten bei Ihnen'],
+                            ['📋', 'Voraussetzung', 'EORI-Nummer für EU-Export erforderlich'],
+                          ].map(([icon, title, desc]) => (
+                            <div key={title} style={{ background: 'rgba(255,255,255,0.6)', borderRadius: 8, padding: '10px 12px' }}>
+                              <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 3 }}>{icon} {title}</div>
+                              <div style={{ fontSize: 11.5, color: 'var(--gray-500)', lineHeight: 1.4 }}>{desc}</div>
+                            </div>
+                          ))}
+                        </div>
+                        {shippingOption === 'SELF_PICKUP' && (
+                          <div style={{ marginTop: 12, fontSize: 12, color: '#92400e', fontWeight: 600 }}>
+                            ⚠ Keine Transportkosten — Sie tragen alle Kosten ab Lager Italien
+                          </div>
+                        )}
                       </div>
                     </div>
                   </label>
-
-                  {shippingOption === 'SELF_PICKUP' && (
-                    <div style={{ marginTop: 12, background: '#fff7ed', border: '1px solid #fcd9b6', borderRadius: 8, padding: '12px 16px', fontSize: 12.5, color: '#92400e', lineHeight: 1.6 }}>
-                      <strong>Hinweis Ex Works:</strong> Sie benötigen eine gültige EORI-Nummer für den Export aus der EU sowie eine Schweizer Zollanmeldung für die Einfuhr. Bitte informieren Sie sich vorab über die Bestimmungen.
-                    </div>
-                  )}
                 </div>
 
                 {/* Zahlungsmethode */}

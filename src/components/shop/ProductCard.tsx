@@ -212,7 +212,7 @@ export default function ProductCard({ product: p, priority, approved = false }: 
                   </div>
                   <div style={{ fontSize: 10, color: 'var(--gray-400)', marginTop: 2 }}>
                     {formatPrice(activePrice)}/VE
-                    {pricePerPiece && <span> · {formatPrice(pricePerPiece)}/Pz</span>}
+                    {pricePerPiece && <span> · {formatPrice(pricePerPiece)}/Stk</span>}
                   </div>
                 </div>
                 {/* UVP */}
@@ -257,7 +257,7 @@ export default function ProductCard({ product: p, priority, approved = false }: 
                 <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--black)' }}>{formatPrice(moqTotal)}</div>
                 <div style={{ fontSize: 10, color: 'var(--gray-400)', marginTop: 2 }}>
                   {activeMoq} VE × {formatPrice(activePrice)}/VE
-                  {pricePerPiece && <span style={{ marginLeft: 6, color: 'var(--gray-300)' }}>· {formatPrice(pricePerPiece)}/Pz</span>}
+                  {pricePerPiece && <span style={{ marginLeft: 6, color: 'var(--gray-300)' }}>· {formatPrice(pricePerPiece)}/Stk</span>}
                 </div>
               </div>
             )}
@@ -353,12 +353,19 @@ export default function ProductCard({ product: p, priority, approved = false }: 
 
               {Object.keys(p.details || {}).length > 0 && (
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 28 }}>
-                  {Object.entries(p.details).map(([k, v]) => (
+                  {/* Filter out Italian MwSt (22%) — Swiss VAT (8.1%) applies at checkout */}
+                  {Object.entries(p.details).filter(([k]) => k !== 'MwSt').map(([k, v]) => (
                     <div key={k} style={{ background: 'var(--cream)', borderRadius: 'var(--radius)', padding: '12px 14px' }}>
                       <div style={{ fontSize: 10.5, fontWeight: 600, color: 'var(--gray-400)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: .5 }}>{k}</div>
-                      <div style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--black)' }}>{v}</div>
+                      <div style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--black)' }}>{String(v).replace(/Pz/g, 'Stk')}</div>
                     </div>
                   ))}
+                  <div style={{ background: 'var(--cream)', borderRadius: 'var(--radius)', padding: '12px 14px' }}>
+                    <div style={{ fontSize: 10.5, fontWeight: 600, color: 'var(--gray-400)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: .5 }}>MwSt</div>
+                    <div style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--black)' }}>
+                      {p.taxRate === 0.026 ? '2.6% (Lebensmittel)' : '8.1% (CH)'}
+                    </div>
+                  </div>
                 </div>
               )}
 
@@ -414,7 +421,7 @@ export default function ProductCard({ product: p, priority, approved = false }: 
                         </div>
                         <div style={{ fontSize: 11.5, color: 'var(--gray-400)', marginTop: 6 }}>
                           {formatPrice(activePrice)}/VE · {activeUnit}
-                          {pricePerPiece && <span> · {formatPrice(pricePerPiece)}/Pz</span>}
+                          {pricePerPiece && <span> · {formatPrice(pricePerPiece)}/Stk</span>}
                           {p.stock > 0 && p.stock < 20 && <div style={{ color: '#c2430c', marginTop: 4 }}>⚠ Nur {p.stock} VE</div>}
                         </div>
                       </div>
@@ -439,7 +446,7 @@ export default function ProductCard({ product: p, priority, approved = false }: 
                       <div style={{ fontSize: 30, fontWeight: 800 }}>{formatPrice(moqTotal)}</div>
                       <div style={{ fontSize: 12, color: 'var(--gray-400)', marginTop: 6 }}>
                         {formatPrice(activePrice)}/VE · {activeUnit}
-                        {pricePerPiece && <span> · {formatPrice(pricePerPiece)}/Pz</span>}
+                        {pricePerPiece && <span> · {formatPrice(pricePerPiece)}/Stk</span>}
                         {p.stock > 0 && p.stock < 20 && <span style={{ color: '#c2430c', marginLeft: 8 }}>· Nur {p.stock} VE</span>}
                       </div>
                     </div>
