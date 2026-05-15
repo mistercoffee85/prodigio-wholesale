@@ -201,8 +201,9 @@ model Order {
   status          OrderStatus   @default(PENDING)
   paymentStatus   PaymentStatus @default(UNPAID)
   paymentMethod    PaymentMethod  @default(BANK_TRANSFER)
-  shippingOption   ShippingOption @default(LOCAL_DELIVERY)
-  shippingPending  Boolean        @default(false) // true = Transportkosten noch offen
+  shippingOption      ShippingOption  @default(LOCAL_DELIVERY)   // C&C or primary option
+  shippingOptionLocal ShippingOption? // Only for mixed carts: local-stock portion
+  shippingPending     Boolean         @default(false) // true = Transportkosten noch offen
   stripePaymentId  String?
   stripeInvoiceId  String?
   subtotal         Decimal

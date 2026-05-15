@@ -17,7 +17,8 @@ const itemSchema = z.object({
 const schema = z.object({
   items:          z.array(itemSchema).min(1),
   paymentMethod:  z.enum(['STRIPE_CARD', 'STRIPE_TWINT', 'BANK_TRANSFER', 'NET_30']),
-  shippingOption: z.enum(['PRODIGIO_DELIVERS', 'SELF_PICKUP', 'LOCAL_PICKUP', 'LOCAL_DELIVERY']).default('LOCAL_DELIVERY'),
+  shippingOption:      z.enum(['PRODIGIO_DELIVERS', 'SELF_PICKUP', 'LOCAL_PICKUP', 'LOCAL_DELIVERY']).default('LOCAL_DELIVERY'),
+  shippingOptionLocal: z.enum(['LOCAL_PICKUP', 'LOCAL_DELIVERY']).optional(), // only for mixed carts
   notes:          z.string().optional(),
 })
 
@@ -25,7 +26,7 @@ export async function POST(req: NextRequest) {
   try {
     const session = await requireAuth()
     const body = await req.json()
-    const { items, paymentMethod, shippingOption, notes } = schema.parse(body)
+    const { items, paymentMethod, shippingOption, shippingOptionLocal, notes } = schema.parse(body)
 
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
@@ -98,8 +99,10 @@ export async function POST(req: NextRequest) {
     const taxBreak   = calcCartTaxBreakdown(orderItems, shipping)
     const tax        = taxBreak.total
     const total      = Math.round((subtotal + shipping + tax) * 100) / 100
-    // Transport cost is pending when Prodigio organises logistics (C&C or local delivery)
-    const shippingPending = shippingOption === 'PRODIGIO_DELIVERS' || shippingOption === 'LOCAL_DELIVERY'
+    // Transport cost is pending when Prodigio organises any logistics leg
+    const shippingPending = shippingOption === 'PRODIGIO_DELIVERS'
+      || shippingOption === 'LOCAL_DELIVERY'
+      || shippingOptionLocal === 'LOCAL_DELIVERY'
 
     const orderNumber = generateOrderNumber()
     const dueDate = paymentMethod === 'NET_30'
@@ -112,7 +115,8 @@ export async function POST(req: NextRequest) {
         orderNumber,
         userId:          user.id,
         paymentMethod:   paymentMethod as any,
-        shippingOption:  shippingOption as any,
+        shippingOption:      shippingOption as any,
+        shippingOptionLocal: shippingOptionLocal as any ?? null,
         shippingPending,
         status:          'PENDING',
         paymentStatus:   'UNPAID',
@@ -181,6 +185,7 @@ export async function POST(req: NextRequest) {
       total,
       paymentMethod,
       shippingOption,
+      shippingOptionLocal,
       items: order.items.map(i => ({
         name:      i.product.name,
         quantity:  i.quantity,

@@ -16,7 +16,7 @@ interface OrderItem {
 interface Order {
   id: string; orderNumber: string; status: string; paymentStatus: string
   total: number; subtotal: number; tax: number; shippingCost: number
-  paymentMethod: string; shippingOption: string; shippingPending: boolean
+  paymentMethod: string; shippingOption: string; shippingOptionLocal?: string; shippingPending: boolean
   createdAt: string
   user: { name: string; email: string; company: { name: string } | null }
   items: OrderItem[]
@@ -130,11 +130,20 @@ export default function AdminOrdersPage() {
                       </td>
                       <td style={{ fontWeight: 700 }}>{formatPrice(Number(o.total))}</td>
                       <td style={{ fontSize: 12.5 }}>{PM_LABELS[o.paymentMethod] ?? o.paymentMethod}</td>
-                      <td style={{ fontSize: 12 }}>
-                        {o.shippingOption === 'SELF_PICKUP'
-                          ? <span style={{ color: 'var(--gray-500)' }}>🚗 Ex Works</span>
-                          : <span style={{ color: o.shippingPending ? '#b45309' : 'var(--accent)', fontWeight: 600 }}>🚚 Prodigio</span>
-                        }
+                      <td style={{ fontSize: 11.5, lineHeight: 1.6 }}>
+                        {/* Primary shipping option */}
+                        <div style={{ color: o.shippingPending ? '#b45309' : 'var(--gray-600)', fontWeight: 600 }}>
+                          {o.shippingOption === 'SELF_PICKUP'   && '🚗 Ex Works IT'}
+                          {o.shippingOption === 'LOCAL_PICKUP'  && '🏢 Abholung Basel'}
+                          {o.shippingOption === 'LOCAL_DELIVERY'    && '🚚 Lieferung Basel'}
+                          {o.shippingOption === 'PRODIGIO_DELIVERS' && '🚚 Transport IT'}
+                        </div>
+                        {/* Secondary option for mixed carts */}
+                        {o.shippingOptionLocal && (
+                          <div style={{ color: 'var(--gray-500)', fontSize: 11 }}>
+                            {o.shippingOptionLocal === 'LOCAL_PICKUP'   ? '🏢 Abholung Basel' : '🚚 Lieferung Basel'}
+                          </div>
+                        )}
                       </td>
                       <td onClick={e => e.stopPropagation()}>
                         {o.shippingOption === 'PRODIGIO_DELIVERS' ? (
