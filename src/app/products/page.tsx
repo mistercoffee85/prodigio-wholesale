@@ -147,8 +147,8 @@ function ProductsContent() {
     const params = new URLSearchParams()
 
     if (category === 'all') {
-      // "Alle Produkte" brand-grouped view: only own brands (no Migroweb)
-      params.set('supplier', 'own')
+      // "Alle Produkte": eigene Marken, keine Cash & Carry Produkte
+      params.set('excludeSupplier', 'migroweb')
       params.set('limit', '500')
     } else {
       params.set('category', category)

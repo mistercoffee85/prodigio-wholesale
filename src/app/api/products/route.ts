@@ -11,7 +11,8 @@ export async function GET(req: NextRequest) {
     const category = searchParams.get('category')
     const search   = searchParams.get('search')
     const badge    = searchParams.get('badge')
-    const supplier = searchParams.get('supplier') // 'own' = no supplierSource, else exact match
+    const supplier        = searchParams.get('supplier')         // exact supplierSource match
+    const excludeSupplier = searchParams.get('excludeSupplier') // exclude this supplier
     const page     = Number(searchParams.get('page') ?? 1)
     const limit    = Number(searchParams.get('limit') ?? 100)
 
@@ -33,23 +34,18 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    const supplierFilter = supplier === 'own'
-      ? { supplierSource: null }
-      : supplier ? { supplierSource: supplier } : {}
-
-    const where = {
+    const where: Record<string, unknown> = {
       active: true,
       ...categoryFilter,
-      ...supplierFilter,
-      ...(badge && { badge }),
-      ...(search && {
-        OR: [
-          { name:        { contains: search, mode: 'insensitive' as const } },
-          { brand:       { contains: search, mode: 'insensitive' as const } },
-          { description: { contains: search, mode: 'insensitive' as const } },
-        ],
-      }),
     }
+    if (supplier)        where.supplierSource = supplier
+    if (excludeSupplier) where.supplierSource = { not: excludeSupplier }
+    if (badge)           where.badge = badge
+    if (search)          where.OR = [
+      { name:        { contains: search, mode: 'insensitive' } },
+      { brand:       { contains: search, mode: 'insensitive' } },
+      { description: { contains: search, mode: 'insensitive' } },
+    ]
 
     const [products, total] = await Promise.all([
       prisma.product.findMany({
