@@ -34,6 +34,7 @@ const updateSchema = z.object({
   status:        z.enum(['PENDING','CONFIRMED','PROCESSING','SHIPPED','DELIVERED','CANCELLED']).optional(),
   paymentStatus: z.enum(['UNPAID','PAID','PARTIALLY_PAID','REFUNDED']).optional(),
   notes:         z.string().optional(),
+  shippingCost:  z.number().min(0).optional(), // Admin sets transport cost for PRODIGIO_DELIVERS orders
 })
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
@@ -46,10 +47,22 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     const body = await req.json()
     const data = updateSchema.parse(body)
 
+    // If shippingCost is being set, recalculate total and mark shipping as no longer pending
+    let extraData: Record<string, unknown> = {}
+    if (data.shippingCost !== undefined) {
+      const current = await prisma.order.findUnique({ where: { id: params.id }, select: { subtotal: true, tax: true } })
+      if (current) {
+        const newTotal = Math.round((Number(current.subtotal) + Number(current.tax) + data.shippingCost) * 100) / 100
+        extraData = { shippingCost: data.shippingCost, total: newTotal, shippingPending: false }
+      }
+    }
+
+    const { shippingCost, ...restData } = data
     const order = await prisma.order.update({
       where: { id: params.id },
       data: {
-        ...data,
+        ...restData,
+        ...extraData,
         ...(data.status === 'DELIVERED' && { deliveredAt: new Date() }),
         ...(data.status === 'SHIPPED'   && { shippedAt:   new Date() }),
         ...(data.paymentStatus === 'PAID' && { paidAt:    new Date() }),

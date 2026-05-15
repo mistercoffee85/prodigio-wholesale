@@ -10,8 +10,9 @@ import Footer from '@/components/layout/Footer'
 import StripePaymentForm from '@/components/checkout/StripePaymentForm'
 import toast from 'react-hot-toast'
 
-type PaymentMethod = 'BANK_TRANSFER' | 'NET_30' | 'STRIPE_CARD'
-type CheckoutStep  = 'form' | 'stripe-payment'
+type PaymentMethod  = 'BANK_TRANSFER' | 'NET_30' | 'STRIPE_CARD'
+type ShippingOption = 'PRODIGIO_DELIVERS' | 'SELF_PICKUP'
+type CheckoutStep   = 'form' | 'stripe-payment'
 
 interface StripeData {
   clientSecret: string
@@ -26,7 +27,8 @@ export default function CheckoutPage() {
   const { subtotal, shipping, tax, taxFood, taxStandard, total } = useCartTotals()
 
   const hydrated = useCartHydrated()
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('BANK_TRANSFER')
+  const [paymentMethod,  setPaymentMethod]  = useState<PaymentMethod>('BANK_TRANSFER')
+  const [shippingOption, setShippingOption] = useState<ShippingOption>('PRODIGIO_DELIVERS')
   const [notes,   setNotes]   = useState('')
   const [loading, setLoading] = useState(false)
   const [step,    setStep]    = useState<CheckoutStep>('form')
@@ -35,6 +37,7 @@ export default function CheckoutPage() {
   const buildPayload = () => ({
     items: items.map(i => ({ productId: i.productId, quantity: i.quantity, variantLabel: i.variantLabel })),
     paymentMethod,
+    shippingOption,
     notes,
   })
 
@@ -187,6 +190,65 @@ export default function CheckoutPage() {
               {/* Left column */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 
+                {/* Lieferoption */}
+                <div className="card" style={{ padding: 28 }}>
+                  <h2 style={{ fontSize: 17, fontWeight: 700, marginBottom: 20 }}>Lieferoption</h2>
+
+                  {/* Option 1: Prodigio liefert */}
+                  <label style={{
+                    display: 'flex', gap: 14, padding: '16px 18px',
+                    border: '1.5px solid',
+                    borderColor: shippingOption === 'PRODIGIO_DELIVERS' ? 'var(--accent)' : 'var(--gray-200)',
+                    borderRadius: 10, cursor: 'pointer', marginBottom: 10,
+                    background: shippingOption === 'PRODIGIO_DELIVERS' ? 'var(--accent-light)' : 'white',
+                    transition: 'all .15s',
+                  }}>
+                    <input
+                      type="radio" name="so" value="PRODIGIO_DELIVERS"
+                      checked={shippingOption === 'PRODIGIO_DELIVERS'}
+                      onChange={() => setShippingOption('PRODIGIO_DELIVERS')}
+                      style={{ marginTop: 4, accentColor: 'var(--accent)', flexShrink: 0 }}
+                    />
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 4 }}>🚚 Prodigio übernimmt Transport</div>
+                      <div style={{ fontSize: 13, color: 'var(--gray-500)', lineHeight: 1.5 }}>
+                        Wir organisieren den Transport direkt vom Lieferanten in Italien bis zu Ihnen in der Schweiz.
+                        Die genauen Transportkosten werden Ihnen nach der Bestellung separat bestätigt und <strong>1:1 weiterverrechnet</strong>.
+                      </div>
+                    </div>
+                  </label>
+
+                  {/* Option 2: Selbstabholung */}
+                  <label style={{
+                    display: 'flex', gap: 14, padding: '16px 18px',
+                    border: '1.5px solid',
+                    borderColor: shippingOption === 'SELF_PICKUP' ? 'var(--accent)' : 'var(--gray-200)',
+                    borderRadius: 10, cursor: 'pointer', marginBottom: 0,
+                    background: shippingOption === 'SELF_PICKUP' ? 'var(--accent-light)' : 'white',
+                    transition: 'all .15s',
+                  }}>
+                    <input
+                      type="radio" name="so" value="SELF_PICKUP"
+                      checked={shippingOption === 'SELF_PICKUP'}
+                      onChange={() => setShippingOption('SELF_PICKUP')}
+                      style={{ marginTop: 4, accentColor: 'var(--accent)', flexShrink: 0 }}
+                    />
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 4 }}>🚗 Selbstabholung (Ex Works Italien)</div>
+                      <div style={{ fontSize: 13, color: 'var(--gray-500)', lineHeight: 1.5 }}>
+                        Sie holen die Ware direkt beim Lieferanten in Italien ab. Verzollung, Transport und alle
+                        damit verbundenen Kosten liegen vollständig bei Ihnen.
+                      </div>
+                    </div>
+                  </label>
+
+                  {shippingOption === 'SELF_PICKUP' && (
+                    <div style={{ marginTop: 12, background: '#fff7ed', border: '1px solid #fcd9b6', borderRadius: 8, padding: '12px 16px', fontSize: 12.5, color: '#92400e', lineHeight: 1.6 }}>
+                      <strong>Hinweis Ex Works:</strong> Sie benötigen eine gültige EORI-Nummer für den Export aus der EU sowie eine Schweizer Zollanmeldung für die Einfuhr. Bitte informieren Sie sich vorab über die Bestimmungen.
+                    </div>
+                  )}
+                </div>
+
                 {/* Zahlungsmethode */}
                 <div className="card" style={{ padding: 28 }}>
                   <h2 style={{ fontSize: 17, fontWeight: 700, marginBottom: 20 }}>Zahlungsmethode</h2>
@@ -260,7 +322,7 @@ export default function CheckoutPage() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
                   {[
                     ['Zwischensumme', formatPrice(subtotal)],
-                    ['Versand' + (shipping > 0 ? ' (DPD Tracking)' : ''), shipping === 0 ? '🎁 Kostenlos' : formatPrice(shipping)],
+                    ['Transport', shippingOption === 'SELF_PICKUP' ? '🚗 Selbstabholung' : '⏳ Wird separat bestätigt'],
                     ...(taxFood > 0     ? [['MwSt. 2.6% (Lebensmittel)', formatPrice(taxFood)]]   : []),
                     ...(taxStandard > 0 ? [['MwSt. 8.1%',                formatPrice(taxStandard)]] : []),
                     ...(taxFood === 0 && taxStandard === 0 ? [['MwSt.', formatPrice(tax)]] : []),
@@ -297,7 +359,7 @@ export default function CheckoutPage() {
 
                 {/* Trust badges */}
                 <div style={{ display: 'flex', justifyContent: 'center', gap: 20, marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--gray-100)' }}>
-                  {['🔒 Sicher', '🇨🇭 Schweiz', '📦 2–4 Tage'].map(b => (
+                  {['🔒 Sicher', '🇨🇭 Schweiz', shippingOption === 'SELF_PICKUP' ? '🚗 Ex Works' : '🚚 Transport inklusive'].map(b => (
                     <span key={b} style={{ fontSize: 11, color: 'var(--gray-400)', fontWeight: 500 }}>{b}</span>
                   ))}
                 </div>

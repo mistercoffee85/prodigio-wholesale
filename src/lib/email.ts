@@ -120,7 +120,7 @@ export async function sendAdminNewCustomerEmail(customerName: string, companyNam
 export async function sendOrderConfirmationEmail(
   to: string,
   name: string,
-  order: { orderNumber: string; total: number; paymentMethod: string; items: Array<{ name: string; quantity: number; unitPrice: number; unit?: string; sku?: string }> }
+  order: { orderNumber: string; total: number; paymentMethod: string; shippingOption?: string; items: Array<{ name: string; quantity: number; unitPrice: number; unit?: string; sku?: string }> }
 ) {
   const itemRows = order.items.map(i => `
     <tr>
@@ -156,6 +156,10 @@ export async function sendOrderConfirmationEmail(
         <tr class="total-row"><td colspan="2">Gesamtbetrag (inkl. MwSt.)</td><td style="text-align:right">CHF ${order.total.toFixed(2)}</td></tr>
       </table>
       <p><strong>Zahlungsmethode:</strong> ${paymentLabel[order.paymentMethod] ?? order.paymentMethod}</p>
+      <p><strong>Lieferung:</strong> ${order.shippingOption === 'SELF_PICKUP'
+        ? '🚗 Selbstabholung Ex Works – Sie holen die Ware direkt beim Lieferanten in Italien ab. Verzollung und Transport liegen bei Ihnen.'
+        : '🚚 Prodigio übernimmt Transport – Wir kümmern uns um den Transport bis zu Ihnen. Die Transportkosten werden Ihnen separat bestätigt und 1:1 weiterverrechnet.'
+      }</p>
       ${order.paymentMethod === 'BANK_TRANSFER' ? `
         <div style="background:#f8f8f8; padding:16px; border-radius:8px; margin:16px 0;">
           <strong>Bankdaten für Überweisung:</strong><br/>

@@ -23,6 +23,7 @@ export async function GET(req: NextRequest) {
             include: { product: { select: { name: true, emoji: true, unit: true, supplierSku: true } } },
           },
         },
+        // shippingOption, shippingPending, shippingCost are included by default
         orderBy: { createdAt: 'desc' },
         skip: (page - 1) * limit,
         take: limit,

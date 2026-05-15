@@ -15,16 +15,17 @@ const itemSchema = z.object({
 })
 
 const schema = z.object({
-  items:         z.array(itemSchema).min(1),
-  paymentMethod: z.enum(['STRIPE_CARD', 'STRIPE_TWINT', 'BANK_TRANSFER', 'NET_30']),
-  notes:         z.string().optional(),
+  items:          z.array(itemSchema).min(1),
+  paymentMethod:  z.enum(['STRIPE_CARD', 'STRIPE_TWINT', 'BANK_TRANSFER', 'NET_30']),
+  shippingOption: z.enum(['PRODIGIO_DELIVERS', 'SELF_PICKUP']).default('PRODIGIO_DELIVERS'),
+  notes:          z.string().optional(),
 })
 
 export async function POST(req: NextRequest) {
   try {
     const session = await requireAuth()
     const body = await req.json()
-    const { items, paymentMethod, notes } = schema.parse(body)
+    const { items, paymentMethod, shippingOption, notes } = schema.parse(body)
 
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
@@ -92,10 +93,12 @@ export async function POST(req: NextRequest) {
     })
 
     const subtotal   = orderItems.reduce((s, i) => s + i.total, 0)
-    const shipping   = calcShipping(subtotal)
+    // Shipping: 0 for self-pickup; for Prodigio delivery it's set by admin later
+    const shipping   = shippingOption === 'SELF_PICKUP' ? 0 : 0
     const taxBreak   = calcCartTaxBreakdown(orderItems, shipping)
     const tax        = taxBreak.total
     const total      = Math.round((subtotal + shipping + tax) * 100) / 100
+    const shippingPending = shippingOption === 'PRODIGIO_DELIVERS'
 
     const orderNumber = generateOrderNumber()
     const dueDate = paymentMethod === 'NET_30'
@@ -106,13 +109,15 @@ export async function POST(req: NextRequest) {
     const order = await prisma.order.create({
       data: {
         orderNumber,
-        userId:        user.id,
-        paymentMethod: paymentMethod as any,
-        status:        'PENDING',
-        paymentStatus: 'UNPAID',
+        userId:          user.id,
+        paymentMethod:   paymentMethod as any,
+        shippingOption:  shippingOption as any,
+        shippingPending,
+        status:          'PENDING',
+        paymentStatus:   'UNPAID',
         subtotal,
         tax,
-        shippingCost:  shipping,
+        shippingCost:    shipping,
         total,
         notes,
         dueDate,
@@ -174,6 +179,7 @@ export async function POST(req: NextRequest) {
       orderNumber,
       total,
       paymentMethod,
+      shippingOption,
       items: order.items.map(i => ({
         name:      i.product.name,
         quantity:  i.quantity,
