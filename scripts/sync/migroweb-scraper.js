@@ -514,14 +514,17 @@ async function main() {
       const toUpdate  = [] // { id, data }
 
       for (const item of allProductsDeduped) {
-        const costPrice = parsePrice(item.priceText)
-        if (!costPrice || costPrice <= 0) continue
+        const costPricePerPz = parsePrice(item.priceText)   // Migroweb price = per single piece (Pz)
+        if (!costPricePerPz || costPricePerPz <= 0) continue
+
+        const unitQty    = parseUnitQty(item.qtyText)        // pieces per VE (e.g. 24)
+        // Multiply by unitQty to get the cost per VE (carton)
+        const costPrice  = Math.round(costPricePerPz * Math.max(unitQty, 1) * 100) / 100
 
         const catSlugForMarkup = categorizeName(item.name)
         const factor = markupFactors[catSlugForMarkup] ?? CONFIG.markupFactor
         const sellPrice  = calcSellPrice(costPrice, factor)
         const stockCount = parseStock(item.stockText)
-        const unitQty    = parseUnitQty(item.qtyText)
         const sku        = item.sku || null
 
         // ── VE: use Migroweb text 1:1 (e.g. "36 Pz"), fallback computed ──
@@ -559,11 +562,8 @@ async function main() {
             unit:         unitLabel,   // always keep VE in sync with supplier
             details,                   // refresh details each sync
           }
-          // Only update sell price if drift > 2%
-          const currentPrice = Number(existing.price)
-          if (currentPrice > 0 && Math.abs(currentPrice - sellPrice) / currentPrice > 0.02) {
-            data.price = sellPrice
-          }
+          // Always update sell price (recalculated from per-VE cost price)
+          data.price = sellPrice
           // Update image if currently empty
           if (imgUrl && (!existing.images || existing.images.length === 0)) {
             data.images = [imgUrl]
