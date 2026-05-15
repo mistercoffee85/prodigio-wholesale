@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState, useCallback, useRef, Suspense } from 'react'
+import { useEffect, useState, useCallback, useRef, Suspense, useLayoutEffect } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import Header from '@/components/layout/Header'
@@ -28,7 +28,7 @@ interface Product {
 }
 
 // ── Constants ──────────────────────────────────────────────────────────────
-const PAGE_SIZE     = 100   // products per page
+const PAGE_SIZE     = 200   // products per page (high for fast browsing)
 const PREVIEW_SIZE  = 12    // products shown per subcategory in parent view
 
 const SORT_OPTIONS = [
@@ -102,7 +102,8 @@ function ProductsContent() {
   const [searchInput, setSearchInput] = useState('')
   const [sort, setSort]           = useState('default')
 
-  const loadMoreRef = useRef<HTMLDivElement>(null)
+  const sentinelRef = useRef<HTMLDivElement>(null)
+  const loadMoreRef = useRef<HTMLDivElement>(null) // kept for compat
 
   // Load categories once
   useEffect(() => {
@@ -202,6 +203,30 @@ function ProductsContent() {
   }
 
   const hasMore = products.length > 0 && products.length < total
+  const loadingMoreRef = useRef(loadingMore)
+  const hasMoreRef     = useRef(hasMore)
+  useEffect(() => { loadingMoreRef.current = loadingMore }, [loadingMore])
+  useEffect(() => { hasMoreRef.current = hasMore }, [hasMore])
+
+  // ── Infinite scroll via IntersectionObserver ────────────────────────────
+  useEffect(() => {
+    const sentinel = sentinelRef.current
+    if (!sentinel) return
+    const observer = new IntersectionObserver(
+      entries => {
+        if (entries[0].isIntersecting && hasMoreRef.current && !loadingMoreRef.current) {
+          setPage(prev => {
+            const next = prev + 1
+            fetchPage(next, false)
+            return next
+          })
+        }
+      },
+      { rootMargin: '400px' } // trigger 400px before bottom
+    )
+    observer.observe(sentinel)
+    return () => observer.disconnect()
+  }, [fetchPage])
 
   // Apply sort client-side (only affects currently loaded items)
   const sorted = sortProducts(products, sort)
@@ -425,22 +450,16 @@ function ProductsContent() {
                     {sorted.map((p, i) => <ProductCard key={p.id} product={p} priority={i < 4} approved={approved} />)}
                   </div>
 
-                  {/* Load more */}
-                  {hasMore && (
-                    <div ref={loadMoreRef} style={{ textAlign: 'center', marginTop: 40 }}>
-                      <p style={{ color: 'var(--gray-400)', fontSize: 13, marginBottom: 12 }}>
-                        {sorted.length.toLocaleString()} von {total.toLocaleString()} Produkten geladen
-                      </p>
-                      <button
-                        className="btn btn-black"
-                        style={{ minWidth: 220 }}
-                        onClick={loadMore}
-                        disabled={loadingMore}
-                      >
-                        {loadingMore
-                          ? '⏳ Laden…'
-                          : `Weitere ${Math.min(PAGE_SIZE, total - sorted.length).toLocaleString()} Produkte laden`}
-                      </button>
+                  {/* Infinite scroll sentinel */}
+                  <div ref={sentinelRef} style={{ height: 1 }} />
+
+                  {/* Loading indicator */}
+                  {loadingMore && (
+                    <div style={{ textAlign: 'center', padding: 32 }}>
+                      <div style={{ display: 'inline-flex', gap: 6, alignItems: 'center', color: 'var(--gray-400)', fontSize: 13 }}>
+                        <span style={{ animation: 'spin 1s linear infinite', display: 'inline-block' }}>⏳</span>
+                        Weitere Produkte werden geladen…
+                      </div>
                     </div>
                   )}
 
@@ -470,11 +489,11 @@ function ProductsContent() {
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 'clamp(12px,2vw,20px)' }}>
                     {sorted.map((p, i) => <ProductCard key={p.id} product={p} priority={i < 4} approved={approved} />)}
                   </div>
-                  {hasMore && (
-                    <div style={{ textAlign: 'center', marginTop: 40 }}>
-                      <button className="btn btn-black" style={{ minWidth: 220 }} onClick={loadMore} disabled={loadingMore}>
-                        {loadingMore ? '⏳ Laden…' : `Weitere ${Math.min(PAGE_SIZE, total - sorted.length).toLocaleString()} Produkte laden`}
-                      </button>
+                  {/* Infinite scroll sentinel (search view) */}
+                  <div ref={sentinelRef} style={{ height: 1 }} />
+                  {loadingMore && (
+                    <div style={{ textAlign: 'center', padding: 32, color: 'var(--gray-400)', fontSize: 13 }}>
+                      ⏳ Weitere Ergebnisse werden geladen…
                     </div>
                   )}
                 </>
