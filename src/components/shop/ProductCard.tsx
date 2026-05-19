@@ -383,7 +383,9 @@ export default function ProductCard({ product: p, priority, approved = false }: 
                   <div style={{ background: 'var(--cream)', borderRadius: 'var(--radius)', padding: '12px 14px' }}>
                     <div style={{ fontSize: 10.5, fontWeight: 600, color: 'var(--gray-400)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: .5 }}>MwSt</div>
                     <div style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--black)' }}>
-                      {p.taxRate === 0.026 ? '2.6% (Lebensmittel)' : '8.1% (CH)'}
+                      {p.supplierSource === 'migroweb'
+                        ? 'Ex Works IT'
+                        : p.taxRate === 0.026 ? '2.6% CH (Lebensmittel)' : '8.1% CH'}
                     </div>
                   </div>
                 </div>

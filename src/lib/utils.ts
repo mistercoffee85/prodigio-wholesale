@@ -56,14 +56,17 @@ export function calcTax(amount: number): number {
   return calcTaxAtRate(amount, VAT_RATE_STANDARD)
 }
 
-/** Summarise tax across cart items: returns {food, standard} tax amounts */
+/** Summarise tax across cart items: returns {food, standard} tax amounts.
+ *  C&C products (supplierSource === 'migroweb') are Ex Works Italy — no Swiss VAT. */
 export function calcCartTaxBreakdown(
-  items: Array<{ total: number; taxRate?: number }>,
+  items: Array<{ total: number; taxRate?: number; supplierSource?: string }>,
   shipping: number,
 ): { food: number; standard: number; total: number } {
   let food = 0
   let standard = 0
   for (const item of items) {
+    // Cash & Carry products from Italy: Ex Works — Swiss VAT does not apply
+    if (item.supplierSource === 'migroweb') continue
     const rate = item.taxRate ?? VAT_RATE_STANDARD
     if (rate <= VAT_RATE_FOOD) {
       food += item.total * rate

@@ -273,7 +273,7 @@ export default function CheckoutPage() {
                           rows: [['📦','Versand','Wir liefern direkt zu Ihnen'],['💶','Kosten','Lieferkosten werden separat mitgeteilt'],['📅','Lieferzeit','Nach Bestätigung der Bestellung'],['📞','Kontakt','Wir melden uns zur Koordination']],
                           note: { color: 'var(--accent)', text: '✓ Lieferkosten werden nach Bestellung bekanntgegeben' } },
                         { value: 'LOCAL_PICKUP' as ShippingOption, title: '🏢 Abholung bei PRO.DI.GIO GmbH, Basel',
-                          rows: [['📍','Adresse','Dreispitz, 4142 Basel'],['🕐','Termin','Nach Absprache — wir kontaktieren Sie'],['💶','Kosten','Kostenlos — keine Versandkosten'],['📦','Bereit','Wir informieren Sie sobald Ware bereit ist']],
+                          rows: [['📍','Adresse','Mailand-Strasse 31, 4053 Basel'],['🕐','Termin','Nach Absprache — wir kontaktieren Sie'],['💶','Kosten','Kostenlos — keine Versandkosten'],['📦','Bereit','Wir informieren Sie sobald Ware bereit ist']],
                           note: { color: 'var(--accent)', text: '✓ Kein Versand — kostenlose Abholung in Basel' } },
                       ]).map(opt => (
                         <label key={opt.value} style={{ display: 'block', padding: '16px 18px', border: '2px solid', borderColor: shippingOptionLocal === opt.value ? 'var(--accent)' : 'var(--gray-200)', borderRadius: 12, cursor: 'pointer', marginBottom: 10, background: shippingOptionLocal === opt.value ? 'var(--accent-light)' : 'white', transition: 'all .15s' }}>
@@ -374,7 +374,11 @@ export default function CheckoutPage() {
                     ['Transport', isMixed ? '⏳ Siehe Lieferoptionen' : primaryShipping === 'SELF_PICKUP' ? '🚗 Ex Works' : primaryShipping === 'LOCAL_PICKUP' ? '🏢 Abholung Basel' : '⏳ Wird bestätigt'],
                     ...(taxFood > 0     ? [['MwSt. 2.6% (Lebensmittel)', formatPrice(taxFood)]]   : []),
                     ...(taxStandard > 0 ? [['MwSt. 8.1%',                formatPrice(taxStandard)]] : []),
-                    ...(taxFood === 0 && taxStandard === 0 ? [['MwSt.', formatPrice(tax)]] : []),
+                    ...(!hasLocal && hasCNC
+                    ? [['Einfuhr-MwSt. (IT→CH)', '⚡ separat bei Import']]
+                    : taxFood === 0 && taxStandard === 0
+                    ? [['CH-MwSt.', formatPrice(tax)]]
+                    : []),
                   ].map(([l, v]) => (
                     <div key={l} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13.5 }}>
                       <span style={{ color: 'var(--gray-400)' }}>{l}</span>
@@ -387,7 +391,14 @@ export default function CheckoutPage() {
                   <span>Gesamt</span>
                   <span>{formatPrice(total)}</span>
                 </div>
-                <div style={{ fontSize: 11.5, color: 'var(--gray-400)', textAlign: 'right', marginBottom: 16 }}>inkl. MwSt.</div>
+                <div style={{ fontSize: 11.5, color: 'var(--gray-400)', textAlign: 'right', marginBottom: 16 }}>
+                  {!hasLocal && hasCNC
+                    ? 'Ex Works IT — Zoll & Einfuhr-MwSt. bei Import separat'
+                    : hasCNC
+                    ? 'inkl. CH-MwSt auf Lagerprodukte · C&C Ex Works'
+                    : 'inkl. MwSt.'
+                  }
+                </div>
 
                 <button
                   type="submit"

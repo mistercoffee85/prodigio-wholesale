@@ -21,7 +21,7 @@ export default function DatenschutzPage() {
           <div className="card" style={{ padding: 'clamp(24px,4vw,48px)', lineHeight: 1.8, fontSize: 14.5 }}>
 
             <Section title="1. Verantwortliche Stelle">
-              PRO.DI.GIO GmbH, Dreispitz, 4142 Basel, Schweiz. E-Mail: contact@prodigio.ch. Telefon: +41 61 212 34 56.
+              PRO.DI.GIO GmbH, Mailand-Strasse 31, 4053 Basel, Schweiz. E-Mail: contact@prodigio.ch.
             </Section>
 
             <Section title="2. Erhobene Daten">

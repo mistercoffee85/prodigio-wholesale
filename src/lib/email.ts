@@ -48,7 +48,7 @@ function baseTemplate(content: string): string {
     </div>
     <div class="body">${content}</div>
     <div class="footer">
-      PRO.DI.GIO GmbH · Dreispitz, 4142 Basel · contact@prodigio.ch · +41 61 212 34 56<br/>
+      PRO.DI.GIO GmbH · Mailand-Strasse 31, 4053 Basel · contact@prodigio.ch<br/>
       <a href="${APP_URL}" style="color:#1a9e7a;">b2b.prodigio.ch</a>
     </div>
   </div>
@@ -166,14 +166,14 @@ export async function sendOrderConfirmationEmail(
         <div style="background:#f8f8f8;border-radius:8px;padding:14px 16px;margin:12px 0;">
           <strong>🇨🇭 Lagerprodukte (ab Basel):</strong><br/>
           ${order.shippingOptionLocal === 'LOCAL_PICKUP'
-            ? '🏢 Abholung bei PRO.DI.GIO GmbH, Dreispitz 4142 Basel — wir kontaktieren Sie zur Terminvereinbarung.'
+            ? '🏢 Abholung bei PRO.DI.GIO GmbH, Mailand-Strasse 31, 4053 Basel — wir kontaktieren Sie zur Terminvereinbarung.'
             : '🚚 Lieferung durch PRO.DI.GIO GmbH — Lieferkosten werden separat mitgeteilt.'}
         </div>
       ` : `
         <p><strong>Lieferung:</strong> ${order.shippingOption === 'SELF_PICKUP'
           ? '🚗 Selbstabholung Ex Works – Verzollung und Transport liegen bei Ihnen.'
           : order.shippingOption === 'LOCAL_PICKUP'
-          ? '🏢 Abholung bei PRO.DI.GIO GmbH, Dreispitz 4142 Basel – wir kontaktieren Sie zur Terminvereinbarung.'
+          ? '🏢 Abholung bei PRO.DI.GIO GmbH, Mailand-Strasse 31, 4053 Basel – wir kontaktieren Sie zur Terminvereinbarung.'
           : order.shippingOption === 'LOCAL_DELIVERY'
           ? '🚚 Lieferung durch PRO.DI.GIO GmbH – Lieferkosten werden separat mitgeteilt.'
           : '🚚 Transport &amp; Verzollung durch PRO.DI.GIO GmbH – Transportkosten werden separat bestätigt.'

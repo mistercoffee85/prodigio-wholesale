@@ -21,7 +21,7 @@ export default function AGBPage() {
           <div className="card" style={{ padding: 'clamp(24px,4vw,48px)', lineHeight: 1.8, fontSize: 14.5 }}>
 
             <Section title="1. Geltungsbereich">
-              Diese Allgemeinen Geschäftsbedingungen (AGB) gelten für alle Bestellungen, die über die B2B-Grosshandelsplattform der PRO.DI.GIO GmbH, Dreispitz, 4142 Basel, Schweiz (nachfolgend «Anbieter») aufgegeben werden. Die AGB richten sich ausschliesslich an gewerbliche Kunden (B2B).
+              Diese Allgemeinen Geschäftsbedingungen (AGB) gelten für alle Bestellungen, die über die B2B-Grosshandelsplattform der PRO.DI.GIO GmbH, Mailand-Strasse 31, 4053 Basel, Schweiz (nachfolgend «Anbieter») aufgegeben werden. Die AGB richten sich ausschliesslich an gewerbliche Kunden (B2B).
             </Section>
 
             <Section title="2. Vertragsschluss">
@@ -53,7 +53,7 @@ export default function AGBPage() {
             </Section>
 
             <Section title="9. Kontakt">
-              PRO.DI.GIO GmbH · Dreispitz, 4142 Basel · Tel: +41 61 212 34 56 · E-Mail: contact@prodigio.ch
+              PRO.DI.GIO GmbH · Mailand-Strasse 31, 4053 Basel · Tel: +41 61 212 34 56 · E-Mail: contact@prodigio.ch
             </Section>
 
           </div>

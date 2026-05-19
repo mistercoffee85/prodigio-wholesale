@@ -61,7 +61,7 @@ export default function ForgotPasswordPage() {
           </p>
         </div>
 
-        <div style={{ fontSize: 12, opacity: .4, position: 'relative' }}>© {new Date().getFullYear()} PRO.DI.GIO GmbH · Dreispitz Basel</div>
+        <div style={{ fontSize: 12, opacity: .4, position: 'relative' }}>© {new Date().getFullYear()} PRO.DI.GIO GmbH · Basel</div>
       </div>
 
       {/* Right — Form */}

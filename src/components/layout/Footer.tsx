@@ -18,7 +18,7 @@ export default function Footer() {
           <div style={{ fontSize: 9, letterSpacing: 3, color: 'rgba(255,255,255,.3)', marginBottom: 18 }}>GMBH · GROSSHANDEL · BASEL</div>
           <p style={{ fontSize: 13.5, lineHeight: 1.75, opacity: .62, maxWidth: 300 }}>
             Ihr Partner für innovative Trendprodukte. Direktimport aus aller Welt —
-            Logistikzentrum Dreispitz Basel seit 2015.
+            Logistik & Grosshandel Basel seit 2015.
           </p>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 24 }}>
             {['B2B Grosshandel', 'CH-Unternehmen', 'Direktimport'].map(tag => (
@@ -76,8 +76,7 @@ export default function Footer() {
           <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 12 }}>
             {[
               { icon: '🏢', text: 'PRO.DI.GIO GmbH' },
-              { icon: '📍', text: 'Dreispitz, 4142 Basel' },
-              { icon: '📞', text: '+41 61 212 34 56', href: 'tel:+41612123456' },
+              { icon: '📍', text: 'Mailand-Strasse 31, 4053 Basel' },
               { icon: '✉️', text: 'contact@prodigio.ch', href: 'mailto:contact@prodigio.ch' },
             ].map(({ icon, text, href }) => (
               <li key={text} style={{ display: 'flex', gap: 10, fontSize: 13.5, color: 'rgba(255,255,255,.65)' }}>

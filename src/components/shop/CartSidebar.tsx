@@ -41,6 +41,8 @@ export default function CartSidebar({ open, onClose }: Props) {
   const updateQty    = useCartStore(s => s.updateQuantity)
   const clearCart    = useCartStore(s => s.clearCart)
   const { subtotal, shipping, tax, taxFood, taxStandard, total } = useCartTotals()
+  const hasCNC   = items.some(i => i.supplierSource === 'migroweb')
+  const hasLocal = items.some(i => !i.supplierSource || i.supplierSource !== 'migroweb')
   const [suggestions, setSuggestions] = useState<Suggestion[]>([])
   const addItem      = useCartStore(s => s.addItem)
 
@@ -256,11 +258,15 @@ export default function CartSidebar({ open, onClose }: Props) {
                 <span>Gesamt</span><span>{formatPrice(total)}</span>
               </div>
               <div style={{ fontSize: 11, color: 'var(--gray-400)', marginTop: 3, textAlign: 'right' }}>
-                {taxFood > 0 && taxStandard > 0
+                {!hasLocal && hasCNC
+                  ? '⚡ Ex Works IT — Einfuhr-MwSt. separat'
+                  : hasCNC && hasLocal
+                  ? `inkl. CH-MwSt auf Lagerprodukte${taxFood > 0 ? ` (2.6%+8.1%)` : ` (8.1%)`}`
+                  : taxFood > 0 && taxStandard > 0
                   ? `inkl. MwSt. 2.6% (${formatPrice(taxFood)}) + 8.1% (${formatPrice(taxStandard)})`
                   : taxFood > 0
                   ? `inkl. MwSt. 2.6% (${formatPrice(taxFood)})`
-                  : `inkl. MwSt. 8.1% (${formatPrice(taxStandard || tax)})`
+                  : `inkl. MwSt. 8.1% (${formatPrice(taxStandard)})`
                 }
               </div>
             </div>

@@ -82,14 +82,15 @@ export async function POST(req: NextRequest) {
       }
 
       return {
-        productId:   item.productId,
-        quantity:    item.quantity,
+        productId:      item.productId,
+        quantity:       item.quantity,
         unitPrice,
-        total:       Math.round(unitPrice * item.quantity * 100) / 100,
-        taxRate:     Number(product.taxRate),
-        unit:        product.unit ?? '',                      // VE 1:1 from Migroweb
-        productName: product.name,                           // snapshot at order time
-        productSku:  product.supplierSku ?? '',              // Migroweb SKU for re-order
+        total:          Math.round(unitPrice * item.quantity * 100) / 100,
+        taxRate:        Number(product.taxRate),
+        supplierSource: product.supplierSource ?? undefined,  // 'migroweb' = Ex Works IT, no CH VAT
+        unit:           product.unit ?? '',                   // VE 1:1 from Migroweb
+        productName:    product.name,                         // snapshot at order time
+        productSku:     product.supplierSku ?? '',            // Migroweb SKU for re-order
       }
     })
 
