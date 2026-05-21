@@ -115,18 +115,13 @@ export default function CheckoutPage() {
         </div>
       ),
     },
-    {
-      value: 'STRIPE_TWINT',
-      icon:  '📱',
-      title: 'TWINT',
-      desc:  'Bezahlen Sie direkt mit der TWINT-App — sofortige Zahlung.',
-      detail: (
-        <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 8, padding: '12px 16px', marginTop: 10, fontSize: 13, lineHeight: 1.7, display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontSize: 18 }}>🇨🇭</span>
-          <span>Schweizer Zahlungsmethode — sicher und sofort über <strong>TWINT</strong>.</span>
-        </div>
-      ),
-    },
+    // TWINT: uncomment once activated in Stripe Dashboard → Payment settings
+    // {
+    //   value: 'STRIPE_TWINT',
+    //   icon:  '📱',
+    //   title: 'TWINT',
+    //   desc:  'Bezahlen Sie direkt mit der TWINT-App — sofortige Zahlung.',
+    // },
     {
       value: 'BANK_TRANSFER',
       icon:  '🏦',
