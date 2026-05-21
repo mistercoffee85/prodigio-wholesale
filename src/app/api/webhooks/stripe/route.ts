@@ -35,14 +35,28 @@ export async function POST(req: NextRequest) {
         },
       })
 
+      // Decrement stock for each item (Stripe orders skip this in checkout route)
+      await Promise.all(
+        order.items.map(i =>
+          prisma.product.update({
+            where: { id: i.productId },
+            data:  { stock: { decrement: i.quantity } },
+          })
+        )
+      )
+
       sendOrderConfirmationEmail(order.user.email, order.user.name, {
-        orderNumber:   order.orderNumber,
-        total:         Number(order.total),
-        paymentMethod: order.paymentMethod,
+        orderNumber:      order.orderNumber,
+        total:            Number(order.total),
+        paymentMethod:    order.paymentMethod,
+        shippingOption:   order.shippingOption ?? undefined,
+        shippingOptionLocal: order.shippingOptionLocal ?? undefined,
         items: order.items.map(i => ({
-          name:      i.product.name,
+          name:      (i as any).productName || i.product.name,
           quantity:  i.quantity,
           unitPrice: Number(i.unitPrice),
+          unit:      (i as any).unit      || i.product.unit || '',
+          sku:       (i as any).productSku || i.product.supplierSku || '',
         })),
       }).catch(console.error)
     }
