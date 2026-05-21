@@ -18,10 +18,12 @@ const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
 function CardForm({
   total,
   orderNumber,
+  isTwint = false,
   onCancel,
 }: {
   total: number
   orderNumber: string
+  isTwint?: boolean
   onCancel: () => void
 }) {
   const stripe   = useStripe()
@@ -145,7 +147,7 @@ export default function StripePaymentForm({
       </div>
 
       <Elements stripe={stripePromise} options={options}>
-        <CardForm total={total} orderNumber={orderNumber} onCancel={onCancel} />
+        <CardForm total={total} orderNumber={orderNumber} isTwint={isTwint} onCancel={onCancel} />
       </Elements>
     </div>
   )
