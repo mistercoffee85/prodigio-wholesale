@@ -94,8 +94,33 @@ export default function Footer() {
         </div>
       </div>
 
+      {/* Payment Methods Bar */}
+      <div style={{ borderTop: '1px solid rgba(255,255,255,.08)', padding: '16px 80px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+        <div style={{ fontSize: 10.5, fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase', color: 'rgba(255,255,255,.25)' }}>
+          Zahlungsarten
+        </div>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+          {[
+            { label: 'VISA',        bg: '#1A1F71', color: '#fff' },
+            { label: 'Mastercard',  bg: '#EB001B', color: '#fff' },
+            { label: 'Amex',        bg: '#007BC1', color: '#fff' },
+            { label: 'Apple Pay',   bg: '#000',    color: '#fff', border: 'rgba(255,255,255,.2)' },
+            { label: 'Google Pay',  bg: '#fff',    color: '#333', border: 'rgba(255,255,255,.2)' },
+            { label: 'PayPal',      bg: '#003087', color: '#fff' },
+            { label: 'Überweisung', bg: 'transparent', color: 'rgba(255,255,255,.45)', border: 'rgba(255,255,255,.15)' },
+          ].map(({ label, bg, color, border }) => (
+            <span key={label} style={{
+              fontSize: 10, fontWeight: 700, padding: '4px 9px',
+              background: bg, color,
+              border: `1px solid ${border ?? 'transparent'}`,
+              borderRadius: 5, letterSpacing: .3, whiteSpace: 'nowrap',
+            }}>{label}</span>
+          ))}
+        </div>
+      </div>
+
       {/* Bottom Bar */}
-      <div style={{ borderTop: '1px solid rgba(255,255,255,.08)', padding: '20px 80px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+      <div style={{ borderTop: '1px solid rgba(255,255,255,.06)', padding: '18px 80px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
         <span style={{ fontSize: 12.5, opacity: .4 }}>© {new Date().getFullYear()} PRO.DI.GIO GmbH · Alle Rechte vorbehalten</span>
         <div style={{ display: 'flex', gap: 20, fontSize: 12.5, opacity: .4 }}>
           <Link href="/agb" style={{ color: 'inherit' }}>AGB</Link>
