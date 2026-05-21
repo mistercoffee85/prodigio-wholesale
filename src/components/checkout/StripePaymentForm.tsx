@@ -109,12 +109,14 @@ export default function StripePaymentForm({
   total,
   orderNumber,
   isTwint = false,
+  isPaypal = false,
   onCancel,
 }: {
   clientSecret: string
   total: number
   orderNumber: string
   isTwint?: boolean
+  isPaypal?: boolean
   onCancel: () => void
 }) {
   const options: StripeElementsOptions = {
@@ -134,10 +136,12 @@ export default function StripePaymentForm({
   return (
     <div className="card" style={{ padding: 28 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
-        <span style={{ fontSize: 22 }}>{isTwint ? '📱' : '💳'}</span>
-        <h2 style={{ fontSize: 17, fontWeight: 700, margin: 0 }}>{isTwint ? 'TWINT' : 'Kartenzahlung'}</h2>
+        <span style={{ fontSize: 22 }}>{isPaypal ? '🅿️' : isTwint ? '📱' : '💳'}</span>
+        <h2 style={{ fontSize: 17, fontWeight: 700, margin: 0 }}>{isPaypal ? 'PayPal' : isTwint ? 'TWINT' : 'Kartenzahlung'}</h2>
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 4 }}>
-          {isTwint
+          {isPaypal
+            ? [<span key="pp" style={{ fontSize: 9, fontWeight: 800, padding: '3px 6px', border: '1px solid var(--gray-200)', borderRadius: 4, color: 'var(--gray-400)', letterSpacing: 1 }}>PAYPAL</span>]
+            : isTwint
             ? [<span key="twint" style={{ fontSize: 9, fontWeight: 800, padding: '3px 6px', border: '1px solid var(--gray-200)', borderRadius: 4, color: 'var(--gray-400)', letterSpacing: 1 }}>TWINT</span>]
             : ['VISA', 'MC', 'AMEX'].map(b => (
               <span key={b} style={{ fontSize: 9, fontWeight: 800, padding: '3px 6px', border: '1px solid var(--gray-200)', borderRadius: 4, color: 'var(--gray-400)', letterSpacing: 1 }}>{b}</span>
@@ -149,6 +153,11 @@ export default function StripePaymentForm({
       <Elements stripe={stripePromise} options={options}>
         <CardForm total={total} orderNumber={orderNumber} isTwint={isTwint} onCancel={onCancel} />
       </Elements>
+      {isPaypal && (
+        <p style={{ fontSize: 11, color: 'var(--gray-400)', textAlign: 'center', marginTop: 8, lineHeight: 1.5 }}>
+          Sie werden zu <strong>PayPal</strong> weitergeleitet um die Zahlung abzuschliessen.
+        </p>
+      )}
     </div>
   )
 }

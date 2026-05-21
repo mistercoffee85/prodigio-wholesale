@@ -10,14 +10,14 @@ import Footer from '@/components/layout/Footer'
 import StripePaymentForm from '@/components/checkout/StripePaymentForm'
 import toast from 'react-hot-toast'
 
-type PaymentMethod  = 'BANK_TRANSFER' | 'NET_30' | 'STRIPE_CARD' | 'STRIPE_TWINT'
+type PaymentMethod  = 'BANK_TRANSFER' | 'NET_30' | 'STRIPE_CARD' | 'STRIPE_TWINT' | 'STRIPE_PAYPAL'
 type ShippingOption = 'PRODIGIO_DELIVERS' | 'SELF_PICKUP' | 'LOCAL_PICKUP' | 'LOCAL_DELIVERY'
 type CheckoutStep   = 'form' | 'stripe-payment'
 
 interface StripeData {
   clientSecret:  string
   orderNumber:   string
-  paymentMethod: 'STRIPE_CARD' | 'STRIPE_TWINT'
+  paymentMethod: 'STRIPE_CARD' | 'STRIPE_TWINT' | 'STRIPE_PAYPAL'
 }
 
 export default function CheckoutPage() {
@@ -77,7 +77,7 @@ export default function CheckoutPage() {
 
       if (data.type === 'stripe' && data.clientSecret) {
         // ── Stripe: show card form
-        setStripeData({ clientSecret: data.clientSecret, orderNumber: data.orderNumber, paymentMethod: paymentMethod as 'STRIPE_CARD' | 'STRIPE_TWINT' })
+        setStripeData({ clientSecret: data.clientSecret, orderNumber: data.orderNumber, paymentMethod: paymentMethod as 'STRIPE_CARD' | 'STRIPE_TWINT' | 'STRIPE_PAYPAL' })
         setStep('stripe-payment')
         setLoading(false)
         clearCart()
@@ -106,12 +106,24 @@ export default function CheckoutPage() {
     {
       value: 'STRIPE_CARD',
       icon:  '💳',
-      title: 'Kreditkarte',
-      desc:  'Visa, Mastercard, American Express — sofortige Zahlung.',
+      title: 'Kreditkarte / Apple Pay / Google Pay',
+      desc:  'Visa, Mastercard, Amex — oder direkt mit Apple Pay & Google Pay.',
       detail: (
         <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 8, padding: '12px 16px', marginTop: 10, fontSize: 13, lineHeight: 1.7, display: 'flex', alignItems: 'center', gap: 10 }}>
           <span style={{ fontSize: 18 }}>🔒</span>
-          <span>Gesichert durch <strong>Stripe</strong> — Ihre Kartendaten werden verschlüsselt übertragen und nicht gespeichert.</span>
+          <span>Gesichert durch <strong>Stripe</strong> — Apple Pay &amp; Google Pay werden automatisch auf kompatiblen Geräten angezeigt.</span>
+        </div>
+      ),
+    },
+    {
+      value: 'STRIPE_PAYPAL',
+      icon:  '🅿️',
+      title: 'PayPal',
+      desc:  'Zahlung über Ihr PayPal-Konto — schnell und sicher.',
+      detail: (
+        <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 8, padding: '12px 16px', marginTop: 10, fontSize: 13, lineHeight: 1.7, display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span style={{ fontSize: 18 }}>🔒</span>
+          <span>Sie werden nach der Bestellung zu <strong>PayPal</strong> weitergeleitet zur Zahlung.</span>
         </div>
       ),
     },
@@ -152,6 +164,8 @@ export default function CheckoutPage() {
     ? `Weiter zur Kartenzahlung – ${formatPrice(total)}`
     : paymentMethod === 'STRIPE_TWINT'
     ? `Weiter zu TWINT – ${formatPrice(total)}`
+    : paymentMethod === 'STRIPE_PAYPAL'
+    ? `Weiter zu PayPal – ${formatPrice(total)}`
     : `Jetzt bestellen – ${formatPrice(total)}`
 
   return (
@@ -200,6 +214,7 @@ export default function CheckoutPage() {
                 total={total}
                 orderNumber={stripeData.orderNumber}
                 isTwint={stripeData.paymentMethod === 'STRIPE_TWINT'}
+                isPaypal={stripeData.paymentMethod === 'STRIPE_PAYPAL'}
                 onCancel={handleStripeCancel}
               />
             </div>
@@ -418,7 +433,7 @@ export default function CheckoutPage() {
                   disabled={loading || items.length === 0}
                 >
                   {loading
-                    ? (paymentMethod === 'STRIPE_CARD' || paymentMethod === 'STRIPE_TWINT' ? '⏳ Bestellung wird vorbereitet…' : '⏳ Wird verarbeitet…')
+                    ? (['STRIPE_CARD', 'STRIPE_TWINT', 'STRIPE_PAYPAL'].includes(paymentMethod) ? '⏳ Bestellung wird vorbereitet…' : '⏳ Wird verarbeitet…')
                     : submitLabel
                   }
                 </button>

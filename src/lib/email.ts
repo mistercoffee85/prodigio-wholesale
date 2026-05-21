@@ -139,6 +139,7 @@ export async function sendOrderConfirmationEmail(
   const paymentLabel: Record<string, string> = {
     STRIPE_CARD: 'Kreditkarte',
     STRIPE_TWINT: 'TWINT',
+    STRIPE_PAYPAL: 'PayPal',
     BANK_TRANSFER: 'Banküberweisung',
     NET_30: 'Rechnung (Net 30)',
   }

@@ -23,7 +23,7 @@ interface Order {
 }
 
 const PM_LABELS: Record<string, string> = {
-  STRIPE_CARD: '💳 Karte', STRIPE_TWINT: '📱 TWINT',
+  STRIPE_CARD: '💳 Karte', STRIPE_TWINT: '📱 TWINT', STRIPE_PAYPAL: '🅿️ PayPal',
   BANK_TRANSFER: '🏦 Überweisung', NET_30: '📄 Net30',
 }
 

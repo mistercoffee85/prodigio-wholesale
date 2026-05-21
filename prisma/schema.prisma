@@ -8,9 +8,179 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-// ─────────────────────────────────────────────────────────────────
-// ENUMS
-// ─────────────────────────────────────────────────────────────────
+model User {
+  id                  String     @id @default(cuid())
+  email               String     @unique
+  password            String
+  name                String
+  phone               String?
+  role                Role       @default(CUSTOMER)
+  status              UserStatus @default(PENDING)
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+  passwordResetExpiry DateTime?
+  passwordResetToken  String?
+  company             Company?
+  orders              Order[]
+  sessions            Session[]
+
+  @@map("users")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model Company {
+  id          String     @id @default(cuid())
+  name        String
+  uid         String?
+  industry    String
+  address     String
+  city        String
+  zip         String
+  country     String     @default("CH")
+  vatNumber   String?
+  priceGroup  PriceGroup @default(STANDARD)
+  creditLimit Decimal    @default(0)
+  userId      String     @unique
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("companies")
+}
+
+model Category {
+  id          String     @id @default(cuid())
+  name        String
+  slug        String     @unique
+  description String?
+  emoji       String?
+  sortOrder   Int        @default(0)
+  active      Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  parentId    String?
+  parent      Category?  @relation("CategoryChildren", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryChildren")
+  products    Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id             String      @id @default(cuid())
+  name           String
+  slug           String      @unique
+  description    String
+  categoryId     String
+  brand          String
+  emoji          String      @default("📦")
+  bgGradient     String?
+  price          Decimal
+  comparePrice   Decimal?
+  unit           String
+  moq            Int         @default(6)
+  stock          Int         @default(100)
+  badge          String?
+  sku            String?     @unique
+  weight         Decimal?
+  active         Boolean     @default(true)
+  details        Json        @default("{}")
+  images         String[]    @default([])
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  variants       Json        @default("[]")
+  taxRate        Decimal     @default(0.081)
+  costPrice      Decimal?
+  lastSyncedAt   DateTime?
+  supplierSku    String?
+  supplierSource String?
+  syncManaged    Boolean     @default(false)
+  orderItems     OrderItem[]
+  category       Category    @relation(fields: [categoryId], references: [id])
+
+  @@map("products")
+}
+
+model SyncLog {
+  id                  String    @id @default(cuid())
+  source              String
+  status              String
+  productsFound       Int       @default(0)
+  productsNew         Int       @default(0)
+  productsUpdated     Int       @default(0)
+  productsDeactivated Int       @default(0)
+  errorMessage        String?
+  durationMs          Int?
+  startedAt           DateTime  @default(now())
+  finishedAt          DateTime?
+
+  @@map("sync_logs")
+}
+
+model Order {
+  id                  String          @id @default(cuid())
+  orderNumber         String          @unique
+  userId              String
+  status              OrderStatus     @default(PENDING)
+  paymentStatus       PaymentStatus   @default(UNPAID)
+  paymentMethod       PaymentMethod   @default(BANK_TRANSFER)
+  stripePaymentId     String?
+  stripeInvoiceId     String?
+  subtotal            Decimal
+  taxRate             Decimal         @default(0.081)
+  tax                 Decimal
+  shippingCost        Decimal         @default(0)
+  total               Decimal
+  notes               String?
+  shippingAddress     Json?
+  invoiceUrl          String?
+  dueDate             DateTime?
+  paidAt              DateTime?
+  shippedAt           DateTime?
+  deliveredAt         DateTime?
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+  shippingOption      ShippingOption  @default(LOCAL_DELIVERY)
+  shippingPending     Boolean         @default(false)
+  shippingOptionLocal ShippingOption?
+  items               OrderItem[]
+  user                User            @relation(fields: [userId], references: [id])
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id          String  @id @default(cuid())
+  orderId     String
+  productId   String
+  quantity    Int
+  unitPrice   Decimal
+  total       Decimal
+  productName String  @default("")
+  productSku  String  @default("")
+  unit        String  @default("")
+  order       Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product     Product @relation(fields: [productId], references: [id])
+
+  @@map("order_items")
+}
+
+model Setting {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String
+
+  @@map("settings")
+}
 
 enum Role {
   ADMIN
@@ -18,15 +188,15 @@ enum Role {
 }
 
 enum UserStatus {
-  PENDING   // Waiting for admin approval
+  PENDING
   APPROVED
   REJECTED
 }
 
 enum PriceGroup {
-  STANDARD  // Base prices
-  PREMIUM   // -10%
-  VIP       // -20%  (Coop, ALDI, etc.)
+  STANDARD
+  PREMIUM
+  VIP
 }
 
 enum OrderStatus {
@@ -48,206 +218,14 @@ enum PaymentStatus {
 enum PaymentMethod {
   STRIPE_CARD
   STRIPE_TWINT
+  STRIPE_PAYPAL
   BANK_TRANSFER
   NET_30
 }
 
 enum ShippingOption {
-  // ── Cash & Carry (Ware ab Italien) ──────────────────────────────
-  PRODIGIO_DELIVERS  // PRO.DI.GIO übernimmt Transport + Verzollung CH, Kosten 1:1 weiter
-  SELF_PICKUP        // Kunde holt selbst ab (Ex Works Italien), eigene Verzollung
-  // ── Lagerprodukte (ab Lager PRO.DI.GIO Basel) ───────────────────
-  LOCAL_PICKUP       // Kunde holt bei PRO.DI.GIO GmbH in Basel ab
-  LOCAL_DELIVERY     // Lieferung durch PRO.DI.GIO GmbH, Kosten werden mitgeteilt
-}
-
-// ─────────────────────────────────────────────────────────────────
-// USER & COMPANY
-// ─────────────────────────────────────────────────────────────────
-
-model User {
-  id        String     @id @default(cuid())
-  email     String     @unique
-  password  String
-  name      String
-  phone     String?
-  role      Role       @default(CUSTOMER)
-  status    UserStatus @default(PENDING)
-  company   Company?
-  orders    Order[]
-  sessions  Session[]
-  passwordResetToken  String?
-  passwordResetExpiry DateTime?
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-
-  @@map("users")
-}
-
-model Session {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  token     String   @unique
-  expiresAt DateTime
-  createdAt DateTime @default(now())
-
-  @@map("sessions")
-}
-
-model Company {
-  id         String     @id @default(cuid())
-  name       String
-  uid        String?    // Swiss UID: CHE-XXX.XXX.XXX
-  industry   String
-  address    String
-  city       String
-  zip        String
-  country    String     @default("CH")
-  vatNumber  String?
-  priceGroup PriceGroup @default(STANDARD)
-  creditLimit Decimal   @default(0)
-  userId     String     @unique
-  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
-
-  @@map("companies")
-}
-
-// ─────────────────────────────────────────────────────────────────
-// CATALOG
-// ─────────────────────────────────────────────────────────────────
-
-model Category {
-  id          String     @id @default(cuid())
-  name        String
-  slug        String     @unique
-  description String?
-  emoji       String?
-  sortOrder   Int        @default(0)
-  active      Boolean    @default(true)
-  parentId    String?
-  parent      Category?  @relation("CategoryChildren", fields: [parentId], references: [id])
-  children    Category[] @relation("CategoryChildren")
-  products    Product[]
-  createdAt   DateTime   @default(now())
-
-  @@map("categories")
-}
-
-model Product {
-  id           String      @id @default(cuid())
-  name         String
-  slug         String      @unique
-  description  String
-  categoryId   String
-  category     Category    @relation(fields: [categoryId], references: [id])
-  brand        String
-  emoji        String      @default("📦")
-  bgGradient   String?     // CSS gradient for card background
-  price        Decimal     // Base CHF price per VE (Verkaufspreis)
-  comparePrice Decimal?    // Crossed-out price
-  unit         String      // e.g. "12er Tray (250ml)"
-  moq          Int         @default(6)  // Minimum order quantity
-  stock        Int         @default(100)
-  badge        String?     // "new" | "hot" | "sale"
-  sku          String?     @unique
-  weight       Decimal?    // kg per unit
-  active       Boolean     @default(true)
-  taxRate      Decimal     @default(0.081)  // 0.026 Lebensmittel / 0.081 Normalsatz
-  details      Json        @default("{}")  // Key-value product specs
-  variants     Json        @default("[]")  // [{label, price, unit, moq}]
-  images       String[]    @default([])
-  // ── Supplier sync fields ──────────────────────────────────────
-  supplierSku      String?   // Artikelnummer beim Lieferanten
-  supplierSource   String?   // e.g. "migroweb"
-  costPrice        Decimal?  // Einkaufspreis vom Lieferanten
-  lastSyncedAt     DateTime? // Wann zuletzt synchronisiert
-  syncManaged      Boolean   @default(false) // true = wird durch Sync verwaltet
-  orderItems   OrderItem[]
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-
-  @@map("products")
-}
-
-model SyncLog {
-  id            String   @id @default(cuid())
-  source        String   // "migroweb"
-  status        String   // "success" | "error" | "running"
-  productsFound Int      @default(0)
-  productsNew   Int      @default(0)
-  productsUpdated Int    @default(0)
-  productsDeactivated Int @default(0)
-  errorMessage  String?
-  durationMs    Int?
-  startedAt     DateTime @default(now())
-  finishedAt    DateTime?
-
-  @@map("sync_logs")
-}
-
-// ─────────────────────────────────────────────────────────────────
-// ORDERS
-// ─────────────────────────────────────────────────────────────────
-
-model Order {
-  id              String        @id @default(cuid())
-  orderNumber     String        @unique
-  userId          String
-  user            User          @relation(fields: [userId], references: [id])
-  items           OrderItem[]
-  status          OrderStatus   @default(PENDING)
-  paymentStatus   PaymentStatus @default(UNPAID)
-  paymentMethod    PaymentMethod  @default(BANK_TRANSFER)
-  shippingOption      ShippingOption  @default(LOCAL_DELIVERY)   // C&C or primary option
-  shippingOptionLocal ShippingOption? // Only for mixed carts: local-stock portion
-  shippingPending     Boolean         @default(false) // true = Transportkosten noch offen
-  stripePaymentId  String?
-  stripeInvoiceId  String?
-  subtotal         Decimal
-  taxRate          Decimal        @default(0.081)  // 8.1% Swiss VAT
-  tax              Decimal
-  shippingCost     Decimal        @default(0)
-  total           Decimal
-  notes           String?
-  shippingAddress Json?
-  invoiceUrl      String?
-  dueDate         DateTime?     // For NET_30 payments
-  paidAt          DateTime?
-  shippedAt       DateTime?
-  deliveredAt     DateTime?
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-
-  @@map("orders")
-}
-
-model OrderItem {
-  id          String  @id @default(cuid())
-  orderId     String
-  order       Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  productId   String
-  product     Product @relation(fields: [productId], references: [id])
-  quantity    Int
-  unitPrice   Decimal // Price at time of order (per VE)
-  total       Decimal
-  unit        String  @default("") // VE 1:1 from Migroweb, e.g. "24 Pz"
-  productName String  @default("") // Snapshot of name at order time
-  productSku  String  @default("") // Migroweb SKU for re-ordering
-
-  @@map("order_items")
-}
-
-// ─────────────────────────────────────────────────────────────────
-// SETTINGS
-// ─────────────────────────────────────────────────────────────────
-
-model Setting {
-  id    String @id @default(cuid())
-  key   String @unique
-  value String
-
-  @@map("settings")
+  PRODIGIO_DELIVERS
+  SELF_PICKUP
+  LOCAL_PICKUP
+  LOCAL_DELIVERY
 }
