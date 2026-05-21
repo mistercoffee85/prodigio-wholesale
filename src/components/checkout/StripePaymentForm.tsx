@@ -90,7 +90,10 @@ function CardForm({
       </button>
 
       <p style={{ fontSize: 11, color: 'var(--gray-400)', textAlign: 'center', marginTop: 10, lineHeight: 1.5 }}>
-        Gesichert durch <strong>Stripe</strong> · Ihre Kartendaten werden niemals auf unseren Servern gespeichert.
+        {isTwint
+          ? <>Gesichert durch <strong>Stripe</strong> · Schweizer Zahlungsmethode 🇨🇭</>
+          : <>Gesichert durch <strong>Stripe</strong> · Ihre Kartendaten werden niemals auf unseren Servern gespeichert.</>
+        }
       </p>
     </form>
   )
@@ -103,11 +106,13 @@ export default function StripePaymentForm({
   clientSecret,
   total,
   orderNumber,
+  isTwint = false,
   onCancel,
 }: {
   clientSecret: string
   total: number
   orderNumber: string
+  isTwint?: boolean
   onCancel: () => void
 }) {
   const options: StripeElementsOptions = {
@@ -127,16 +132,15 @@ export default function StripePaymentForm({
   return (
     <div className="card" style={{ padding: 28 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
-        <span style={{ fontSize: 22 }}>💳</span>
-        <h2 style={{ fontSize: 17, fontWeight: 700, margin: 0 }}>Kartenzahlung</h2>
+        <span style={{ fontSize: 22 }}>{isTwint ? '📱' : '💳'}</span>
+        <h2 style={{ fontSize: 17, fontWeight: 700, margin: 0 }}>{isTwint ? 'TWINT' : 'Kartenzahlung'}</h2>
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 4 }}>
-          {['VISA', 'MC', 'AMEX'].map(b => (
-            <span key={b} style={{
-              fontSize: 9, fontWeight: 800, padding: '3px 6px',
-              border: '1px solid var(--gray-200)', borderRadius: 4,
-              color: 'var(--gray-400)', letterSpacing: 1,
-            }}>{b}</span>
-          ))}
+          {isTwint
+            ? [<span key="twint" style={{ fontSize: 9, fontWeight: 800, padding: '3px 6px', border: '1px solid var(--gray-200)', borderRadius: 4, color: 'var(--gray-400)', letterSpacing: 1 }}>TWINT</span>]
+            : ['VISA', 'MC', 'AMEX'].map(b => (
+              <span key={b} style={{ fontSize: 9, fontWeight: 800, padding: '3px 6px', border: '1px solid var(--gray-200)', borderRadius: 4, color: 'var(--gray-400)', letterSpacing: 1 }}>{b}</span>
+            ))
+          }
         </div>
       </div>
 

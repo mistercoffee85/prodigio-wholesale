@@ -10,13 +10,14 @@ import Footer from '@/components/layout/Footer'
 import StripePaymentForm from '@/components/checkout/StripePaymentForm'
 import toast from 'react-hot-toast'
 
-type PaymentMethod  = 'BANK_TRANSFER' | 'NET_30' | 'STRIPE_CARD'
+type PaymentMethod  = 'BANK_TRANSFER' | 'NET_30' | 'STRIPE_CARD' | 'STRIPE_TWINT'
 type ShippingOption = 'PRODIGIO_DELIVERS' | 'SELF_PICKUP' | 'LOCAL_PICKUP' | 'LOCAL_DELIVERY'
 type CheckoutStep   = 'form' | 'stripe-payment'
 
 interface StripeData {
-  clientSecret: string
-  orderNumber:  string
+  clientSecret:  string
+  orderNumber:   string
+  paymentMethod: 'STRIPE_CARD' | 'STRIPE_TWINT'
 }
 
 export default function CheckoutPage() {
@@ -76,7 +77,7 @@ export default function CheckoutPage() {
 
       if (data.type === 'stripe' && data.clientSecret) {
         // ── Stripe: show card form
-        setStripeData({ clientSecret: data.clientSecret, orderNumber: data.orderNumber })
+        setStripeData({ clientSecret: data.clientSecret, orderNumber: data.orderNumber, paymentMethod: paymentMethod as 'STRIPE_CARD' | 'STRIPE_TWINT' })
         setStep('stripe-payment')
         setLoading(false)
         clearCart()
@@ -115,6 +116,18 @@ export default function CheckoutPage() {
       ),
     },
     {
+      value: 'STRIPE_TWINT',
+      icon:  '📱',
+      title: 'TWINT',
+      desc:  'Bezahlen Sie direkt mit der TWINT-App — sofortige Zahlung.',
+      detail: (
+        <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 8, padding: '12px 16px', marginTop: 10, fontSize: 13, lineHeight: 1.7, display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span style={{ fontSize: 18 }}>🇨🇭</span>
+          <span>Schweizer Zahlungsmethode — sicher und sofort über <strong>TWINT</strong>.</span>
+        </div>
+      ),
+    },
+    {
       value: 'BANK_TRANSFER',
       icon:  '🏦',
       title: 'Banküberweisung',
@@ -142,6 +155,8 @@ export default function CheckoutPage() {
 
   const submitLabel = paymentMethod === 'STRIPE_CARD'
     ? `Weiter zur Kartenzahlung – ${formatPrice(total)}`
+    : paymentMethod === 'STRIPE_TWINT'
+    ? `Weiter zu TWINT – ${formatPrice(total)}`
     : `Jetzt bestellen – ${formatPrice(total)}`
 
   return (
@@ -189,6 +204,7 @@ export default function CheckoutPage() {
                 clientSecret={stripeData.clientSecret}
                 total={total}
                 orderNumber={stripeData.orderNumber}
+                isTwint={stripeData.paymentMethod === 'STRIPE_TWINT'}
                 onCancel={handleStripeCancel}
               />
             </div>
@@ -407,7 +423,7 @@ export default function CheckoutPage() {
                   disabled={loading || items.length === 0}
                 >
                   {loading
-                    ? (paymentMethod === 'STRIPE_CARD' ? '⏳ Bestellung wird vorbereitet…' : '⏳ Wird verarbeitet…')
+                    ? (paymentMethod === 'STRIPE_CARD' || paymentMethod === 'STRIPE_TWINT' ? '⏳ Bestellung wird vorbereitet…' : '⏳ Wird verarbeitet…')
                     : submitLabel
                   }
                 </button>
