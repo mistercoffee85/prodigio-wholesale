@@ -45,24 +45,13 @@ const BRANDS = [
   },
 ]
 
-// Hero mosaic: 4 images picked for visual variety and impact
+// Hero mosaic: all brands
 const HERO_MOSAIC = [
-  { // Top full-width — Bubble Tea Set lifestyle photo
-    img: 'https://cdn.shopify.com/s/files/1/0769/8520/5054/files/9690ED77-8273-4F9F-B137-9A7A55D5A6B7.jpg?v=1736538559',
-    bg: '#0c1f3a', label: 'My Bubble Tea',
-  },
-  { // Bottom left — TEABALLS Himbeere clean bottle
-    img: 'https://cdn.shopify.com/s/files/1/0368/6150/9769/files/TEABALLS_Himbeere_Flasche.png?v=1762429748',
-    bg: '#1a0312', label: 'TEABALLS',
-  },
-  { // Bottom center — Patislove Pistachio Milk Choc Bar
-    img: 'https://cdn.shopify.com/s/files/1/0763/2302/9259/files/Untitleddesign_49.webp?v=1759780663',
-    bg: '#1e0f00', label: 'Patislove',
-  },
-  { // Bottom right — The Mallows Raspberry Hearts
-    img: 'https://cdn.shopify.com/s/files/1/0763/2302/9259/files/43f6ead8336003ff8d56a822586ec842d1058f18327592c95d20214258a85e9b.jpg?v=1765704974',
-    bg: '#1a0c1a', label: 'The Mallows',
-  },
+  { img: 'https://cdn.shopify.com/s/files/1/0769/8520/5054/files/9690ED77-8273-4F9F-B137-9A7A55D5A6B7.jpg?v=1736538559',        bg: '#0c1f3a', label: 'My Bubble Tea',  accent: '#7eb8f7' },
+  { img: 'https://cdn.shopify.com/s/files/1/0368/6150/9769/files/TEABALLS_Hibiskus_Flasche.png?v=1762428964',                   bg: '#0e1f0e', label: 'TEABALLS',       accent: '#a8e6a3' },
+  { img: 'https://cdn.shopify.com/s/files/1/0763/2302/9259/files/Untitleddesign_49.webp?v=1759780663',                          bg: '#1e0f00', label: 'Patislove',      accent: '#f7bc7e' },
+  { img: 'https://cdn.shopify.com/s/files/1/0763/2302/9259/files/43f6ead8336003ff8d56a822586ec842d1058f18327592c95d20214258a85e9b.jpg?v=1765704974', bg: '#1a0c1a', label: 'The Mallows', accent: '#e8a0e8' },
+  { img: 'https://cdn.shopify.com/s/files/1/0769/8520/5054/files/BobaTeaDrinkGreenApple_Photomountage_1080x1080_copy.png?v=1752934721', bg: '#0d2b22', label: 'BobaJoy',  accent: '#5cf5cc' },
 ]
 
 export default async function HomePage() {
@@ -87,29 +76,48 @@ export default async function HomePage() {
       <style dangerouslySetInnerHTML={{ __html: `
         /* ── HERO ── */
         .hero {
-          background: var(--forest);
+          background: #080e0c;
           position: relative; overflow: hidden;
-          min-height: 680px; display: flex; align-items: center;
+          min-height: 720px;
         }
-        .hero-grid {
+        .hero-inner {
           display: grid; grid-template-columns: 1fr 1fr;
-          gap: 0; width: 100%; min-height: 680px;
+          min-height: 720px;
         }
         .hero-left {
-          padding: clamp(60px,7vw,100px) clamp(32px,5vw,80px);
+          padding: clamp(60px,7vw,100px) clamp(32px,5vw,72px);
           display: flex; flex-direction: column; justify-content: center;
           position: relative; z-index: 2;
         }
+        /* 5-tile mosaic: 2 top + 1 tall right + 2 bottom-left */
         .hero-right {
-          position: relative; overflow: hidden;
-          display: grid; grid-template-columns: 1fr 1fr;
-          grid-template-rows: 1fr 1fr; gap: 3px;
+          display: grid;
+          grid-template-columns: 1fr 1fr 1fr;
+          grid-template-rows: 1fr 1fr;
+          gap: 2px; position: relative; overflow: hidden;
         }
-        .hero-right-img {
+        .hero-tile {
           position: relative; overflow: hidden;
-          background: rgba(255,255,255,.04);
+          transition: transform .4s;
         }
-        .hero-right-img:first-child { grid-column: span 2; min-height: 260px; }
+        .hero-tile:hover { transform: scale(1.03); z-index: 2; }
+        /* Tile layout: span assignments */
+        .hero-tile:nth-child(1) { grid-column: span 2; }
+        .hero-tile:nth-child(3) { grid-row: span 2; grid-column: 3; grid-row: 1 / span 2; }
+        .hero-tile-overlay {
+          position: absolute; inset: 0;
+          background: linear-gradient(to top, rgba(0,0,0,.7) 0%, rgba(0,0,0,.1) 60%, transparent 100%);
+          transition: opacity .3s;
+        }
+        .hero-tile:hover .hero-tile-overlay { opacity: .5; }
+        .hero-tile-label {
+          position: absolute; bottom: 12px; left: 14px; z-index: 2;
+          font-family: 'Space Grotesk', sans-serif;
+          font-size: 12px; font-weight: 700; color: white;
+          background: rgba(0,0,0,.45); backdrop-filter: blur(6px);
+          border: 1px solid rgba(255,255,255,.12);
+          padding: 5px 12px; border-radius: 20px; letter-spacing: .3px;
+        }
         .hero-tag {
           display: inline-flex; align-items: center; gap: 8px;
           background: rgba(22,163,122,.15); border: 1px solid rgba(22,163,122,.35);
@@ -120,35 +128,33 @@ export default async function HomePage() {
         }
         .hero-h1 {
           font-family: 'Space Grotesk', sans-serif;
-          font-size: clamp(38px,4.8vw,64px); font-weight: 700;
+          font-size: clamp(36px,4.4vw,60px); font-weight: 800;
           line-height: 1.04; letter-spacing: -0.04em; color: white;
-          margin-bottom: 24px;
+          margin-bottom: 22px;
         }
         .hero-p {
-          font-size: clamp(15px,1.5vw,17px); color: rgba(255,255,255,.6);
-          line-height: 1.8; max-width: 460px; margin-bottom: 40px;
+          font-size: clamp(14px,1.4vw,16px); color: rgba(255,255,255,.55);
+          line-height: 1.85; max-width: 440px; margin-bottom: 40px;
         }
-        .hero-btns { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 56px; }
+        .hero-btns { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 52px; }
         .hero-btn-primary {
           display: inline-flex; align-items: center; gap: 8px;
           background: var(--accent); color: white;
           padding: 15px 32px; border-radius: 12px;
           font-size: 15px; font-weight: 700;
           box-shadow: 0 8px 28px rgba(22,163,122,.4);
-          transition: transform .2s, box-shadow .2s;
-          white-space: nowrap;
+          transition: transform .2s, box-shadow .2s; white-space: nowrap;
         }
         .hero-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 36px rgba(22,163,122,.5); }
         .hero-btn-ghost {
           display: inline-flex; align-items: center; gap: 8px;
-          border: 1.5px solid rgba(255,255,255,.2); color: rgba(255,255,255,.8);
+          border: 1.5px solid rgba(255,255,255,.18); color: rgba(255,255,255,.8);
           padding: 14px 28px; border-radius: 12px;
           font-size: 15px; font-weight: 600;
-          background: rgba(255,255,255,.05);
-          transition: border-color .2s, background .2s;
-          white-space: nowrap;
+          background: rgba(255,255,255,.04);
+          transition: border-color .2s, background .2s; white-space: nowrap;
         }
-        .hero-btn-ghost:hover { border-color: rgba(255,255,255,.5); background: rgba(255,255,255,.1); }
+        .hero-btn-ghost:hover { border-color: rgba(255,255,255,.45); background: rgba(255,255,255,.09); }
         .hero-stats { display: flex; gap: 0; flex-wrap: wrap; }
         .hero-stat-item { padding: 0 28px; border-right: 1px solid rgba(255,255,255,.1); }
         .hero-stat-item:first-child { padding-left: 0; }
@@ -158,7 +164,7 @@ export default async function HomePage() {
           font-size: 30px; font-weight: 700; color: white; line-height: 1;
           letter-spacing: -0.05em;
         }
-        .hero-stat-label { font-size: 12px; color: rgba(255,255,255,.45); margin-top: 6px; }
+        .hero-stat-label { font-size: 12px; color: rgba(255,255,255,.4); margin-top: 6px; }
 
         /* ── TRUST BAR ── */
         .trust-bar {
@@ -276,7 +282,7 @@ export default async function HomePage() {
         @media (max-width: 1100px) {
           .brands-grid { grid-template-columns: repeat(3,1fr); }
           .featured-grid { grid-template-columns: repeat(3,1fr); }
-          .hero-grid { grid-template-columns: 1fr; }
+          .hero-inner { grid-template-columns: 1fr; }
           .hero-right { display: none; }
           .hero-left { padding: clamp(60px,7vw,88px) clamp(20px,5vw,60px); }
         }
@@ -302,32 +308,32 @@ export default async function HomePage() {
 
         {/* ══ HERO ══════════════════════════════════════════════════════ */}
         <section className="hero">
-          {/* Ambient glow */}
-          <div style={{ position:'absolute', top:'-10%', left:'40%', width:600, height:600,
-            background:'radial-gradient(circle, rgba(22,163,122,.12) 0%, transparent 65%)',
-            pointerEvents:'none' }}/>
-          <div style={{ position:'absolute', bottom:'-10%', left:'10%', width:400, height:400,
-            background:'radial-gradient(circle, rgba(22,163,122,.07) 0%, transparent 65%)',
-            pointerEvents:'none' }}/>
+          {/* Ambient glows */}
+          <div style={{ position:'absolute', top:'20%', left:'5%', width:500, height:500,
+            background:'radial-gradient(circle, rgba(22,163,122,.1) 0%, transparent 65%)',
+            pointerEvents:'none', zIndex:1 }}/>
+          <div style={{ position:'absolute', bottom:'0', left:'25%', width:300, height:300,
+            background:'radial-gradient(circle, rgba(92,245,204,.06) 0%, transparent 65%)',
+            pointerEvents:'none', zIndex:1 }}/>
 
-          <div className="hero-grid">
-            {/* Left */}
+          <div className="hero-inner">
+            {/* ── Left: Copy ── */}
             <div className="hero-left">
               <div className="hero-tag">
                 <span style={{ width:7, height:7, borderRadius:'50%', background:'#5cf5cc',
-                  display:'inline-block', animation:'pulse-dot 2s infinite' }}/>
+                  display:'inline-block' }}/>
                 B2B Grosshandel · Schweiz
               </div>
 
               <h1 className="hero-h1">
-                Trend-Produkte.<br />
+                Premium-Produkte.<br />
                 Direktimport.<br />
                 <span style={{ color:'#5cf5cc' }}>Ihr Erfolg.</span>
               </h1>
 
               <p className="hero-p">
-                Bubble Tea, TEABALLS und Gourmet-Spezialitäten direkt vom Importeur.
-                Exklusive B2B-Preise für Wiederverkäufer und Gastronomie in der Schweiz — seit 2015.
+                Bubble Tea, TEABALLS, Gourmet-Spezialitäten und mehr — direkt vom Importeur.
+                Exklusive B2B-Grosshandelspreise für Wiederverkäufer und Gastronomie in der Schweiz.
               </p>
 
               <div className="hero-btns">
@@ -341,10 +347,10 @@ export default async function HomePage() {
 
               <div className="hero-stats">
                 {[
-                  { num: '500+', label: 'B2B-Kunden' },
+                  { num: '500+',               label: 'B2B-Kunden' },
                   { num: productCount.toString(), label: 'Produkte' },
-                  { num: '5', label: 'Marken' },
-                  { num: '2–4', label: 'Werktage' },
+                  { num: '5',                  label: 'Marken' },
+                  { num: '2–4',                label: 'Werktage' },
                 ].map(({ num, label }) => (
                   <div key={label} className="hero-stat-item">
                     <div className="hero-stat-num">{num}</div>
@@ -354,24 +360,24 @@ export default async function HomePage() {
               </div>
             </div>
 
-            {/* Right: Image Mosaic */}
+            {/* ── Right: 5-Brand Mosaic ── */}
             <div className="hero-right">
               {HERO_MOSAIC.map((item, i) => (
-                <div key={item.label} className="hero-right-img"
-                  style={{ background: item.bg }}>
+                <div key={item.label} className="hero-tile"
+                  style={{ background: item.bg, gridColumn: i === 0 ? 'span 2' : i === 2 ? '3' : undefined,
+                    gridRow: i === 2 ? '1 / span 2' : undefined }}>
                   <Image
-                    src={item.img} alt={item.label} fill
-                    sizes="(max-width:1100px) 0px, 33vw"
-                    style={{ objectFit: i === 0 ? 'cover' : 'contain', padding: i === 0 ? 0 : 20, transition:'transform .4s' }}
-                    priority={i === 0}
+                    src={item.img}
+                    alt={item.label}
+                    fill
+                    sizes="(max-width:1100px) 0px, 25vw"
+                    style={{ objectFit: i === 0 ? 'cover' : 'contain', padding: i === 0 ? 0 : 16 }}
+                    priority={i < 2}
                   />
-                  <div style={{
-                    position:'absolute', bottom:12, left:12,
-                    background:'rgba(0,0,0,.55)', backdropFilter:'blur(8px)',
-                    border:'1px solid rgba(255,255,255,.1)',
-                    borderRadius:8, padding:'6px 12px',
-                  }}>
-                    <span style={{ fontSize:11.5, fontWeight:700, color:'white', fontFamily:"'Space Grotesk',sans-serif" }}>{item.label}</span>
+                  <div className="hero-tile-overlay" />
+                  <div className="hero-tile-label"
+                    style={{ borderColor: `${item.accent}40`, color: item.accent }}>
+                    {item.label}
                   </div>
                 </div>
               ))}
@@ -382,7 +388,7 @@ export default async function HomePage() {
         {/* ══ TRUST BAR ════════════════════════════════════════════════ */}
         <div className="trust-bar">
           {[
-            { icon:'🚚', main:'Gratis Lieferung', sub:'Ab CHF 300 · DPD Tracking' },
+            { icon:'🚚', main:'Schnelle Lieferung', sub:'2–4 Werktage · Schweizweit' },
             { icon:'🏭', main:'Direktimport Basel', sub:'Kein Zwischenhändler' },
             { icon:'💰', main:'Bis –20% Rabatt', sub:'VIP · PREMIUM · STANDARD' },
             { icon:'📦', main:'Flexible Mindestmengen', sub:'Ab 6 Verkaufseinheiten' },
@@ -505,7 +511,7 @@ export default async function HomePage() {
               { n:'01', icon:'📋', title:'Konto eröffnen',     desc:'Registrieren Sie sich mit Ihren Unternehmensdaten. Dauert nur 2 Minuten.' },
               { n:'02', icon:'✅', title:'Freigabe erhalten',  desc:'Unser Team prüft Ihr Konto und schaltet es innerhalb eines Werktags frei.' },
               { n:'03', icon:'🛒', title:'Produkte wählen',    desc:'Bestellen Sie aus unserem Sortiment zu exklusiven Grosshandelspreisen.' },
-              { n:'04', icon:'🚚', title:'Lieferung erhalten', desc:'DPD Tracking Lieferung in 2–4 Werktagen direkt an Ihre Geschäftsadresse.' },
+              { n:'04', icon:'🚚', title:'Lieferung erhalten', desc:'Lieferung in 2–4 Werktagen direkt an Ihre Geschäftsadresse in der Schweiz.' },
             ].map(({ n, icon, title, desc }) => (
               <div key={n} className="step-item">
                 <div className="step-num">Schritt {n}</div>
