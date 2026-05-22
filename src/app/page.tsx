@@ -4,8 +4,10 @@ import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import { prisma } from '@/lib/prisma'
 import { formatPrice } from '@/lib/utils'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
 
-export const revalidate = 60
+export const revalidate = 0
 
 const BRANDS = [
   {
@@ -55,6 +57,9 @@ const HERO_MOSAIC = [
 ]
 
 export default async function HomePage() {
+  const session  = await getServerSession(authOptions)
+  const approved = session?.user?.status === 'APPROVED'
+
   const [featuredProducts, newProducts, productCount] = await Promise.all([
     prisma.product.findMany({
       where: { active: true, badge: 'hot' },
@@ -488,7 +493,11 @@ export default async function HomePage() {
                       <div className="feat-name">{p.name}</div>
                       <div className="feat-unit">{p.unit}</div>
                       <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
-                        <span className="feat-price">{formatPrice(Number(p.price))}</span>
+                        {approved ? (
+                          <span className="feat-price">{formatPrice(Number(p.price))}</span>
+                        ) : (
+                          <span style={{ fontSize:13, fontWeight:700, color:'var(--gray-400)', letterSpacing:1 }}>🔒 Preis auf Anfrage</span>
+                        )}
                         <span className="feat-moq">ab {p.moq} VE</span>
                       </div>
                     </div>

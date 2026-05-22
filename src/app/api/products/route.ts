@@ -17,6 +17,7 @@ export async function GET(req: NextRequest) {
     const limit    = Number(searchParams.get('limit') ?? 100)
 
     const session = await getSession()
+    const approved   = session?.user?.status === 'APPROVED'
     const priceGroup = session?.user?.priceGroup ?? 'STANDARD'
 
     // If a parent category is requested, also include products from all child categories
@@ -59,10 +60,11 @@ export async function GET(req: NextRequest) {
 
     const priced = products.map(p => ({
       ...p,
-      price: applyDiscount(Number(p.price), priceGroup),
-      comparePrice: p.comparePrice ? Number(p.comparePrice) : null,
-      originalPrice: Number(p.price),
-      taxRate: Number(p.taxRate),
+      // Hide prices for non-approved users — show 0 so UI knows to display lock
+      price:         approved ? applyDiscount(Number(p.price), priceGroup) : 0,
+      comparePrice:  approved && p.comparePrice ? Number(p.comparePrice) : null,
+      originalPrice: approved ? Number(p.price) : 0,
+      taxRate:       Number(p.taxRate),
     }))
 
     return NextResponse.json({ products: priced, total, page, limit })
