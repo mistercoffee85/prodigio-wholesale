@@ -125,10 +125,17 @@ function ProductsContent() {
     setTotal(0)
   }, [categorySlug])
 
-  const currentCat = categorySlug !== 'all' ? findCategory(tree, categorySlug) : undefined
-  const parentCat  = categorySlug !== 'all' ? findParentOf(tree, categorySlug) : undefined
-  const isParent   = (currentCat?.children?.length ?? 0) > 0
-  const isLeaf     = !!currentCat && !isParent
+  // cash-carry is a virtual category (not in DB tree) — treat as leaf
+  const VIRTUAL_CATS: Record<string, { name: string; emoji: string }> = {
+    'cash-carry': { name: 'Cash & Carry', emoji: '🇮🇹' },
+  }
+  const isVirtual   = categorySlug in VIRTUAL_CATS
+  const currentCat  = isVirtual
+    ? { id: categorySlug, name: VIRTUAL_CATS[categorySlug].name, slug: categorySlug, emoji: VIRTUAL_CATS[categorySlug].emoji, parentId: null, sortOrder: 99, _count: { products: 0 }, children: [] }
+    : (categorySlug !== 'all' ? findCategory(tree, categorySlug) : undefined)
+  const parentCat  = !isVirtual && categorySlug !== 'all' ? findParentOf(tree, categorySlug) : undefined
+  const isParent   = !isVirtual && (currentCat?.children?.length ?? 0) > 0
+  const isLeaf     = isVirtual || (!!currentCat && !isParent)
   const isAll      = categorySlug === 'all'
 
   // ── Fetch a page of products for leaf / search ──────────────────────────
