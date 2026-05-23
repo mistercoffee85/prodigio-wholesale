@@ -140,7 +140,12 @@ function ProductsContent() {
     else       setLoadingMore(true)
 
     const params = new URLSearchParams()
-    if (categorySlug !== 'all') params.set('category', categorySlug)
+    // cash-carry is a virtual category — pass supplier filter instead of category
+    if (categorySlug === 'cash-carry') {
+      params.set('supplier', 'migroweb')
+    } else if (categorySlug !== 'all') {
+      params.set('category', categorySlug)
+    }
     if (search)                 params.set('search', search)
     params.set('limit', String(PAGE_SIZE))
     params.set('page', String(pageNum))

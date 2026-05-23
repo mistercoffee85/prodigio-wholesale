@@ -20,9 +20,12 @@ export async function GET(req: NextRequest) {
     const approved   = session?.user?.status === 'APPROVED'
     const priceGroup = session?.user?.priceGroup ?? 'STANDARD'
 
+    // Special virtual category: cash-carry → filter by supplierSource=migroweb
+    const isCashCarry = category === 'cash-carry'
+
     // If a parent category is requested, also include products from all child categories
     let categoryFilter: object | undefined
-    if (category) {
+    if (category && !isCashCarry) {
       const cat = await prisma.category.findUnique({
         where: { slug: category },
         include: { children: { select: { slug: true } } },
@@ -38,8 +41,9 @@ export async function GET(req: NextRequest) {
     const where: Record<string, unknown> = {
       ...categoryFilter,
     }
-    if (supplier)        where.supplierSource = supplier
-    if (excludeSupplier) where.supplierSource = { not: excludeSupplier }
+    if (isCashCarry)     where.supplierSource = 'migroweb'
+    else if (supplier)   where.supplierSource = supplier
+    if (excludeSupplier && !isCashCarry) where.supplierSource = { not: excludeSupplier }
     if (badge)           where.badge = badge
     if (search)          where.OR = [
       { name:        { contains: search, mode: 'insensitive' } },
