@@ -17,7 +17,7 @@ export default function AGBPage() {
           <p style={{ opacity: .65, marginTop: 8, fontSize: 14 }}>PRO.DI.GIO GmbH · Stand: Januar 2025</p>
         </div>
 
-        <div style={{ maxWidth: 860, margin: '0 auto', padding: 'clamp(32px,4vw,56px) clamp(16px,4vw,40px)' }}>
+        <div style={{ maxWidth: 860, width: '100%', margin: '0 auto', padding: 'clamp(32px,4vw,56px) clamp(16px,4vw,40px)' }}>
           <div className="card" style={{ padding: 'clamp(24px,4vw,48px)', lineHeight: 1.8, fontSize: 14.5 }}>
 
             <Section title="1. Geltungsbereich">

@@ -9,9 +9,9 @@ export default function SuccessPage({ searchParams }: { searchParams: { order?: 
     <>
       <Header />
       <main style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--gray-50)', padding: 20 }}>
-        <div style={{ textAlign: 'center', maxWidth: 520 }}>
-          <div style={{ fontSize: 72, marginBottom: 20 }}>🎉</div>
-          <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 32, marginBottom: 12 }}>Bestellung aufgegeben!</h1>
+        <div style={{ textAlign: 'center', maxWidth: 520, width: '100%' }}>
+          <div style={{ fontSize: 'clamp(48px, 10vw, 72px)', marginBottom: 20 }}>🎉</div>
+          <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(24px, 5vw, 32px)', marginBottom: 12 }}>Bestellung aufgegeben!</h1>
           {searchParams.order && (
             <div style={{ background: 'var(--accent-light)', border: '1px solid var(--accent)', borderRadius: 10, padding: '14px 20px', marginBottom: 20, fontSize: 16, fontWeight: 600, color: 'var(--accent)' }}>
               Bestellnummer: #{searchParams.order}

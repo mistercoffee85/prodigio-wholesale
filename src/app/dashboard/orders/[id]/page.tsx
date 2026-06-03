@@ -80,33 +80,33 @@ export default async function OrderDetailPage({ params }: { params: { id: string
         <div style={{ maxWidth: 900, margin: '0 auto', padding: 'clamp(24px,4vw,48px) clamp(16px,4vw,32px)' }}>
 
           {/* Status Bar */}
-          <div className="card" style={{ padding: '20px 28px', marginBottom: 24, display: 'flex', flexWrap: 'wrap', gap: 24, alignItems: 'center' }}>
-            <div style={{ flex: 1, minWidth: 140 }}>
+          <div className="card" style={{ padding: 'clamp(14px,3vw,20px) clamp(16px,4vw,28px)', marginBottom: 24, display: 'flex', flexWrap: 'wrap', gap: 16, alignItems: 'center' }}>
+            <div style={{ flex: '1 1 140px', minWidth: 0 }}>
               <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: 'var(--gray-400)', marginBottom: 6 }}>Bestellstatus</div>
               <span className={`badge ${STATUS_COLOR[order.status] ?? 'badge-gray'}`}>
                 {STATUS_LABELS[order.status] ?? order.status}
               </span>
             </div>
-            <div style={{ flex: 1, minWidth: 140 }}>
+            <div style={{ flex: '1 1 140px', minWidth: 0 }}>
               <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: 'var(--gray-400)', marginBottom: 6 }}>Zahlungsstatus</div>
               <span className={`badge ${paymentBadge}`}>
                 {STATUS_LABELS[order.paymentStatus] ?? order.paymentStatus}
               </span>
             </div>
-            <div style={{ flex: 1, minWidth: 140 }}>
+            <div style={{ flex: '1 1 140px', minWidth: 0 }}>
               <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: 'var(--gray-400)', marginBottom: 6 }}>Zahlungsart</div>
-              <span style={{ fontSize: 14, fontWeight: 600 }}>
+              <span style={{ fontSize: 14, fontWeight: 600, wordBreak: 'break-word' }}>
                 {PAYMENT_LABELS[order.paymentMethod] ?? order.paymentMethod}
               </span>
             </div>
             {order.shippedAt && (
-              <div style={{ flex: 1, minWidth: 140 }}>
+              <div style={{ flex: '1 1 140px', minWidth: 0 }}>
                 <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: 'var(--gray-400)', marginBottom: 6 }}>Versandt am</div>
                 <span style={{ fontSize: 14 }}>{format(order.shippedAt, 'dd. MMM yyyy', { locale: de })}</span>
               </div>
             )}
             {order.deliveredAt && (
-              <div style={{ flex: 1, minWidth: 140 }}>
+              <div style={{ flex: '1 1 140px', minWidth: 0 }}>
                 <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: 'var(--gray-400)', marginBottom: 6 }}>Geliefert am</div>
                 <span style={{ fontSize: 14 }}>{format(order.deliveredAt, 'dd. MMM yyyy', { locale: de })}</span>
               </div>
@@ -115,24 +115,24 @@ export default async function OrderDetailPage({ params }: { params: { id: string
 
           {/* Order Items */}
           <div className="card" style={{ marginBottom: 24 }}>
-            <div style={{ padding: '16px 24px', borderBottom: '1px solid var(--gray-100)', fontWeight: 700, fontSize: 15 }}>
+            <div style={{ padding: 'clamp(12px,3vw,16px) clamp(16px,4vw,24px)', borderBottom: '1px solid var(--gray-100)', fontWeight: 700, fontSize: 15 }}>
               Bestellte Artikel ({order.items.length})
             </div>
             <div>
               {order.items.map((item, i) => (
                 <div key={item.id} style={{
-                  display: 'flex', alignItems: 'center', gap: 16,
-                  padding: '16px 24px',
+                  display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 12,
+                  padding: 'clamp(12px,3vw,16px) clamp(16px,4vw,24px)',
                   borderBottom: i < order.items.length - 1 ? '1px solid var(--gray-50)' : 'none',
                 }}>
                   <div style={{ fontSize: 32, width: 48, textAlign: 'center', flexShrink: 0 }}>
                     {item.product.emoji}
                   </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ flex: '1 1 160px', minWidth: 0 }}>
                     <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 2 }}>{item.product.name}</div>
                     <div style={{ fontSize: 12, color: 'var(--gray-400)' }}>{item.product.brand}</div>
                   </div>
-                  <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                  <div style={{ textAlign: 'right', flexShrink: 0, marginLeft: 'auto' }}>
                     <div style={{ fontWeight: 700, fontSize: 15 }}>{formatPrice(Number(item.total))}</div>
                     <div style={{ fontSize: 12, color: 'var(--gray-400)' }}>
                       {item.quantity} × {formatPrice(Number(item.unitPrice))}
@@ -146,7 +146,7 @@ export default async function OrderDetailPage({ params }: { params: { id: string
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 360px), 1fr))', gap: 24 }}>
 
             {/* Cost Summary */}
-            <div className="card" style={{ padding: '24px 28px' }}>
+            <div className="card" style={{ padding: 'clamp(16px,4vw,24px) clamp(16px,4vw,28px)' }}>
               <h2 style={{ fontSize: 15, fontWeight: 700, marginBottom: 20 }}>Kostenübersicht</h2>
               {[
                 ['Zwischensumme', formatPrice(subtotal)],
@@ -170,7 +170,7 @@ export default async function OrderDetailPage({ params }: { params: { id: string
 
             {/* Payment Info */}
             {!isPaid && order.paymentMethod === 'BANK_TRANSFER' && (
-              <div className="card" style={{ padding: '24px 28px' }}>
+              <div className="card" style={{ padding: 'clamp(16px,4vw,24px) clamp(16px,4vw,28px)' }}>
                 <h2 style={{ fontSize: 15, fontWeight: 700, marginBottom: 16 }}>Bankdaten</h2>
                 {[
                   ['Empfänger', 'PRO.DI.GIO GmbH'],
@@ -180,9 +180,9 @@ export default async function OrderDetailPage({ params }: { params: { id: string
                   ['Betrag', formatPrice(total)],
                   ['Zahlungsziel', '14 Tage'],
                 ].map(([label, value]) => (
-                  <div key={label} style={{ display: 'flex', gap: 8, marginBottom: 10, fontSize: 13 }}>
-                    <span style={{ color: 'var(--gray-400)', width: 130, flexShrink: 0 }}>{label}</span>
-                    <span style={{ fontWeight: 600 }}>{value}</span>
+                  <div key={label} style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 10, fontSize: 13 }}>
+                    <span style={{ color: 'var(--gray-400)', minWidth: 100, flexShrink: 0 }}>{label}</span>
+                    <span style={{ fontWeight: 600, wordBreak: 'break-word', minWidth: 0, flex: 1 }}>{value}</span>
                   </div>
                 ))}
               </div>
@@ -190,7 +190,7 @@ export default async function OrderDetailPage({ params }: { params: { id: string
 
             {/* Notes */}
             {order.notes && (
-              <div className="card" style={{ padding: '24px 28px' }}>
+              <div className="card" style={{ padding: 'clamp(16px,4vw,24px) clamp(16px,4vw,28px)' }}>
                 <h2 style={{ fontSize: 15, fontWeight: 700, marginBottom: 12 }}>Anmerkungen</h2>
                 <p style={{ fontSize: 14, color: 'var(--gray-600)', lineHeight: 1.7 }}>{order.notes}</p>
               </div>
@@ -200,10 +200,10 @@ export default async function OrderDetailPage({ params }: { params: { id: string
 
           {/* Actions */}
           <div style={{ marginTop: 28, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-            <Link href="/dashboard" className="btn btn-outline" style={{ padding: '10px 24px' }}>
+            <Link href="/dashboard" className="btn btn-outline" style={{ padding: '10px 24px', flex: '1 1 auto', textAlign: 'center' }}>
               ← Zurück zum Konto
             </Link>
-            <Link href="/products" className="btn btn-primary" style={{ padding: '10px 24px' }}>
+            <Link href="/products" className="btn btn-primary" style={{ padding: '10px 24px', flex: '1 1 auto', textAlign: 'center' }}>
               Weiter bestellen →
             </Link>
           </div>

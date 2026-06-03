@@ -282,12 +282,16 @@ export default async function HomePage() {
           border-top: 1px solid var(--gray-100);
           text-align: center;
         }
+        .cta-btns {
+          display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;
+        }
 
         /* ── RESPONSIVE ── */
         @media (max-width: 1100px) {
           .brands-grid { grid-template-columns: repeat(3,1fr); }
           .featured-grid { grid-template-columns: repeat(3,1fr); }
-          .hero-inner { grid-template-columns: 1fr; }
+          .hero-inner { grid-template-columns: 1fr; min-height: unset; }
+          .hero { min-height: unset; }
           .hero-right { display: none; }
           .hero-left { padding: clamp(60px,7vw,88px) clamp(20px,5vw,60px); }
         }
@@ -304,7 +308,19 @@ export default async function HomePage() {
           .brands-grid { grid-template-columns: 1fr 1fr; }
           .featured-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
           .steps-grid { grid-template-columns: 1fr; gap: 24px; }
+          .step-item { padding: 0 12px; }
           .brand-tile { min-height: 220px; }
+          .feat-img { height: 160px; }
+        }
+        @media (max-width: 400px) {
+          .hero-stat-item { padding: 0 10px; }
+          .hero-stat-num { font-size: 22px; }
+          .hero-stat-label { font-size: 11px; }
+          .trust-bar { flex-wrap: wrap; }
+          .trust-item { flex-shrink: 1; padding: 12px 14px; min-width: 140px; }
+          .brand-tile { min-height: 180px; }
+          .cta-btns { flex-direction: column; align-items: stretch; }
+          .cta-btns a { text-align: center; justify-content: center; width: 100%; box-sizing: border-box; }
         }
       ` }} />
 
@@ -547,7 +563,7 @@ export default async function HomePage() {
             Registrieren Sie sich kostenlos und erhalten Sie sofortigen Zugang
             zu Grosshandelspreisen, Neuheiten und persönlichem Support.
           </p>
-          <div style={{ display:'flex', gap:14, justifyContent:'center', flexWrap:'wrap' }}>
+          <div className="cta-btns">
             <Link href="/register" style={{
               display:'inline-flex', alignItems:'center', gap:9,
               background:'var(--black)', color:'white',

@@ -279,8 +279,8 @@ function ProductsContent() {
 
             {/* ── Suchleiste im Header (sichtbar auf Übersicht + Parent-Seiten) ── */}
             {(isAll || isParent) && (
-              <div style={{ marginTop: 20, display: 'flex', gap: 8, maxWidth: 560 }}>
-                <div style={{ position: 'relative', flex: 1 }}>
+              <div style={{ marginTop: 20, display: 'flex', gap: 8, maxWidth: 560, width: '100%', flexWrap: 'wrap' }}>
+                <div style={{ position: 'relative', flex: 1, minWidth: 0 }}>
                   <span style={{
                     position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)',
                     fontSize: 16, opacity: .6,
@@ -339,7 +339,7 @@ function ProductsContent() {
           {/* ══════════════════════════════════════════════════════════════ */}
           {isAll && !search && (
             <div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(280px, 100%), 1fr))', gap: 16 }}>
                 {tree.filter(c => totalProducts(c) > 0).map(cat => (
                   <div
                     key={cat.slug}
@@ -383,7 +383,7 @@ function ProductsContent() {
           {!isAll && isParent && !search && (
             <div>
               {/* Subcategory cards */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 12, marginBottom: 40 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(160px, 100%), 1fr))', gap: 12, marginBottom: 40 }}>
                 {currentCat!.children!.sort((a, b) => a.sortOrder - b.sortOrder).map(sub => (
                   <div
                     key={sub.slug}
@@ -404,7 +404,7 @@ function ProductsContent() {
 
               {/* Products grouped by subcategory */}
               {loading ? (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 16 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(200px, 100%), 1fr))', gap: 16 }}>
                   {Array.from({ length: 8 }).map((_, i) => <div key={i} className="skeleton" style={{ height: 360, borderRadius: 12 }} />)}
                 </div>
               ) : (
@@ -416,7 +416,7 @@ function ProductsContent() {
                       if (sub._count.products === 0) return null
                       return (
                         <section key={sub.slug}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16, paddingBottom: 12, borderBottom: '2px solid var(--gray-100)' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16, paddingBottom: 12, borderBottom: '2px solid var(--gray-100)', flexWrap: 'wrap' }}>
                             <span style={{ fontSize: 22 }}>{sub.emoji}</span>
                             <div>
                               <div style={{ fontWeight: 700, fontSize: 16 }}>{sub.name}</div>
@@ -433,11 +433,11 @@ function ProductsContent() {
                             </button>
                           </div>
                           {subProds.length > 0 ? (
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 'clamp(12px,2vw,20px)' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(200px, 100%), 1fr))', gap: 'clamp(12px,2vw,20px)' }}>
                               {subProds.map((p, i) => <ProductCard key={p.id} product={p} priority={i === 0} approved={approved} />)}
                             </div>
                           ) : (
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 16 }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(200px, 100%), 1fr))', gap: 16 }}>
                               {Array.from({ length: 4 }).map((_, i) => <div key={i} className="skeleton" style={{ height: 320, borderRadius: 12 }} />)}
                             </div>
                           )}
@@ -472,13 +472,13 @@ function ProductsContent() {
                       onKeyDown={e => e.key === 'Enter' && setSearch(searchInput)}
                       placeholder={`In ${currentCat?.name ?? 'Produkte'} suchen…`}
                       className="form-input"
-                      style={{ paddingLeft: 36, width: 240 }}
+                      style={{ paddingLeft: 36, width: 'min(240px, 100%)' }}
                     />
                   </div>
                   {searchInput && <button className="btn btn-sm btn-outline" onClick={() => setSearch(searchInput)}>Suchen</button>}
                   {search && <button className="btn btn-sm btn-ghost" onClick={() => { setSearch(''); setSearchInput('') }}>✕ Reset</button>}
                 </div>
-                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
                   {!loading && (
                     <span style={{ fontSize: 13, color: 'var(--gray-400)' }}>
                       {sorted.length.toLocaleString()} / {total.toLocaleString()} Produkte
@@ -497,7 +497,7 @@ function ProductsContent() {
               )}
 
               {loading ? (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 16 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(200px, 100%), 1fr))', gap: 16 }}>
                   {Array.from({ length: 12 }).map((_, i) => <div key={i} className="skeleton" style={{ height: 360, borderRadius: 12 }} />)}
                 </div>
               ) : sorted.length === 0 ? (
@@ -511,7 +511,7 @@ function ProductsContent() {
                 </div>
               ) : (
                 <>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 'clamp(12px,2vw,20px)' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(200px, 100%), 1fr))', gap: 'clamp(12px,2vw,20px)' }}>
                     {sorted.map((p, i) => <ProductCard key={p.id} product={p} priority={i < 4} approved={approved} />)}
                   </div>
 
@@ -541,17 +541,17 @@ function ProductsContent() {
           {/* ── Suche von Alle Produkte aus ── */}
           {isAll && search && (
             <div>
-              <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
+              <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
                 <button className="btn btn-ghost btn-sm" onClick={() => { setSearch(''); setSearchInput('') }}>✕ Suche zurücksetzen</button>
                 {!loading && <span style={{ fontSize: 13, color: 'var(--gray-400)', lineHeight: '32px' }}>{total.toLocaleString()} Ergebnisse</span>}
               </div>
               {loading ? (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 16 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(200px, 100%), 1fr))', gap: 16 }}>
                   {Array.from({ length: 8 }).map((_, i) => <div key={i} className="skeleton" style={{ height: 360, borderRadius: 12 }} />)}
                 </div>
               ) : (
                 <>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 'clamp(12px,2vw,20px)' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(200px, 100%), 1fr))', gap: 'clamp(12px,2vw,20px)' }}>
                     {sorted.map((p, i) => <ProductCard key={p.id} product={p} priority={i < 4} approved={approved} />)}
                   </div>
                   {/* Infinite scroll sentinel (search view) */}

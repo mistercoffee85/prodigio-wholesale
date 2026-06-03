@@ -170,6 +170,37 @@ export default function CheckoutPage() {
 
   return (
     <>
+      <style>{`
+        .shipping-detail-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 7px;
+        }
+        @media (max-width: 480px) {
+          .shipping-detail-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+        .order-summary-card {
+          position: sticky;
+          top: 90px;
+        }
+        @media (max-width: 768px) {
+          .order-summary-card {
+            position: static;
+            top: auto;
+          }
+        }
+        .trust-badges {
+          display: flex;
+          justify-content: center;
+          gap: 20px;
+          flex-wrap: wrap;
+          margin-top: 16px;
+          padding-top: 16px;
+          border-top: 1px solid var(--gray-100);
+        }
+      `}</style>
       <Header />
       <main style={{ minHeight: '80vh', background: '#f8f9fb' }}>
 
@@ -208,7 +239,7 @@ export default function CheckoutPage() {
 
           {/* ── Step 2: Stripe card payment ── */}
           {step === 'stripe-payment' && stripeData && (
-            <div style={{ maxWidth: 560, margin: '0 auto' }}>
+            <div style={{ maxWidth: 560, width: '100%', margin: '0 auto' }}>
               <StripePaymentForm
                 clientSecret={stripeData.clientSecret}
                 total={total}
@@ -231,7 +262,7 @@ export default function CheckoutPage() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 
                 {/* Lieferoption */}
-                <div className="card" style={{ padding: 28 }}>
+                <div className="card" style={{ padding: 'clamp(16px, 4vw, 28px)' }}>
                   <h2 style={{ fontSize: 17, fontWeight: 700, marginBottom: 4 }}>Lieferoption</h2>
                   {isMixed && (
                     <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#fff7ed', border: '1px solid #fcd9b6', borderRadius: 20, padding: '4px 12px', fontSize: 11.5, fontWeight: 600, color: '#92400e', marginBottom: 16 }}>
@@ -263,9 +294,9 @@ export default function CheckoutPage() {
                         <label key={opt.value} style={{ display: 'block', padding: '16px 18px', border: '2px solid', borderColor: shippingOptionCNC === opt.value ? 'var(--accent)' : 'var(--gray-200)', borderRadius: 12, cursor: 'pointer', marginBottom: 10, background: shippingOptionCNC === opt.value ? 'var(--accent-light)' : 'white', transition: 'all .15s' }}>
                           <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
                             <input type="radio" name="so-cnc" value={opt.value} checked={shippingOptionCNC === opt.value} onChange={() => setShippingOptionCNC(opt.value)} style={{ marginTop: 3, accentColor: 'var(--accent)', flexShrink: 0 }} />
-                            <div style={{ flex: 1 }}>
+                            <div style={{ flex: 1, minWidth: 0 }}>
                               <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 10 }}>{opt.title}</div>
-                              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 7 }}>
+                              <div className="shipping-detail-grid">
                                 {opt.rows.map(([icon, title, desc]) => (
                                   <div key={title} style={{ background: 'rgba(255,255,255,0.65)', borderRadius: 8, padding: '9px 11px' }}>
                                     <div style={{ fontSize: 11.5, fontWeight: 700, marginBottom: 2 }}>{icon} {title}</div>
@@ -305,9 +336,9 @@ export default function CheckoutPage() {
                         <label key={opt.value} style={{ display: 'block', padding: '16px 18px', border: '2px solid', borderColor: shippingOptionLocal === opt.value ? 'var(--accent)' : 'var(--gray-200)', borderRadius: 12, cursor: 'pointer', marginBottom: 10, background: shippingOptionLocal === opt.value ? 'var(--accent-light)' : 'white', transition: 'all .15s' }}>
                           <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
                             <input type="radio" name="so-local" value={opt.value} checked={shippingOptionLocal === opt.value} onChange={() => setShippingOptionLocal(opt.value)} style={{ marginTop: 3, accentColor: 'var(--accent)', flexShrink: 0 }} />
-                            <div style={{ flex: 1 }}>
+                            <div style={{ flex: 1, minWidth: 0 }}>
                               <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 10 }}>{opt.title}</div>
-                              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 7 }}>
+                              <div className="shipping-detail-grid">
                                 {opt.rows.map(([icon, title, desc]) => (
                                   <div key={title} style={{ background: 'rgba(255,255,255,0.65)', borderRadius: 8, padding: '9px 11px' }}>
                                     <div style={{ fontSize: 11.5, fontWeight: 700, marginBottom: 2 }}>{icon} {title}</div>
@@ -325,7 +356,7 @@ export default function CheckoutPage() {
                 </div>
 
                 {/* Zahlungsmethode */}
-                <div className="card" style={{ padding: 28 }}>
+                <div className="card" style={{ padding: 'clamp(16px, 4vw, 28px)' }}>
                   <h2 style={{ fontSize: 17, fontWeight: 700, marginBottom: 20 }}>Zahlungsmethode</h2>
                   {PAYMENT_OPTIONS.map(opt => (
                     <div key={opt.value}>
@@ -336,6 +367,7 @@ export default function CheckoutPage() {
                         borderRadius: 10, cursor: 'pointer', marginBottom: 10,
                         background: paymentMethod === opt.value ? 'var(--accent-light)' : 'white',
                         transition: 'all .15s',
+                        flexWrap: 'wrap',
                       }}>
                         <input
                           type="radio" name="pm" value={opt.value}
@@ -343,7 +375,7 @@ export default function CheckoutPage() {
                           onChange={() => setPaymentMethod(opt.value)}
                           style={{ marginTop: 3, accentColor: 'var(--accent)', flexShrink: 0 }}
                         />
-                        <div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 2 }}>{opt.icon} {opt.title}</div>
                           <div style={{ fontSize: 12.5, color: 'var(--gray-400)' }}>{opt.desc}</div>
                         </div>
@@ -354,7 +386,7 @@ export default function CheckoutPage() {
                 </div>
 
                 {/* Notizen */}
-                <div className="card" style={{ padding: 28 }}>
+                <div className="card" style={{ padding: 'clamp(16px, 4vw, 28px)' }}>
                   <h2 style={{ fontSize: 17, fontWeight: 700, marginBottom: 14 }}>
                     Bestellnotiz{' '}
                     <span style={{ color: 'var(--gray-400)', fontSize: 13, fontWeight: 400 }}>(optional)</span>
@@ -374,7 +406,7 @@ export default function CheckoutPage() {
               </div>
 
               {/* Right column — Order Summary */}
-              <div className="card" style={{ padding: 28, position: 'sticky', top: 90 }}>
+              <div className="card order-summary-card" style={{ padding: 'clamp(16px, 4vw, 28px)' }}>
                 <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 18 }}>Bestellübersicht</h2>
 
                 {/* Items */}
@@ -384,7 +416,7 @@ export default function CheckoutPage() {
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 2 }}>
                           <span style={{ marginRight: 6 }}>{item.emoji}</span>
-                          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'inline-block', maxWidth: 160, verticalAlign: 'bottom' }}>{item.name}</span>
+                          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'inline-block', maxWidth: 200, verticalAlign: 'bottom' }}>{item.name}</span>
                         </div>
                         <div style={{ color: 'var(--gray-400)', fontSize: 12 }}>{item.quantity}× {item.unit}</div>
                       </div>
@@ -444,7 +476,7 @@ export default function CheckoutPage() {
                 </p>
 
                 {/* Trust badges */}
-                <div style={{ display: 'flex', justifyContent: 'center', gap: 20, marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--gray-100)' }}>
+                <div className="trust-badges">
                   {['🔒 Sicher', '🇨🇭 Schweiz', isMixed ? '🚚🏢 Gemischt' : primaryShipping === 'SELF_PICKUP' ? '🚗 Ex Works' : primaryShipping === 'LOCAL_PICKUP' ? '🏢 Abholung Basel' : '🚚 Lieferung'].map(b => (
                     <span key={b} style={{ fontSize: 11, color: 'var(--gray-400)', fontWeight: 500 }}>{b}</span>
                   ))}

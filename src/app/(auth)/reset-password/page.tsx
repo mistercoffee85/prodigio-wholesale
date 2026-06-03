@@ -48,7 +48,7 @@ function ResetPasswordForm() {
 
   if (!token) {
     return (
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 48, background: 'var(--cream)' }}>
+      <div className="reset-form-panel" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'clamp(24px,5vw,48px)', background: 'var(--cream)' }}>
         <div style={{ textAlign: 'center' }}>
           <p style={{ color: 'var(--gray-400)', marginBottom: 24 }}>Ungültiger Link.</p>
           <Link href="/forgot-password" className="btn btn-black" style={{ padding: '12px 28px', borderRadius: 'var(--radius-lg)' }}>
@@ -60,7 +60,7 @@ function ResetPasswordForm() {
   }
 
   return (
-    <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 40px', background: 'var(--cream)' }}>
+    <div className="reset-form-panel" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'clamp(24px,5vw,48px) clamp(16px,5vw,40px)', background: 'var(--cream)' }}>
       <div style={{ width: '100%', maxWidth: 400 }}>
         {done ? (
           <div style={{ textAlign: 'center' }}>
@@ -128,37 +128,67 @@ function ResetPasswordForm() {
 
 export default function ResetPasswordPage() {
   return (
-    <div style={{ minHeight: '100vh', display: 'flex' }}>
-      {/* Left — Brand Panel */}
-      <div style={{
-        width: '42%', minWidth: 320,
-        background: 'linear-gradient(150deg, var(--forest) 0%, #1a3d28 60%, #0d2218 100%)',
-        display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
-        padding: '48px 52px', color: 'white', position: 'relative', overflow: 'hidden',
-      }}>
-        <div style={{ position: 'absolute', inset: 0, opacity: .03, backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%23fff\' fill-opacity=\'1\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/svg%3E")', pointerEvents: 'none' }} />
+    <>
+      <style>{`
+        .reset-page-root {
+          min-height: 100vh;
+          display: flex;
+          flex-direction: row;
+        }
+        .reset-brand-panel {
+          width: 42%;
+          min-width: 320px;
+          background: linear-gradient(150deg, var(--forest) 0%, #1a3d28 60%, #0d2218 100%);
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          padding: clamp(32px,5vw,48px) clamp(28px,4vw,52px);
+          color: white;
+          position: relative;
+          overflow: hidden;
+        }
+        .reset-form-panel {
+          flex: 1;
+        }
+        @media (max-width: 640px) {
+          .reset-page-root {
+            flex-direction: column;
+          }
+          .reset-brand-panel {
+            display: none;
+          }
+          .reset-form-panel {
+            min-height: 100vh;
+          }
+        }
+      `}</style>
+      <div className="reset-page-root">
+        {/* Left — Brand Panel */}
+        <div className="reset-brand-panel">
+          <div style={{ position: 'absolute', inset: 0, opacity: .03, backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%23fff\' fill-opacity=\'1\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/svg%3E")', pointerEvents: 'none' }} />
 
-        <Link href="/" style={{ textDecoration: 'none', color: 'white', position: 'relative' }}>
-          <div style={{ fontWeight: 800, fontSize: 20, letterSpacing: 4 }}>PRO.DI.GIO</div>
-          <div style={{ fontSize: 9, letterSpacing: 3, opacity: .5, marginTop: 3 }}>GROSSHANDEL · BASEL</div>
-        </Link>
+          <Link href="/" style={{ textDecoration: 'none', color: 'white', position: 'relative' }}>
+            <div style={{ fontWeight: 800, fontSize: 20, letterSpacing: 4 }}>PRO.DI.GIO</div>
+            <div style={{ fontSize: 9, letterSpacing: 3, opacity: .5, marginTop: 3 }}>GROSSHANDEL · BASEL</div>
+          </Link>
 
-        <div style={{ position: 'relative' }}>
-          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, color: 'var(--accent)', marginBottom: 20, textTransform: 'uppercase' }}>Sicherheit</div>
-          <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 36, fontWeight: 700, lineHeight: 1.15, marginBottom: 20 }}>
-            Neues<br />Passwort
-          </h1>
-          <p style={{ fontSize: 15, opacity: .7, lineHeight: 1.75, maxWidth: 340 }}>
-            Wählen Sie ein sicheres Passwort mit mindestens 8 Zeichen.
-          </p>
+          <div style={{ position: 'relative' }}>
+            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, color: 'var(--accent)', marginBottom: 20, textTransform: 'uppercase' }}>Sicherheit</div>
+            <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 36, fontWeight: 700, lineHeight: 1.15, marginBottom: 20 }}>
+              Neues<br />Passwort
+            </h1>
+            <p style={{ fontSize: 15, opacity: .7, lineHeight: 1.75, maxWidth: 340 }}>
+              Wählen Sie ein sicheres Passwort mit mindestens 8 Zeichen.
+            </p>
+          </div>
+
+          <div style={{ fontSize: 12, opacity: .4, position: 'relative' }}>© {new Date().getFullYear()} PRO.DI.GIO GmbH · Basel</div>
         </div>
 
-        <div style={{ fontSize: 12, opacity: .4, position: 'relative' }}>© {new Date().getFullYear()} PRO.DI.GIO GmbH · Basel</div>
+        <Suspense fallback={<div style={{ flex: 1, background: 'var(--cream)' }} />}>
+          <ResetPasswordForm />
+        </Suspense>
       </div>
-
-      <Suspense fallback={<div style={{ flex: 1, background: 'var(--cream)' }} />}>
-        <ResetPasswordForm />
-      </Suspense>
-    </div>
+    </>
   )
 }

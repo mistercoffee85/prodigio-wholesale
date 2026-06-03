@@ -17,8 +17,8 @@ interface Suggestion {
 function CartItemImage({ image, bgGradient, emoji }: { image?: string; bgGradient?: string | null; emoji: string }) {
   const [err, setErr] = useState(false)
   return (
-    <div style={{
-      width: 60, height: 60, borderRadius: 10, flexShrink: 0, overflow: 'hidden',
+    <div className="cart-item-image" style={{
+      borderRadius: 10, flexShrink: 0, overflow: 'hidden',
       background: bgGradient ?? 'linear-gradient(135deg,#f0f0ee,#e8e8e6)',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       border: '1px solid var(--gray-100)', fontSize: 24, position: 'relative',
@@ -83,12 +83,78 @@ export default function CartSidebar({ open, onClose }: Props) {
 
   return (
     <>
+      <style>{`
+        .cart-item-image {
+          width: 60px;
+          height: 60px;
+        }
+        .cart-item-row {
+          padding: 14px 24px;
+        }
+        .cart-sidebar-header {
+          padding: 20px 24px;
+        }
+        .cart-sidebar-banner {
+          padding: 10px 24px;
+        }
+        .cart-sidebar-footer {
+          padding: 18px 24px;
+        }
+        .cart-suggestion-row {
+          padding: 10px 12px;
+        }
+        .cart-suggestion-add-btn {
+          font-size: 12px;
+          padding: 6px 12px;
+          height: 32px;
+        }
+        .cart-item-bottom-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          flex-wrap: nowrap;
+          row-gap: 6px;
+        }
+        @media (max-width: 480px) {
+          .cart-item-image {
+            width: 48px;
+            height: 48px;
+            font-size: 20px;
+          }
+          .cart-item-row {
+            padding: 12px 14px;
+            gap: 10px;
+          }
+          .cart-sidebar-header {
+            padding: 16px 14px;
+          }
+          .cart-sidebar-banner {
+            padding: 8px 14px;
+          }
+          .cart-sidebar-footer {
+            padding: 14px 14px;
+          }
+          .cart-suggestion-row {
+            padding: 8px 10px;
+            gap: 8px;
+          }
+          .cart-suggestion-add-btn {
+            font-size: 11px;
+            padding: 5px 8px;
+            height: 28px;
+          }
+          .cart-item-bottom-row {
+            flex-wrap: wrap;
+          }
+        }
+      `}</style>
+
       <div className="sidebar-overlay" onClick={onClose} />
 
-      <div className="sidebar slide-in-right" style={{ width: 460, maxWidth: '96vw', display: 'flex', flexDirection: 'column' }}>
+      <div className="sidebar slide-in-right" style={{ width: '100%', maxWidth: 460, display: 'flex', flexDirection: 'column' }}>
 
         {/* ── Header ─────────────────────────────── */}
-        <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--gray-100)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+        <div className="cart-sidebar-header" style={{ borderBottom: '1px solid var(--gray-100)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
           <div>
             <h2 style={{ fontSize: 18, fontWeight: 700 }}>🛒 Warenkorb</h2>
             <span style={{ fontSize: 12.5, color: 'var(--gray-400)' }}>
@@ -107,7 +173,7 @@ export default function CartSidebar({ open, onClose }: Props) {
 
         {/* ── Transport info banner ──────────────── */}
         {subtotal > 0 && (
-          <div style={{ padding: '10px 24px', background: '#f8f9fb', borderBottom: '1px solid var(--gray-100)', flexShrink: 0 }}>
+          <div className="cart-sidebar-banner" style={{ background: '#f8f9fb', borderBottom: '1px solid var(--gray-100)', flexShrink: 0 }}>
             <div style={{ fontSize: 12, color: 'var(--gray-500)', display: 'flex', alignItems: 'center', gap: 6 }}>
               <span>⏳</span>
               <span>Transportkosten werden nach Bestellung individuell bestätigt.</span>
@@ -133,8 +199,8 @@ export default function CartSidebar({ open, onClose }: Props) {
               {/* Cart items */}
               <div style={{ padding: '8px 0' }}>
                 {items.map(item => (
-                  <div key={item.cartKey} style={{
-                    display: 'flex', gap: 14, padding: '14px 24px',
+                  <div key={item.cartKey} className="cart-item-row" style={{
+                    display: 'flex', gap: 14,
                     borderBottom: '1px solid var(--gray-50)', transition: 'background .12s',
                   }}
                     onMouseEnter={e => (e.currentTarget.style.background = 'var(--cream)')}
@@ -154,7 +220,7 @@ export default function CartSidebar({ open, onClose }: Props) {
                       <div style={{ fontSize: 11.5, color: 'var(--gray-400)', marginBottom: 10 }}>
                         {item.unit} · {formatPrice(item.unitPrice)} / VE
                       </div>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <div className="cart-item-bottom-row">
                         <div className="qty-stepper" style={{ transform: 'scale(.85)', transformOrigin: 'left' }}>
                           <button onClick={() => updateQty(item.cartKey, Math.max(item.moq, item.quantity - item.moq))}>−</button>
                           <span>{item.quantity}</span>
@@ -182,9 +248,9 @@ export default function CartSidebar({ open, onClose }: Props) {
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                     {suggestions.map(s => (
-                      <div key={s.id} style={{
+                      <div key={s.id} className="cart-suggestion-row" style={{
                         display: 'flex', alignItems: 'center', gap: 12,
-                        padding: '10px 12px', borderRadius: 10, border: '1px solid var(--gray-100)',
+                        borderRadius: 10, border: '1px solid var(--gray-100)',
                         background: 'white', transition: 'all .15s', cursor: 'default',
                       }}
                         onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = 'var(--accent)'; (e.currentTarget as HTMLDivElement).style.background = 'var(--cream)' }}
@@ -229,8 +295,8 @@ export default function CartSidebar({ open, onClose }: Props) {
                             image: s.images?.[0], bgGradient: s.bgGradient,
                             unit: s.unit, moq: s.moq, quantity: s.moq, unitPrice: s.price,
                           })}
-                          className="btn btn-black"
-                          style={{ fontSize: 12, padding: '6px 12px', flexShrink: 0, height: 32 }}
+                          className="btn btn-black cart-suggestion-add-btn"
+                          style={{ flexShrink: 0 }}
                         >
                           + Hinzufügen
                         </button>
@@ -245,7 +311,7 @@ export default function CartSidebar({ open, onClose }: Props) {
 
         {/* ── Footer / Totals ─────────────────────── */}
         {items.length > 0 && (
-          <div style={{ borderTop: '1px solid var(--gray-100)', padding: '18px 24px', flexShrink: 0, background: 'white' }}>
+          <div className="cart-sidebar-footer" style={{ borderTop: '1px solid var(--gray-100)', flexShrink: 0, background: 'white' }}>
             <div style={{ marginBottom: 14 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13.5, color: 'var(--gray-600)', marginBottom: 5 }}>
                 <span>Zwischensumme</span><span>{formatPrice(subtotal)}</span>

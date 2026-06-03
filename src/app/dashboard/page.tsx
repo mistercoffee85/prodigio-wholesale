@@ -46,6 +46,44 @@ export default async function DashboardPage() {
         .dash-stat:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); transition: all .2s; }
         .order-row:hover { background: var(--gray-50); }
         .order-row { transition: background .15s; }
+
+        .dash-stats-grid {
+          position: relative;
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 16px;
+          margin-top: 36px;
+        }
+
+        .dash-content-grid {
+          padding: 36px clamp(16px, 4vw, 80px);
+          display: grid;
+          grid-template-columns: 1fr 300px;
+          gap: 28px;
+          align-items: start;
+        }
+
+        @media (max-width: 900px) {
+          .dash-content-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        @media (max-width: 640px) {
+          .dash-stat:hover { transform: none; }
+
+          .dash-stats-grid {
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-top: 24px;
+          }
+        }
+
+        @media (min-width: 641px) and (max-width: 900px) {
+          .dash-stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
       `}</style>
 
       <main style={{ minHeight: '80vh', background: '#f8f9fb' }}>
@@ -53,7 +91,7 @@ export default async function DashboardPage() {
         {/* Hero banner */}
         <div style={{
           background: 'linear-gradient(135deg, var(--forest) 0%, #1a3d28 70%, #0d2218 100%)',
-          color: 'white', padding: '48px 80px 56px', position: 'relative', overflow: 'hidden',
+          color: 'white', padding: 'clamp(32px, 5vw, 48px) clamp(16px, 4vw, 80px) clamp(36px, 5vw, 56px)', position: 'relative', overflow: 'hidden',
         }}>
           {/* Decorative bg pattern */}
           <div style={{ position: 'absolute', inset: 0, opacity: .04,
@@ -67,7 +105,7 @@ export default async function DashboardPage() {
           <div style={{ position: 'relative', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 24 }}>
             <div>
               <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: 2.5, color: 'var(--accent)', textTransform: 'uppercase', marginBottom: 12 }}>Mein Konto</div>
-              <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 34, fontWeight: 700, marginBottom: 8, lineHeight: 1.2 }}>
+              <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(24px, 4vw, 34px)', fontWeight: 700, marginBottom: 8, lineHeight: 1.2 }}>
                 Willkommen, {user?.name?.split(' ')[0]}
               </h1>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
@@ -93,7 +131,7 @@ export default async function DashboardPage() {
           </div>
 
           {/* Stat cards inside banner */}
-          <div style={{ position: 'relative', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginTop: 36 }}>
+          <div className="dash-stats-grid">
             {[
               { label: 'Bestellungen gesamt', value: totalOrders.toString(), icon: '📦', sub: totalOrders === 0 ? 'Noch keine' : `${pendingOrders} in Bearbeitung` },
               { label: 'Bezahlter Umsatz',    value: formatPrice(totalSpent),   icon: '💰', sub: 'Alle bezahlten Bestellungen' },
@@ -119,7 +157,7 @@ export default async function DashboardPage() {
         </div>
 
         {/* Content */}
-        <div style={{ padding: '36px 80px', display: 'grid', gridTemplateColumns: '1fr 300px', gap: 28, alignItems: 'start' }}>
+        <div className="dash-content-grid">
 
           {/* Orders */}
           <div className="card" style={{ overflow: 'hidden' }}>

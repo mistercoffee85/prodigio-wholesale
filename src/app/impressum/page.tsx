@@ -21,23 +21,25 @@ export default function ImpressumPage() {
 
             <div style={{ marginBottom: 32 }}>
               <h2 style={{ fontSize: 17, fontWeight: 700, marginBottom: 16, color: 'var(--forest)' }}>Angaben gemäss DSG</h2>
-              <table style={{ borderCollapse: 'collapse', width: '100%' }}>
-                {[
-                  ['Firma', 'PRO.DI.GIO GmbH'],
-                  ['Adresse', 'Mailand-Strasse 31, 4053 Basel, Schweiz'],
-                  ['E-Mail', 'contact@prodigio.ch'],
-                  ['Web', 'www.prodigio.ch'],
-                  ['Rechtsform', 'GmbH (Gesellschaft mit beschränkter Haftung)'],
-                  ['Handelsregister', 'Kanton Basel-Stadt'],
-                  ['MwSt-Nr.', 'CHE-XXX.XXX.XXX MWST'],
-                  ['Tätigkeitsbereich', 'B2B Grosshandel – Trendprodukte, Direktimport'],
-                ].map(([key, value]) => (
-                  <tr key={key} style={{ borderBottom: '1px solid var(--gray-100, #f3f4f6)' }}>
-                    <td style={{ padding: '10px 0', fontWeight: 600, width: '40%', color: 'var(--forest)' }}>{key}</td>
-                    <td style={{ padding: '10px 0', color: 'var(--gray-600, #4b5563)' }}>{value}</td>
-                  </tr>
-                ))}
-              </table>
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ borderCollapse: 'collapse', width: '100%' }}>
+                  {[
+                    ['Firma', 'PRO.DI.GIO GmbH'],
+                    ['Adresse', 'Mailand-Strasse 31, 4053 Basel, Schweiz'],
+                    ['E-Mail', 'contact@prodigio.ch'],
+                    ['Web', 'www.prodigio.ch'],
+                    ['Rechtsform', 'GmbH (Gesellschaft mit beschränkter Haftung)'],
+                    ['Handelsregister', 'Kanton Basel-Stadt'],
+                    ['MwSt-Nr.', 'CHE-XXX.XXX.XXX MWST'],
+                    ['Tätigkeitsbereich', 'B2B Grosshandel – Trendprodukte, Direktimport'],
+                  ].map(([key, value]) => (
+                    <tr key={key} style={{ borderBottom: '1px solid var(--gray-100, #f3f4f6)' }}>
+                      <td style={{ padding: '10px 0', fontWeight: 600, minWidth: 120, paddingRight: 16, color: 'var(--forest)', whiteSpace: 'nowrap' }}>{key}</td>
+                      <td style={{ padding: '10px 0', color: 'var(--gray-600, #4b5563)' }}>{value}</td>
+                    </tr>
+                  ))}
+                </table>
+              </div>
             </div>
 
             <div style={{ marginBottom: 32 }}>

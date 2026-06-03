@@ -318,11 +318,11 @@ export default function ProductCard({ product: p, priority, approved = false }: 
       {/* Product Detail Modal */}
       {modalOpen && (
         <div className="modal-overlay" onClick={e => { if (e.target === e.currentTarget) setModalOpen(false) }}>
-          <div className="modal slide-in-up" style={{ width: 680, maxWidth: '96vw', maxHeight: '92vh', overflow: 'auto' }}>
+          <div className="modal slide-in-up" style={{ width: '100%', maxWidth: 680, maxHeight: '92vh', overflow: 'auto' }}>
 
             {/* Modal Image */}
             <div style={{
-              height: 300, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              height: 'clamp(180px, 35vw, 300px)', display: 'flex', alignItems: 'center', justifyContent: 'center',
               position: 'sticky', top: 0, zIndex: 10, overflow: 'hidden',
               background: p.bgGradient ?? 'linear-gradient(135deg, #f0f0ee, #e8e8e6)',
             }}>
@@ -332,7 +332,7 @@ export default function ProductCard({ product: p, priority, approved = false }: 
                     src={firstImage}
                     alt={p.name}
                     fill
-                    sizes="680px"
+                    sizes="(max-width: 768px) 96vw, 680px"
                     style={{ objectFit: 'contain', padding: 32 }}
                     priority
                   />
@@ -360,7 +360,7 @@ export default function ProductCard({ product: p, priority, approved = false }: 
             </div>
 
             {/* Modal Body */}
-            <div style={{ padding: '28px 32px 32px' }}>
+            <div style={{ padding: 'clamp(16px,4vw,28px) clamp(16px,4vw,32px) clamp(16px,4vw,32px)' }}>
               <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: 0.5, color: 'var(--accent)', marginBottom: 8 }}>
                 {p.brand}
               </div>
@@ -372,7 +372,7 @@ export default function ProductCard({ product: p, priority, approved = false }: 
               </p>
 
               {Object.keys(p.details || {}).length > 0 && (
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 28 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10, marginBottom: 28 }}>
                   {/* Filter out Italian MwSt (22%) — Swiss VAT (8.1%) applies at checkout */}
                   {Object.entries(p.details).filter(([k]) => k !== 'MwSt').map(([k, v]) => (
                     <div key={k} style={{ background: 'var(--cream)', borderRadius: 'var(--radius)', padding: '12px 14px' }}>
@@ -419,7 +419,7 @@ export default function ProductCard({ product: p, priority, approved = false }: 
 
               <div style={{ borderTop: '1px solid var(--gray-100)', paddingTop: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
                 {/* Modal price block */}
-                <div style={{ flex: 1, minWidth: 240 }}>
+                <div style={{ flex: 1, minWidth: 'min(240px, 100%)' }}>
                   {!approved ? (
                     <div style={{ padding: '20px 24px', background: 'var(--cream)', borderRadius: 12, border: '1px solid var(--gray-100)', textAlign: 'center' }}>
                       <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.2, textTransform: 'uppercase', color: 'var(--gray-400)', marginBottom: 8 }}>Einkaufspreis</div>
@@ -433,7 +433,7 @@ export default function ProductCard({ product: p, priority, approved = false }: 
                     </div>
                   ) : p.comparePrice && !hasVariants ? (
                     <div style={{ border: '1px solid var(--gray-100)', borderRadius: 12, overflow: 'hidden' }}>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))' }}>
                         {/* EK */}
                         <div style={{ padding: '16px 20px', background: 'var(--cream)' }}>
                           <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: 'var(--gray-400)', marginBottom: 8 }}>Einkaufspreis</div>
@@ -482,7 +482,7 @@ export default function ProductCard({ product: p, priority, approved = false }: 
                 </div>
 
                 {approved && (
-                  <div style={{ display: 'flex', gap: 10 }}>
+                  <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                     <div className="qty-stepper">
                       <button onClick={() => setQty(q => Math.max(activeMoq, q - activeMoq))}>−</button>
                       <span>{qty}</span>

@@ -76,7 +76,7 @@ function CardForm({
       <button
         type="submit"
         className="btn btn-primary"
-        style={{ width: '100%', justifyContent: 'center', fontSize: 15, padding: 16, borderRadius: 'var(--radius-lg)', marginBottom: 10 }}
+        style={{ width: '100%', justifyContent: 'center', fontSize: 'clamp(14px, 3.5vw, 15px)', padding: 16, borderRadius: 'var(--radius-lg)', marginBottom: 10 }}
         disabled={loading || !stripe || !elements}
       >
         {loading ? '⏳ Zahlung wird verarbeitet…' : `🔒 Jetzt bezahlen – ${formatPrice(total)}`}
@@ -134,11 +134,11 @@ export default function StripePaymentForm({
   }
 
   return (
-    <div className="card" style={{ padding: 28 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
+    <div className="card" style={{ padding: 'clamp(16px, 4vw, 28px)', width: '100%', maxWidth: 600, boxSizing: 'border-box' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20, flexWrap: 'wrap' }}>
         <span style={{ fontSize: 22 }}>{isPaypal ? '🅿️' : isTwint ? '📱' : '💳'}</span>
         <h2 style={{ fontSize: 17, fontWeight: 700, margin: 0 }}>{isPaypal ? 'PayPal' : isTwint ? 'TWINT' : 'Kartenzahlung'}</h2>
-        <div style={{ marginLeft: 'auto', display: 'flex', gap: 4 }}>
+        <div style={{ marginLeft: 'auto', display: 'flex', gap: 4, flexWrap: 'wrap', flexShrink: 0 }}>
           {isPaypal
             ? [<span key="pp" style={{ fontSize: 9, fontWeight: 800, padding: '3px 6px', border: '1px solid var(--gray-200)', borderRadius: 4, color: 'var(--gray-400)', letterSpacing: 1 }}>PAYPAL</span>]
             : isTwint
