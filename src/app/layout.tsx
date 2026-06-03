@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import { Providers } from './providers'
 import { Toaster } from 'react-hot-toast'
@@ -8,6 +8,12 @@ export const metadata: Metadata = {
   title: { default: 'PRO.DI.GIO Grosshandel', template: '%s | PRO.DI.GIO Grosshandel' },
   description: 'B2B Grosshandel für Bubble Tea, Tea Balls & Sweets. Exklusive Preise für Wiederverkäufer, Gastronomie und Einzelhandel.',
   keywords: ['Grosshandel', 'B2B', 'Bubble Tea', 'Tea Balls', 'Sweets', 'Basel', 'Schweiz'],
+}
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

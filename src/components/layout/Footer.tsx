@@ -8,10 +8,68 @@ export default function Footer() {
         .footer-link:hover { color: white !important; }
         .footer-a { transition: color .15s; }
         .footer-a:hover { color: white !important; }
+
+        .footer-main {
+          padding: 64px 80px 48px;
+          display: grid;
+          grid-template-columns: 2.2fr 1fr 1fr 1.3fr;
+          gap: 48px;
+        }
+        .footer-payment-bar {
+          border-top: 1px solid rgba(255,255,255,.08);
+          padding: 16px 80px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          flex-wrap: wrap;
+          gap: 12px;
+        }
+        .footer-bottom-bar {
+          border-top: 1px solid rgba(255,255,255,.06);
+          padding: 18px 80px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          flex-wrap: wrap;
+          gap: 12px;
+        }
+
+        @media (max-width: 1024px) {
+          .footer-main {
+            grid-template-columns: 1fr 1fr;
+            padding: 48px 40px 40px;
+            gap: 32px;
+          }
+          .footer-payment-bar { padding: 16px 40px; }
+          .footer-bottom-bar  { padding: 18px 40px; }
+        }
+
+        @media (max-width: 640px) {
+          .footer-main {
+            grid-template-columns: 1fr;
+            padding: 40px 20px 32px;
+            gap: 32px;
+          }
+          .footer-payment-bar {
+            padding: 16px 20px;
+            flex-direction: column;
+            align-items: flex-start;
+          }
+          .footer-bottom-bar {
+            padding: 16px 20px;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+          }
+          .footer-bottom-links {
+            flex-wrap: wrap;
+            gap: 12px !important;
+          }
+        }
       `}</style>
 
       {/* Main */}
-      <div style={{ padding: '64px 80px 48px', display: 'grid', gridTemplateColumns: '2.2fr 1fr 1fr 1.3fr', gap: 48 }}>
+      <div className="footer-main">
         {/* Brand */}
         <div>
           <div style={{ fontWeight: 800, fontSize: 18, letterSpacing: 3.5, color: 'white', marginBottom: 3 }}>PRO.DI.GIO</div>
@@ -95,7 +153,7 @@ export default function Footer() {
       </div>
 
       {/* Payment Methods Bar */}
-      <div style={{ borderTop: '1px solid rgba(255,255,255,.08)', padding: '16px 80px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+      <div className="footer-payment-bar">
         <div style={{ fontSize: 10.5, fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase', color: 'rgba(255,255,255,.25)' }}>
           Zahlungsarten
         </div>
@@ -120,9 +178,9 @@ export default function Footer() {
       </div>
 
       {/* Bottom Bar */}
-      <div style={{ borderTop: '1px solid rgba(255,255,255,.06)', padding: '18px 80px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+      <div className="footer-bottom-bar">
         <span style={{ fontSize: 12.5, opacity: .4 }}>© {new Date().getFullYear()} PRO.DI.GIO GmbH · Alle Rechte vorbehalten</span>
-        <div style={{ display: 'flex', gap: 20, fontSize: 12.5, opacity: .4 }}>
+        <div className="footer-bottom-links" style={{ display: 'flex', gap: 20, fontSize: 12.5, opacity: .4 }}>
           <Link href="/agb" style={{ color: 'inherit' }}>AGB</Link>
           <Link href="/datenschutz" style={{ color: 'inherit' }}>Datenschutz</Link>
           <Link href="/impressum" style={{ color: 'inherit' }}>Impressum</Link>
