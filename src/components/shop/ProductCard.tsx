@@ -205,38 +205,11 @@ export default function ProductCard({ product: p, priority, approved = false }: 
                   padding: '6px 12px', textDecoration: 'none',
                 }}>🔒 Anmelden für Preise</a>
               </div>
-            ) : p.comparePrice && !hasVariants ? (
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                  <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: .5, textTransform: 'uppercase', color: 'var(--gray-400)' }}>Einkaufspreis</span>
-                  <span style={{ fontSize: 10.5, fontWeight: 600, color: 'var(--accent)', background: '#e8f7f1', borderRadius: 6, padding: '2px 7px' }}>
-                    +{Math.round((Number(p.comparePrice) / p.price - 1) * 100)}% Marge
-                  </span>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
-                  <div>
-                    <div style={{ fontSize: 17, fontWeight: 800, color: 'var(--black)', lineHeight: 1 }}>{formatPrice(moqTotal)}</div>
-                    <div style={{ display: 'flex', gap: 5, marginTop: 4, flexWrap: 'wrap' }}>
-                      <span style={{ fontSize: 10, color: 'var(--gray-400)', background: 'rgba(0,0,0,.04)', borderRadius: 4, padding: '1px 5px' }}>{formatPrice(activePrice)}/VE</span>
-                      {pricePerPiece && <span style={{ fontSize: 10, color: 'var(--gray-400)', background: 'rgba(0,0,0,.04)', borderRadius: 4, padding: '1px 5px' }}>{formatPrice(pricePerPiece)}/Stk</span>}
-                    </div>
-                  </div>
-                  <div style={{ borderLeft: '1px solid var(--gray-100)', paddingLeft: 10 }}>
-                    <div style={{ fontSize: 9.5, fontWeight: 600, color: 'var(--gray-400)', marginBottom: 2, textTransform: 'uppercase', letterSpacing: .5 }}>UVP / Stk</div>
-                    <div style={{ fontSize: 17, fontWeight: 800, color: 'var(--accent)', lineHeight: 1 }}>
-                      {formatPrice(Number(p.comparePrice))}
-                    </div>
-                    <div style={{ fontSize: 10, color: 'var(--accent)', marginTop: 4 }}>pro Stück</div>
-                  </div>
-                </div>
-                <div style={{ fontSize: 10.5, color: 'var(--gray-400)', marginTop: 5 }}>
-                  {activeMoq > 1 ? `min. ${activeMoq} VE` : `1 VE = ${unitLabel}`}
-                </div>
-              </div>
             ) : hasVariants ? (
+              /* ── Varianten ── */
               <div>
                 <div style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: 'var(--gray-400)', marginBottom: 2 }}>
-                  {selectedVariant?.packCount && selectedVariant.packCount > 1 ? 'Gesamtpreis' : 'Preis'}
+                  {selectedVariant?.packCount && selectedVariant.packCount > 1 ? 'Gesamtpreis' : 'EK / Stk'}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
                   <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--black)' }}>{formatPrice(cartUnitPrice)}</div>
@@ -255,31 +228,43 @@ export default function ProductCard({ product: p, priority, approved = false }: 
                 )}
               </div>
             ) : (
+              /* ── Standard: Stückpreis groß, Bulk-Info klein ── */
               <div>
-                {/* VE info row */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                  <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: .5, textTransform: 'uppercase', color: 'var(--gray-400)' }}>
-                    Einkaufspreis
-                  </span>
-                  <span style={{ fontSize: 10.5, fontWeight: 600, color: 'var(--gray-500)', background: 'var(--gray-50)', borderRadius: 6, padding: '2px 7px' }}>
-                    {activeMoq > 1 ? `min. ${activeMoq} VE` : `1 VE = ${unitLabel}`}
-                  </span>
-                </div>
-                {/* Main price */}
-                <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--black)', lineHeight: 1 }}>
-                  {formatPrice(moqTotal)}
-                </div>
-                {/* Per-unit breakdown */}
-                <div style={{ display: 'flex', gap: 10, marginTop: 5, flexWrap: 'wrap' }}>
-                  <span style={{ fontSize: 11, color: 'var(--gray-400)', background: 'rgba(0,0,0,.04)', borderRadius: 5, padding: '2px 6px' }}>
-                    {formatPrice(activePrice)} / VE
-                  </span>
-                  {pricePerPiece && (
-                    <span style={{ fontSize: 11, color: 'var(--gray-400)', background: 'rgba(0,0,0,.04)', borderRadius: 5, padding: '2px 6px' }}>
-                      {formatPrice(pricePerPiece)} / Stk
+                {/* Header row: label + Marge */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                  <span style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: 'var(--gray-400)' }}>EK / Stk</span>
+                  {p.comparePrice && (
+                    <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--accent)', background: '#e8f7f1', borderRadius: 6, padding: '2px 7px' }}>
+                      +{Math.round((Number(p.comparePrice) / p.price - 1) * 100)}% Marge
                     </span>
                   )}
                 </div>
+
+                {/* BIG: price per single piece */}
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: 4 }}>
+                  <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--black)', lineHeight: 1 }}>
+                    {formatPrice(activePrice)}
+                  </div>
+                  <div style={{ fontSize: 11, color: 'var(--gray-500)', fontWeight: 500 }}>/ Stk</div>
+                  {p.comparePrice && (
+                    <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--accent)', marginLeft: 'auto' }}>
+                      UVP {formatPrice(Number(p.comparePrice))}
+                    </div>
+                  )}
+                </div>
+
+                {/* SMALL: min. order total */}
+                {activeMoq > 1 && (
+                  <div style={{
+                    fontSize: 10.5, color: 'var(--gray-500)',
+                    background: 'rgba(0,0,0,.04)', borderRadius: 6,
+                    padding: '3px 8px', display: 'inline-flex', gap: 4, alignItems: 'center'
+                  }}>
+                    <span>Min. {activeMoq} Stk</span>
+                    <span style={{ color: 'var(--gray-300)' }}>·</span>
+                    <span>{formatPrice(moqTotal)} gesamt</span>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -432,51 +417,46 @@ export default function ProductCard({ product: p, priority, approved = false }: 
                         padding: '8px 20px', textDecoration: 'none',
                       }}>🔒 Anmelden für Preise</a>
                     </div>
-                  ) : p.comparePrice && !hasVariants ? (
-                    <div style={{ border: '1px solid var(--gray-100)', borderRadius: 12, overflow: 'hidden' }}>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))' }}>
-                        {/* EK */}
-                        <div style={{ padding: '16px 20px', background: 'var(--cream)' }}>
-                          <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: 'var(--gray-400)', marginBottom: 8 }}>Einkaufspreis</div>
-                          <div style={{ fontSize: 26, fontWeight: 800, color: 'var(--black)', lineHeight: 1 }}>{formatPrice(moqTotal)}</div>
-                          <div style={{ display: 'flex', gap: 6, marginTop: 8, flexWrap: 'wrap' }}>
-                            <span style={{ fontSize: 11, background: 'rgba(0,0,0,.06)', borderRadius: 5, padding: '2px 7px', color: 'var(--gray-500)' }}>{formatPrice(activePrice)} / VE</span>
-                            {pricePerPiece && <span style={{ fontSize: 11, background: 'rgba(0,0,0,.06)', borderRadius: 5, padding: '2px 7px', color: 'var(--gray-500)' }}>{formatPrice(pricePerPiece)} / Stk</span>}
-                          </div>
-                          {p.stock > 0 && p.stock < 20 && <div style={{ color: '#c2430c', fontSize: 11, marginTop: 6 }}>⚠ Nur {p.stock} VE verfügbar</div>}
-                        </div>
-                        {/* UVP */}
-                        <div style={{ padding: '16px 20px', background: '#e8f7f1', borderLeft: '1px solid #c0e8d8' }}>
-                          <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: 'var(--accent-dark)', marginBottom: 8 }}>UVP / Stück</div>
-                          <div style={{ fontSize: 26, fontWeight: 800, color: 'var(--accent)', lineHeight: 1 }}>
-                            {formatPrice(Number(p.comparePrice))}
-                          </div>
-                          <div style={{ marginTop: 8 }}>
-                            <span style={{ fontSize: 11, background: 'rgba(26,158,122,.15)', borderRadius: 5, padding: '2px 7px', color: 'var(--accent)', fontWeight: 700 }}>
-                              +{Math.round((Number(p.comparePrice) / p.price - 1) * 100)}% Marge
-                            </span>
-                          </div>
-                          <div style={{ fontSize: 11, color: 'var(--accent-dark)', marginTop: 6 }}>pro Stück</div>
-                        </div>
-                      </div>
-                      {/* VE info bar */}
-                      <div style={{ padding: '8px 20px', background: 'white', borderTop: '1px solid var(--gray-100)', fontSize: 11.5, color: 'var(--gray-500)' }}>
-                        {activeMoq > 1 ? `Mindestbestellung: ${activeMoq} VE` : `1 VE`} · {unitLabel}
-                      </div>
-                    </div>
                   ) : (
+                    /* ── Modal: Stückpreis groß, Bulk klein, UVP rechts ── */
                     <div style={{ background: 'var(--cream)', borderRadius: 12, border: '1px solid var(--gray-100)', overflow: 'hidden' }}>
                       <div style={{ padding: '16px 20px' }}>
-                        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: 'var(--gray-400)', marginBottom: 8 }}>Einkaufspreis</div>
-                        <div style={{ fontSize: 30, fontWeight: 800, lineHeight: 1 }}>{formatPrice(moqTotal)}</div>
-                        <div style={{ display: 'flex', gap: 6, marginTop: 10, flexWrap: 'wrap' }}>
-                          <span style={{ fontSize: 11.5, background: 'rgba(0,0,0,.06)', borderRadius: 5, padding: '3px 8px', color: 'var(--gray-500)' }}>{formatPrice(activePrice)} / VE</span>
-                          {pricePerPiece && <span style={{ fontSize: 11.5, background: 'rgba(0,0,0,.06)', borderRadius: 5, padding: '3px 8px', color: 'var(--gray-500)' }}>{formatPrice(pricePerPiece)} / Stk</span>}
+                        {/* Header */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                          <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: 'var(--gray-400)' }}>EK / Stk</span>
+                          {p.comparePrice && (
+                            <span style={{ fontSize: 11, background: 'rgba(26,158,122,.15)', borderRadius: 5, padding: '2px 8px', color: 'var(--accent)', fontWeight: 700 }}>
+                              +{Math.round((Number(p.comparePrice) / p.price - 1) * 100)}% Marge
+                            </span>
+                          )}
                         </div>
-                        {p.stock > 0 && p.stock < 20 && <div style={{ color: '#c2430c', fontSize: 12, marginTop: 8 }}>⚠ Nur {p.stock} VE verfügbar</div>}
+                        {/* BIG: price per piece */}
+                        <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 8 }}>
+                          <div style={{ fontSize: 34, fontWeight: 800, color: 'var(--black)', lineHeight: 1 }}>
+                            {formatPrice(activePrice)}
+                          </div>
+                          <div style={{ fontSize: 13, color: 'var(--gray-500)', fontWeight: 500 }}>/ Stk</div>
+                          {p.comparePrice && (
+                            <div style={{ marginLeft: 'auto', textAlign: 'right' }}>
+                              <div style={{ fontSize: 10, color: 'var(--accent-dark)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: .5 }}>UVP / Stk</div>
+                              <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--accent)' }}>{formatPrice(Number(p.comparePrice))}</div>
+                            </div>
+                          )}
+                        </div>
+                        {/* SMALL: min order */}
+                        {activeMoq > 1 && (
+                          <div style={{ fontSize: 12, color: 'var(--gray-500)', background: 'rgba(0,0,0,.05)', borderRadius: 6, padding: '5px 10px', display: 'inline-flex', gap: 6 }}>
+                            <span>Min. {activeMoq} Stk</span>
+                            <span style={{ color: 'var(--gray-300)' }}>·</span>
+                            <span style={{ fontWeight: 700, color: 'var(--gray-700)' }}>{formatPrice(moqTotal)} gesamt</span>
+                          </div>
+                        )}
+                        {p.stock > 0 && p.stock < 20 && (
+                          <div style={{ color: '#c2430c', fontSize: 12, marginTop: 8 }}>⚠ Nur {p.stock} Stk verfügbar</div>
+                        )}
                       </div>
                       <div style={{ padding: '8px 20px', background: 'white', borderTop: '1px solid var(--gray-100)', fontSize: 11.5, color: 'var(--gray-500)' }}>
-                        {activeMoq > 1 ? `Mindestbestellung: ${activeMoq} VE` : `1 VE`} · {unitLabel}
+                        {unitLabel}
                       </div>
                     </div>
                   )}
