@@ -58,7 +58,8 @@ export default function ProductCard({ product: p, priority, approved = false }: 
   const activeUnit    = selectedVariant ? selectedVariant.unit  : p.unit
   // Total price for MOQ (what customer actually pays minimum)
   const moqTotal        = Math.round(activePrice * activeMoq * 100) / 100
-  const compareMoqTotal = p.comparePrice ? Math.round(Number(p.comparePrice) * activeMoq * 100) / 100 : null
+  // UVP is always per single unit — never multiplied by moq
+  const compareUnitPrice = p.comparePrice ? Number(p.comparePrice) : null
   // Price per single Stk — parsed from unit string e.g. "24 Stk" → 24
   const unitPieceCount  = parseInt(activeUnit?.match(/(\d+)/)?.[1] ?? '1', 10)
   const pricePerPiece   = unitPieceCount > 1 ? Math.round(activePrice / unitPieceCount * 100) / 100 : null
@@ -221,11 +222,11 @@ export default function ProductCard({ product: p, priority, approved = false }: 
                     </div>
                   </div>
                   <div style={{ borderLeft: '1px solid var(--gray-100)', paddingLeft: 10 }}>
-                    <div style={{ fontSize: 9.5, fontWeight: 600, color: 'var(--gray-400)', marginBottom: 2, textTransform: 'uppercase', letterSpacing: .5 }}>Empf. VK</div>
+                    <div style={{ fontSize: 9.5, fontWeight: 600, color: 'var(--gray-400)', marginBottom: 2, textTransform: 'uppercase', letterSpacing: .5 }}>UVP / Stk</div>
                     <div style={{ fontSize: 17, fontWeight: 800, color: 'var(--accent)', lineHeight: 1 }}>
-                      {compareMoqTotal !== null ? formatPrice(compareMoqTotal) : formatPrice(Number(p.comparePrice))}
+                      {formatPrice(Number(p.comparePrice))}
                     </div>
-                    <div style={{ fontSize: 10, color: 'var(--accent)', marginTop: 4 }}>{formatPrice(Number(p.comparePrice))}/VE</div>
+                    <div style={{ fontSize: 10, color: 'var(--accent)', marginTop: 4 }}>pro Stück</div>
                   </div>
                 </div>
                 <div style={{ fontSize: 10.5, color: 'var(--gray-400)', marginTop: 5 }}>
@@ -446,16 +447,16 @@ export default function ProductCard({ product: p, priority, approved = false }: 
                         </div>
                         {/* UVP */}
                         <div style={{ padding: '16px 20px', background: '#e8f7f1', borderLeft: '1px solid #c0e8d8' }}>
-                          <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: 'var(--accent-dark)', marginBottom: 8 }}>Empf. VK-Preis</div>
+                          <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: 'var(--accent-dark)', marginBottom: 8 }}>UVP / Stück</div>
                           <div style={{ fontSize: 26, fontWeight: 800, color: 'var(--accent)', lineHeight: 1 }}>
-                            {compareMoqTotal !== null ? formatPrice(compareMoqTotal) : formatPrice(Number(p.comparePrice))}
+                            {formatPrice(Number(p.comparePrice))}
                           </div>
                           <div style={{ marginTop: 8 }}>
                             <span style={{ fontSize: 11, background: 'rgba(26,158,122,.15)', borderRadius: 5, padding: '2px 7px', color: 'var(--accent)', fontWeight: 700 }}>
                               +{Math.round((Number(p.comparePrice) / p.price - 1) * 100)}% Marge
                             </span>
                           </div>
-                          <div style={{ fontSize: 11, color: 'var(--accent-dark)', marginTop: 6 }}>{formatPrice(Number(p.comparePrice))} / VE</div>
+                          <div style={{ fontSize: 11, color: 'var(--accent-dark)', marginTop: 6 }}>pro Stück</div>
                         </div>
                       </div>
                       {/* VE info bar */}
