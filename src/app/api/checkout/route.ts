@@ -16,7 +16,7 @@ const itemSchema = z.object({
 
 const schema = z.object({
   items:          z.array(itemSchema).min(1),
-  paymentMethod:  z.enum(['STRIPE_CARD', 'STRIPE_TWINT', 'STRIPE_PAYPAL', 'BANK_TRANSFER', 'NET_30']),
+  paymentMethod:  z.enum(['STRIPE_CARD', 'STRIPE_TWINT', 'STRIPE_PAYPAL', 'BANK_TRANSFER']),
   shippingOption:      z.enum(['PRODIGIO_DELIVERS', 'SELF_PICKUP', 'LOCAL_PICKUP', 'LOCAL_DELIVERY']).default('LOCAL_DELIVERY'),
   shippingOptionLocal: z.enum(['LOCAL_PICKUP', 'LOCAL_DELIVERY']).optional(), // only for mixed carts
   notes:          z.string().optional(),
@@ -106,8 +106,9 @@ export async function POST(req: NextRequest) {
       || shippingOptionLocal === 'LOCAL_DELIVERY'
 
     const orderNumber = generateOrderNumber()
-    const dueDate = paymentMethod === 'NET_30'
-      ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+    // Vorauskasse: 3 Werktage Zahlungsziel
+    const dueDate = paymentMethod === 'BANK_TRANSFER'
+      ? new Date(Date.now() + 3 * 24 * 60 * 60 * 1000)
       : null
 
     // ── Create order in DB ───────────────────────────────────────

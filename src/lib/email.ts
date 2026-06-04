@@ -140,8 +140,8 @@ export async function sendOrderConfirmationEmail(
     STRIPE_CARD: 'Kreditkarte',
     STRIPE_TWINT: 'TWINT',
     STRIPE_PAYPAL: 'PayPal',
-    BANK_TRANSFER: 'Banküberweisung',
-    NET_30: 'Rechnung (Net 30)',
+    BANK_TRANSFER: 'Vorauskasse (Banküberweisung)',
+    NET_30: 'Vorauskasse (Banküberweisung)',
   }
 
   await sendMail({
@@ -180,9 +180,11 @@ export async function sendOrderConfirmationEmail(
           : '🚚 Transport &amp; Verzollung durch PRO.DI.GIO GmbH – Transportkosten werden separat bestätigt.'
         }</p>
       `}
-      ${order.paymentMethod === 'BANK_TRANSFER' ? `
-        <div style="background:#f8f8f8; padding:16px; border-radius:8px; margin:16px 0;">
-          <strong>Bankdaten für Überweisung:</strong><br/>
+      ${order.paymentMethod === 'BANK_TRANSFER' || order.paymentMethod === 'NET_30' ? `
+        <div style="background:#fff7ed; padding:16px; border-radius:8px; margin:16px 0; border:1px solid #fcd9b6;">
+          <strong style="color:#c2430c;">⚠️ Wichtig: Zahlung innert 3 Werktagen!</strong><br/>
+          Bei nicht fristgerechter Zahlung wird die Bestellung automatisch storniert.<br/><br/>
+          <strong>Bankdaten für Vorauszahlung:</strong><br/>
           IBAN: CH56 0483 5012 3456 7800 9<br/>
           Bank: UBS Basel<br/>
           Zahlungsreferenz: <strong>#${order.orderNumber}</strong>

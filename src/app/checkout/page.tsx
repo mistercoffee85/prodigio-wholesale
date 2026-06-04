@@ -10,7 +10,7 @@ import Footer from '@/components/layout/Footer'
 import StripePaymentForm from '@/components/checkout/StripePaymentForm'
 import toast from 'react-hot-toast'
 
-type PaymentMethod  = 'BANK_TRANSFER' | 'NET_30' | 'STRIPE_CARD' | 'STRIPE_TWINT' | 'STRIPE_PAYPAL'
+type PaymentMethod  = 'BANK_TRANSFER' | 'STRIPE_CARD' | 'STRIPE_TWINT' | 'STRIPE_PAYPAL'
 type ShippingOption = 'PRODIGIO_DELIVERS' | 'SELF_PICKUP' | 'LOCAL_PICKUP' | 'LOCAL_DELIVERY'
 type CheckoutStep   = 'form' | 'stripe-payment'
 
@@ -137,24 +137,14 @@ export default function CheckoutPage() {
     {
       value: 'BANK_TRANSFER',
       icon:  '🏦',
-      title: 'Banküberweisung',
-      desc:  'Zahlung per IBAN-Überweisung. Zahlungsziel 14 Tage.',
-      detail: (
-        <div style={{ background: 'var(--gray-50)', border: '1px solid var(--gray-200)', borderRadius: 8, padding: '14px 16px', marginTop: 10, fontSize: 13, lineHeight: 1.7 }}>
-          <strong>Bankdaten werden nach Bestellung per E-Mail zugestellt.</strong><br />
-          IBAN: CH56 0483 5012 3456 7800 9 · UBS Basel
-        </div>
-      ),
-    },
-    {
-      value: 'NET_30',
-      icon:  '📄',
-      title: 'Rechnung Net 30',
-      desc:  'Zahlungsziel 30 Tage. Nur für freigegebene Stammkunden.',
+      title: 'Vorauskasse',
+      desc:  'Zahlung per Banküberweisung innert 3 Tagen. Bei Ausbleiben wird die Bestellung automatisch storniert.',
       detail: (
         <div style={{ background: '#fff7ed', border: '1px solid #fcd9b6', borderRadius: 8, padding: '14px 16px', marginTop: 10, fontSize: 13, lineHeight: 1.7 }}>
-          <strong style={{ color: '#c2430c' }}>Nur für geprüfte B2B-Partner.</strong><br />
-          Rechnung wird per E-Mail zugestellt. Zahlungsziel: 30 Tage netto.
+          <strong style={{ color: '#c2430c' }}>⚠️ Wichtig: Zahlung innert 3 Werktagen.</strong><br />
+          Bei nicht fristgerechter Zahlung wird die Bestellung automatisch storniert.<br /><br />
+          <strong>Bankdaten werden nach Bestellbestätigung per E-Mail zugestellt.</strong><br />
+          IBAN: CH56 0483 5012 3456 7800 9 · UBS Basel
         </div>
       ),
     },

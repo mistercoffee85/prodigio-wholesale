@@ -165,7 +165,7 @@ export default function Footer() {
             { label: 'Apple Pay',   bg: '#000',    color: '#fff', border: 'rgba(255,255,255,.2)' },
             { label: 'Google Pay',  bg: '#fff',    color: '#333', border: 'rgba(255,255,255,.2)' },
             { label: 'PayPal',      bg: '#003087', color: '#fff' },
-            { label: 'Überweisung', bg: 'transparent', color: 'rgba(255,255,255,.45)', border: 'rgba(255,255,255,.15)' },
+            { label: 'Vorauskasse', bg: 'transparent', color: 'rgba(255,255,255,.45)', border: 'rgba(255,255,255,.15)' },
           ].map(({ label, bg, color, border }) => (
             <span key={label} style={{
               fontSize: 10, fontWeight: 700, padding: '4px 9px',
