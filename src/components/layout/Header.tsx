@@ -244,8 +244,8 @@ export default function Header() {
           ))}
         </div>
         <div style={{ display:'flex', alignItems:'center', gap:16 }}>
-          <a href="tel:+41612123456" style={{ display:'flex', alignItems:'center', gap:5, opacity:.8 }}>
-            <span>📞</span> +41 61 212 34 56
+          <a href="tel:+41616859533" style={{ display:'flex', alignItems:'center', gap:5, opacity:.8 }}>
+            <span>📞</span> +41 61 685 95 33
           </a>
           <a href="mailto:contact@prodigio.ch" style={{ display:'flex', alignItems:'center', gap:5, opacity:.8 }}>
             <span>✉</span> contact@prodigio.ch

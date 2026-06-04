@@ -53,7 +53,7 @@ export default function AGBPage() {
             </Section>
 
             <Section title="9. Kontakt">
-              PRO.DI.GIO GmbH · Mailand-Strasse 31, 4053 Basel · Tel: +41 61 212 34 56 · E-Mail: contact@prodigio.ch
+              PRO.DI.GIO GmbH · Mailand-Strasse 31, 4053 Basel · Tel: +41 61 685 95 33 · E-Mail: contact@prodigio.ch
             </Section>
 
           </div>
