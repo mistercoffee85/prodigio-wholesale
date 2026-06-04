@@ -28,6 +28,15 @@ export default function CheckoutPage() {
   const clearCart = useCartStore(s => s.clearCart)
   const updateQuantity = useCartStore(s => s.updateQuantity)
   const hydrated = useCartHydrated()
+  // Extra delay before showing "empty cart" to avoid flash during hydration
+  const [showEmpty, setShowEmpty] = useState(false)
+  useEffect(() => {
+    if (hydrated && items.length === 0) {
+      const t = setTimeout(() => setShowEmpty(true), 500)
+      return () => clearTimeout(t)
+    }
+    setShowEmpty(false)
+  }, [hydrated, items.length])
 
   // Detect cart composition
   const hasCNC   = items.some(i => i.supplierSource === 'migroweb')
@@ -247,7 +256,7 @@ export default function CheckoutPage() {
               <div style={{ fontSize: 32, marginBottom: 12 }}>⏳</div>
               <p>Warenkorb wird geladen…</p>
             </div>
-          ) : items.length === 0 && step === 'form' ? (
+          ) : items.length === 0 && step === 'form' && showEmpty ? (
             <div style={{ textAlign: 'center', padding: '60px 0' }}>
               <div style={{ fontSize: 48, marginBottom: 16 }}>🛒</div>
               <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 24, marginBottom: 12 }}>Warenkorb ist leer</h2>

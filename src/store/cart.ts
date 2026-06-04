@@ -86,21 +86,29 @@ export function useCartTotals(shippingOption?: string) {
 
 /**
  * Returns true once the zustand persist store has rehydrated from localStorage.
- * Use this on pages that read cart state to avoid showing an empty cart on hard navigation.
+ * Uses skipHydration pattern: always waits for the finish event, never
+ * trusts hasHydrated() alone (it can be true before localStorage is read
+ * on initial hard-navigation in Next.js App Router).
  */
 export function useCartHydrated() {
   const [hydrated, setHydrated] = useState(false)
   useEffect(() => {
-    // Already hydrated (e.g. SPA navigation) — resolve immediately
+    let cancelled = false
+    const finish = () => { if (!cancelled) setHydrated(true) }
+
     if (useCartStore.persist.hasHydrated()) {
-      setHydrated(true)
-      return
+      // Already hydrated in memory (SPA nav) — still defer one tick so
+      // the subscriber has time to push state into the component
+      const t = setTimeout(finish, 0)
+      return () => { cancelled = true; clearTimeout(t) }
     }
-    // Wait for hydration event
-    const unsub = useCartStore.persist.onFinishHydration(() => setHydrated(true))
-    // Safety fallback: always resolve after 600ms so the page never stays stuck
-    const timer = setTimeout(() => setHydrated(true), 600)
-    return () => { unsub(); clearTimeout(timer) }
+
+    const unsub = useCartStore.persist.onFinishHydration(finish)
+    // Trigger rehydration if it hasn't started yet
+    useCartStore.persist.rehydrate()
+    // Fallback: resolve after 1.5 s so the page never stays stuck
+    const timer = setTimeout(finish, 1500)
+    return () => { cancelled = true; unsub(); clearTimeout(timer) }
   }, [])
   return hydrated
 }
