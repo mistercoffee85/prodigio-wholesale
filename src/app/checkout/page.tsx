@@ -1,6 +1,6 @@
 'use client'
 // checkout v3 - with Stripe card payments
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useCartStore, useCartTotals, useCartHydrated } from '@/store/cart'
@@ -18,6 +18,7 @@ interface StripeData {
   clientSecret:  string
   orderNumber:   string
   paymentMethod: 'STRIPE_CARD' | 'STRIPE_TWINT' | 'STRIPE_PAYPAL'
+  total:         number  // server-calculated — always correct regardless of cart state
 }
 
 export default function CheckoutPage() {
@@ -25,6 +26,7 @@ export default function CheckoutPage() {
   const router = useRouter()
   const items    = useCartStore(s => s.items)
   const clearCart = useCartStore(s => s.clearCart)
+  const updateQuantity = useCartStore(s => s.updateQuantity)
   const { subtotal, shipping, tax, taxFood, taxStandard, total } = useCartTotals()
 
   const hydrated = useCartHydrated()
@@ -33,6 +35,31 @@ export default function CheckoutPage() {
   const hasCNC   = items.some(i => i.supplierSource === 'migroweb')
   const hasLocal = items.some(i => !i.supplierSource || i.supplierSource !== 'migroweb')
   const isMixed  = hasCNC && hasLocal
+
+  // If cart items have price=0 (added before approval), fetch real prices from server
+  const hasZeroPrices = items.length > 0 && items.every(i => i.unitPrice === 0)
+  useEffect(() => {
+    if (!hydrated || !hasZeroPrices || !session?.user) return
+    const ids = [...new Set(items.map(i => i.productId))]
+    Promise.all(ids.map(id => fetch(`/api/products?search=&limit=1&page=1`)))
+    // Fetch fresh prices for each product
+    fetch(`/api/products?limit=200&page=1`)
+      .then(r => r.json())
+      .then(data => {
+        const priceMap: Record<string, number> = {}
+        for (const p of data.products ?? []) priceMap[p.id] = p.price
+        useCartStore.setState(state => ({
+          items: state.items.map(item => {
+            const freshPrice = priceMap[item.productId]
+            if (freshPrice && freshPrice > 0) {
+              return { ...item, unitPrice: freshPrice, total: freshPrice * item.quantity }
+            }
+            return item
+          }),
+        }))
+      })
+      .catch(() => {})
+  }, [hydrated, hasZeroPrices, session])
 
   const [paymentMethod,       setPaymentMethod]       = useState<PaymentMethod>('BANK_TRANSFER')
   const [shippingOptionCNC,   setShippingOptionCNC]   = useState<ShippingOption>('PRODIGIO_DELIVERS')
@@ -76,8 +103,13 @@ export default function CheckoutPage() {
       }
 
       if (data.type === 'stripe' && data.clientSecret) {
-        // ── Stripe: show card form — DO NOT clear cart yet, only after payment succeeds
-        setStripeData({ clientSecret: data.clientSecret, orderNumber: data.orderNumber, paymentMethod: paymentMethod as 'STRIPE_CARD' | 'STRIPE_TWINT' | 'STRIPE_PAYPAL' })
+        // ── Stripe: show card form — use server total for display (not client cart total)
+        setStripeData({
+          clientSecret:  data.clientSecret,
+          orderNumber:   data.orderNumber,
+          paymentMethod: paymentMethod as 'STRIPE_CARD' | 'STRIPE_TWINT' | 'STRIPE_PAYPAL',
+          total:         data.total,
+        })
         setStep('stripe-payment')
         setLoading(false)
       } else {
@@ -149,13 +181,15 @@ export default function CheckoutPage() {
     },
   ]
 
-  const submitLabel = paymentMethod === 'STRIPE_CARD'
-    ? `Weiter zur Kartenzahlung – ${formatPrice(total)}`
+  const displayTotal = total > 0 ? total : null
+  const totalLabel   = displayTotal ? formatPrice(displayTotal) : '…'
+  const submitLabel  = paymentMethod === 'STRIPE_CARD'
+    ? `Weiter zur Kartenzahlung – ${totalLabel}`
     : paymentMethod === 'STRIPE_TWINT'
-    ? `Weiter zu TWINT – ${formatPrice(total)}`
+    ? `Weiter zu TWINT – ${totalLabel}`
     : paymentMethod === 'STRIPE_PAYPAL'
-    ? `Weiter zu PayPal – ${formatPrice(total)}`
-    : `Jetzt bestellen – ${formatPrice(total)}`
+    ? `Weiter zu PayPal – ${totalLabel}`
+    : `Jetzt bestellen – ${totalLabel}`
 
   return (
     <>
@@ -246,7 +280,7 @@ export default function CheckoutPage() {
             <div style={{ maxWidth: 560, width: '100%', margin: '0 auto' }}>
               <StripePaymentForm
                 clientSecret={stripeData.clientSecret}
-                total={total}
+                total={stripeData.total}
                 orderNumber={stripeData.orderNumber}
                 isTwint={stripeData.paymentMethod === 'STRIPE_TWINT'}
                 isPaypal={stripeData.paymentMethod === 'STRIPE_PAYPAL'}

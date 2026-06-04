@@ -171,6 +171,7 @@ export async function POST(req: NextRequest) {
         orderNumber,
         clientSecret: paymentIntent.client_secret,
         type:         'stripe',
+        total,        // server-calculated total — use this for display, not client-side cart total
       })
     }
 
