@@ -321,7 +321,7 @@ export default function CheckoutPage() {
                           note: { color: 'var(--accent)', text: '✓ Lieferkosten werden nach Bestellung bekanntgegeben' } },
                         { value: 'LOCAL_PICKUP' as ShippingOption, title: '🏢 Abholung bei PRO.DI.GIO GmbH, Basel',
                           rows: [['📍','Adresse','Mailand-Strasse 31, 4053 Basel'],['🕐','Termin','Nach Absprache — wir kontaktieren Sie'],['💶','Kosten','Kostenlos — keine Versandkosten'],['📦','Bereit','Wir informieren Sie sobald Ware bereit ist']],
-                          note: { color: 'var(--accent)', text: '✓ Kein Versand — kostenlose Abholung in Basel' } },
+                          note: { color: 'var(--accent)', text: '✓ Keine Lieferkosten — Abholung bei PRO.DI.GIO Basel' } },
                       ]).map(opt => (
                         <label key={opt.value} style={{ display: 'block', padding: '16px 18px', border: '2px solid', borderColor: shippingOptionLocal === opt.value ? 'var(--accent)' : 'var(--gray-200)', borderRadius: 12, cursor: 'pointer', marginBottom: 10, background: shippingOptionLocal === opt.value ? 'var(--accent-light)' : 'white', transition: 'all .15s' }}>
                           <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>

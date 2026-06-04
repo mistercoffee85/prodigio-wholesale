@@ -117,7 +117,7 @@ function LoginForm() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               {[
                 { icon: '💰', text: 'STANDARD · PREMIUM · VIP Preise' },
-                { icon: '🚚', text: 'Gratis Lieferung ab CHF 300' },
+                { icon: '🚚', text: 'Lieferung & Abholung in der Schweiz' },
                 { icon: '📦', text: '88+ Produkte, Direktimport' },
               ].map(({ icon, text }) => (
                 <div key={text} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>

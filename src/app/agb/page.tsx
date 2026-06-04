@@ -33,7 +33,7 @@ export default function AGBPage() {
             </Section>
 
             <Section title="4. Lieferung">
-              Die Lieferung erfolgt ausschliesslich innerhalb der Schweiz per DPD mit Tracking. Bestellungen ab CHF 300 werden kostenlos geliefert. Die Lieferzeit beträgt in der Regel 2–4 Werktage. Liefertermine sind unverbindlich, sofern nicht ausdrücklich schriftlich anders vereinbart.
+              Die Lieferung erfolgt ausschliesslich innerhalb der Schweiz per DPD mit Tracking. Lieferkosten werden nach Bestelleingang separat mitgeteilt und in Rechnung gestellt. Die Lieferzeit beträgt in der Regel 2–4 Werktage. Liefertermine sind unverbindlich, sofern nicht ausdrücklich schriftlich anders vereinbart.
             </Section>
 
             <Section title="5. Mindestbestellmengen">
