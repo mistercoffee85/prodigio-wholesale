@@ -235,7 +235,6 @@ export default function Header() {
         <div style={{ display:'flex', alignItems:'center', gap:20 }}>
           {[
             ['✓','Exklusive B2B-Preise'],
-            ['✓','Direktimport Schweiz'],
             ['✓','2–4 Werktage'],
           ].map(([icon, text]) => (
             <span key={text} style={{ display:'flex', alignItems:'center', gap:5 }}>
