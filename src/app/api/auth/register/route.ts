@@ -69,11 +69,15 @@ export async function POST(req: NextRequest) {
       },
     })
 
-    // Send emails (don't block response)
+    // Send emails — log full error details for Vercel logs
     Promise.all([
       sendWelcomeEmail(user.email, user.name, data.company),
       sendAdminNewCustomerEmail(user.name, data.company, user.email),
-    ]).catch(console.error)
+    ]).catch(err => {
+      console.error('[register] Email-Fehler:', err?.message ?? err)
+      console.error('[register] RESEND_API_KEY gesetzt?', !!process.env.RESEND_API_KEY)
+      console.error('[register] EMAIL_FROM:', process.env.EMAIL_FROM)
+    })
 
     return NextResponse.json({ message: 'Registrierung erfolgreich. Wir prüfen Ihre Anfrage.' }, { status: 201 })
   } catch (err) {
