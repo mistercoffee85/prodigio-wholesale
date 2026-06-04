@@ -76,13 +76,12 @@ export default function CheckoutPage() {
       }
 
       if (data.type === 'stripe' && data.clientSecret) {
-        // ── Stripe: show card form
+        // ── Stripe: show card form — DO NOT clear cart yet, only after payment succeeds
         setStripeData({ clientSecret: data.clientSecret, orderNumber: data.orderNumber, paymentMethod: paymentMethod as 'STRIPE_CARD' | 'STRIPE_TWINT' | 'STRIPE_PAYPAL' })
         setStep('stripe-payment')
         setLoading(false)
-        clearCart()
       } else {
-        // ── Bank transfer / Net 30: direct confirmation
+        // ── Vorauskasse: order confirmed, clear cart and redirect
         clearCart()
         router.push(`/checkout/success?order=${data.orderNumber}`)
       }
