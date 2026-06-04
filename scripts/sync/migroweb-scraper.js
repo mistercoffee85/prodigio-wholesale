@@ -624,7 +624,13 @@ async function main() {
       }
 
       // ── 6. DEACTIVATE MISSING PRODUCTS ────────────────────────────────
-      if (seenSkus.size > 0) {
+      // Safety check: only deactivate if we found at least 80% of existing products.
+      // This prevents a partial/failed scrape from wiping the entire catalog.
+      const existingCount = await prisma.product.count({
+        where: { supplierSource: CONFIG.source, syncManaged: true, active: true },
+      })
+      const minThreshold = Math.floor(existingCount * 0.8)
+      if (seenSkus.size > 0 && seenSkus.size >= minThreshold) {
         const result = await prisma.product.updateMany({
           where: {
             supplierSource: CONFIG.source,
@@ -636,6 +642,8 @@ async function main() {
         })
         stats.deactivated = result.count
         if (result.count > 0) log(`⛔ Deactivated ${result.count} products not in supplier catalog`)
+      } else if (seenSkus.size > 0) {
+        log(`⚠️  Deactivation SKIPPED — only ${seenSkus.size} SKUs seen vs ${existingCount} existing (threshold: ${minThreshold}). Partial scrape detected.`)
       }
     }
 

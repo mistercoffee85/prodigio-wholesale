@@ -39,6 +39,7 @@ export async function GET(req: NextRequest) {
     }
 
     const where: Record<string, unknown> = {
+      active: true,
       ...categoryFilter,
     }
     if (isCashCarry)     where.supplierSource = 'migroweb'
