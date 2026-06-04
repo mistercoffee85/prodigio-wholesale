@@ -100,6 +100,13 @@ export async function POST(req: NextRequest) {
     const taxBreak   = calcCartTaxBreakdown(orderItems, shipping)
     const tax        = taxBreak.total
     const total      = Math.round((subtotal + shipping + tax) * 100) / 100
+
+    // Guard: reject orders with CHF 0 total — cart items were added with price=0
+    if (total <= 0) {
+      return NextResponse.json({
+        error: 'Ungültiger Bestellbetrag (CHF 0.00). Bitte leeren Sie den Warenkorb und fügen Sie die Produkte erneut hinzu.',
+      }, { status: 400 })
+    }
     // Transport cost is pending when Prodigio organises any logistics leg
     const shippingPending = shippingOption === 'PRODIGIO_DELIVERS'
       || shippingOption === 'LOCAL_DELIVERY'

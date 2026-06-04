@@ -225,6 +225,21 @@ export default function CheckoutPage() {
               <p style={{ color: 'var(--gray-400)', marginBottom: 28 }}>Bitte fügen Sie Produkte hinzu, bevor Sie zur Kasse gehen.</p>
               <a href="/products" className="btn btn-primary" style={{ padding: '12px 28px' }}>Sortiment entdecken →</a>
             </div>
+          ) : total === 0 && step === 'form' && items.length > 0 ? (
+            <div style={{ textAlign: 'center', padding: '60px 0' }}>
+              <div style={{ fontSize: 48, marginBottom: 16 }}>⚠️</div>
+              <h2 style={{ fontSize: 22, marginBottom: 12 }}>Preise konnten nicht geladen werden</h2>
+              <p style={{ color: 'var(--gray-400)', marginBottom: 8, maxWidth: 420, margin: '0 auto 16px' }}>
+                Die Produkte im Warenkorb haben den Preis CHF 0.00. Bitte leeren Sie den Warenkorb und fügen Sie die Produkte erneut hinzu.
+              </p>
+              <button
+                className="btn btn-danger"
+                onClick={() => { useCartStore.getState().clearCart(); window.location.href = '/products' }}
+                style={{ marginRight: 12 }}
+              >
+                Warenkorb leeren & neu starten
+              </button>
+            </div>
           ) : null}
 
           {/* ── Step 2: Stripe card payment ── */}
