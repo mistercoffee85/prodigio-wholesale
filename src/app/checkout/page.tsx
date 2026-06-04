@@ -40,9 +40,7 @@ export default function CheckoutPage() {
   const hasZeroPrices = items.length > 0 && items.every(i => i.unitPrice === 0)
   useEffect(() => {
     if (!hydrated || !hasZeroPrices || !session?.user) return
-    const ids = [...new Set(items.map(i => i.productId))]
-    Promise.all(ids.map(id => fetch(`/api/products?search=&limit=1&page=1`)))
-    // Fetch fresh prices for each product
+    // Fetch fresh prices for all active products
     fetch(`/api/products?limit=200&page=1`)
       .then(r => r.json())
       .then(data => {
