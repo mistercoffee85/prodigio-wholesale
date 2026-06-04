@@ -70,10 +70,14 @@ export const useCartStore = create<CartState>()(
   )
 )
 
-export function useCartTotals() {
+export const PALETTE_COST = 90 // CHF per palette delivery
+
+export function useCartTotals(shippingOption?: string) {
   const items = useCartStore(s => s.items)
   const subtotal  = items.reduce((s, i) => s + i.total, 0)
-  const shipping  = 0  // Transport costs are always confirmed manually after order
+  // Lieferkosten: CHF 90 bei Lieferung, 0 bei Abholung
+  const needsDelivery = shippingOption === 'LOCAL_DELIVERY' || shippingOption === 'PRODIGIO_DELIVERS'
+  const shipping  = needsDelivery ? PALETTE_COST : 0
   const taxBreak  = calcCartTaxBreakdown(items, shipping)
   const tax       = taxBreak.total
   const total     = Math.round((subtotal + shipping + tax) * 100) / 100

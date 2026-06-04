@@ -27,8 +27,6 @@ export default function CheckoutPage() {
   const items    = useCartStore(s => s.items)
   const clearCart = useCartStore(s => s.clearCart)
   const updateQuantity = useCartStore(s => s.updateQuantity)
-  const { subtotal, shipping, tax, taxFood, taxStandard, total } = useCartTotals()
-
   const hydrated = useCartHydrated()
 
   // Detect cart composition
@@ -67,11 +65,11 @@ export default function CheckoutPage() {
   const [step,    setStep]    = useState<CheckoutStep>('form')
   const [stripeData, setStripeData] = useState<StripeData | null>(null)
 
-  // Derive the "primary" shippingOption for the API:
-  // - mixed:  CNC option is primary, local option is secondary
-  // - C&C only: CNC option
-  // - local only: local option
+  // Derive the "primary" shippingOption for the API
   const primaryShipping: ShippingOption = hasCNC ? shippingOptionCNC : shippingOptionLocal
+
+  // Compute totals with shipping included
+  const { subtotal, shipping, tax, taxFood, taxStandard, total } = useCartTotals(primaryShipping)
 
   const buildPayload = () => ({
     items: items.map(i => ({ productId: i.productId, quantity: i.quantity, variantLabel: i.variantLabel })),
@@ -363,8 +361,8 @@ export default function CheckoutPage() {
                       {!isMixed && <p style={{ fontSize: 12.5, color: 'var(--gray-400)', marginBottom: 14 }}>Ware ab Lager PRO.DI.GIO GmbH, Basel.</p>}
                       {([
                         { value: 'LOCAL_DELIVERY' as ShippingOption, title: '🚚 Lieferung durch PRO.DI.GIO GmbH',
-                          rows: [['📦','Versand','Wir liefern direkt zu Ihnen'],['💶','Kosten','Lieferkosten werden separat mitgeteilt'],['📅','Lieferzeit','Nach Bestätigung der Bestellung'],['📞','Kontakt','Wir melden uns zur Koordination']],
-                          note: { color: 'var(--accent)', text: '✓ Lieferkosten werden nach Bestellung bekanntgegeben' } },
+                          rows: [['📦','Versand','Wir liefern direkt zu Ihnen'],['💶','Kosten','CHF 90.00 pro Palette'],['📅','Lieferzeit','2–4 Werktage nach Bestellbestätigung'],['📞','Kontakt','Wir melden uns zur Koordination']],
+                          note: { color: 'var(--accent)', text: '✓ CHF 90.00 pro Palette — bereits im Total eingerechnet' } },
                         { value: 'LOCAL_PICKUP' as ShippingOption, title: '🏢 Abholung bei PRO.DI.GIO GmbH, Basel',
                           rows: [['📍','Adresse','Mailand-Strasse 31, 4053 Basel'],['🕐','Termin','Nach Absprache — wir kontaktieren Sie'],['💶','Kosten','Kostenlos — keine Versandkosten'],['📦','Bereit','Wir informieren Sie sobald Ware bereit ist']],
                           note: { color: 'var(--accent)', text: '✓ Keine Lieferkosten — Abholung bei PRO.DI.GIO Basel' } },
@@ -465,7 +463,11 @@ export default function CheckoutPage() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
                   {[
                     ['Zwischensumme', formatPrice(subtotal)],
-                    ['Transport', isMixed ? '⏳ Siehe Lieferoptionen' : primaryShipping === 'SELF_PICKUP' ? '🚗 Ex Works' : primaryShipping === 'LOCAL_PICKUP' ? '🏢 Abholung Basel' : '⏳ Wird bestätigt'],
+                    ['Lieferung (1 Palette)',
+                      primaryShipping === 'LOCAL_PICKUP' ? '🏢 Abholung — CHF 0.00' :
+                      primaryShipping === 'SELF_PICKUP'  ? '🚗 Ex Works — CHF 0.00' :
+                      `🚚 CHF ${shipping.toFixed(2)}`
+                    ],
                     ...(taxFood > 0     ? [['MwSt. 2.6% (Lebensmittel)', formatPrice(taxFood)]]   : []),
                     ...(taxStandard > 0 ? [['MwSt. 8.1%',                formatPrice(taxStandard)]] : []),
                     ...(!hasLocal && hasCNC

@@ -95,22 +95,28 @@ export async function POST(req: NextRequest) {
     })
 
     const subtotal   = orderItems.reduce((s, i) => s + i.total, 0)
-    // Shipping: 0 for self-pickup; for Prodigio delivery it's set by admin later
-    const shipping   = shippingOption === 'SELF_PICKUP' ? 0 : 0
+
+    // ── Lieferkosten: CHF 90.00 pro Palette ──────────────────────
+    // Abholung (LOCAL_PICKUP / SELF_PICKUP) = kostenlos
+    // Lieferung durch PRO.DI.GIO = CHF 90.00 pro Lieferung (min. 1 Palette)
+    const PALETTE_COST = 90
+    const needsDelivery = shippingOption === 'LOCAL_DELIVERY'
+      || shippingOption === 'PRODIGIO_DELIVERS'
+      || shippingOptionLocal === 'LOCAL_DELIVERY'
+    const shipping = needsDelivery ? PALETTE_COST : 0
+
     const taxBreak   = calcCartTaxBreakdown(orderItems, shipping)
     const tax        = taxBreak.total
     const total      = Math.round((subtotal + shipping + tax) * 100) / 100
 
-    // Guard: reject orders with CHF 0 total — cart items were added with price=0
-    if (total <= 0) {
+    // Guard: reject orders with CHF 0 subtotal — cart items were added with price=0
+    if (subtotal <= 0) {
       return NextResponse.json({
         error: 'Ungültiger Bestellbetrag (CHF 0.00). Bitte leeren Sie den Warenkorb und fügen Sie die Produkte erneut hinzu.',
       }, { status: 400 })
     }
-    // Transport cost is pending when Prodigio organises any logistics leg
-    const shippingPending = shippingOption === 'PRODIGIO_DELIVERS'
-      || shippingOption === 'LOCAL_DELIVERY'
-      || shippingOptionLocal === 'LOCAL_DELIVERY'
+
+    const shippingPending = false // Lieferkosten werden direkt berechnet
 
     const orderNumber = generateOrderNumber()
     // Vorauskasse: 3 Werktage Zahlungsziel
