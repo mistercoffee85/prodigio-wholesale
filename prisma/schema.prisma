@@ -221,6 +221,7 @@ enum PaymentMethod {
   STRIPE_PAYPAL
   BANK_TRANSFER
   NET_30
+  MONDU
 }
 
 enum ShippingOption {

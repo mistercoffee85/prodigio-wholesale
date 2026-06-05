@@ -7,6 +7,7 @@ import { requireAuth } from '@/lib/auth'
 import { stripe, toStripeAmount } from '@/lib/stripe'
 import { generateOrderNumber, calcShipping, calcCartTaxBreakdown, applyDiscount } from '@/lib/utils'
 import { sendOrderConfirmationEmail } from '@/lib/email'
+import { createMonduOrder } from '@/lib/mondu'
 
 const itemSchema = z.object({
   productId:    z.string(),
@@ -16,7 +17,7 @@ const itemSchema = z.object({
 
 const schema = z.object({
   items:          z.array(itemSchema).min(1),
-  paymentMethod:  z.enum(['STRIPE_CARD', 'STRIPE_TWINT', 'STRIPE_PAYPAL', 'BANK_TRANSFER']),
+  paymentMethod:  z.enum(['STRIPE_CARD', 'STRIPE_TWINT', 'STRIPE_PAYPAL', 'BANK_TRANSFER', 'MONDU']),
   shippingOption:      z.enum(['PRODIGIO_DELIVERS', 'SELF_PICKUP', 'LOCAL_PICKUP', 'LOCAL_DELIVERY']).default('LOCAL_DELIVERY'),
   shippingOptionLocal: z.enum(['LOCAL_PICKUP', 'LOCAL_DELIVERY']).optional(), // only for mixed carts
   notes:          z.string().optional(),
@@ -178,6 +179,71 @@ export async function POST(req: NextRequest) {
         clientSecret: paymentIntent.client_secret,
         type:         'stripe',
         total,        // server-calculated total — use this for display, not client-side cart total
+      })
+    }
+
+    // ── Mondu (Rechnung / BNPL) ───────────────────────────────────
+    if (paymentMethod === 'MONDU') {
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://b2b.prodigio.ch'
+
+      const nameParts = user.name.trim().split(' ')
+      const firstName = nameParts[0]
+      const lastName  = nameParts.slice(1).join(' ') || nameParts[0]
+
+      const monduLines: Array<{ title: string; net_price_per_item_cents: number; quantity: number; item_type: string; external_reference_id?: string }> = orderItems.map(i => ({
+        title:                    i.productName,
+        net_price_per_item_cents: Math.round(i.unitPrice * 100),
+        quantity:                 i.quantity,
+        item_type:                'physical',
+        external_reference_id:    i.productId,
+      }))
+
+      // Add shipping fee as separate line if applicable
+      if (shipping > 0) {
+        monduLines.push({
+          title:                    'Lieferung (1 Palette)',
+          net_price_per_item_cents: Math.round(shipping * 100),
+          quantity:                 1,
+          item_type:                'shipping_fee',
+          external_reference_id:    'shipping',
+        })
+      }
+
+      const monduRes = await createMonduOrder({
+        currency:   'CHF',
+        state_flow: 'mondu_checkout',
+        buyer: {
+          email:        user.email,
+          first_name:   firstName,
+          last_name:    lastName,
+          company_name: user.company?.name ?? user.name,
+          address: {
+            line1:        user.company?.address ?? '',
+            city:         user.company?.city ?? '',
+            country_code: (user.company?.country ?? 'CH').toUpperCase(),
+            zip_code:     user.company?.zip ?? '',
+          },
+        },
+        lines:                monduLines,
+        gross_amount_cents:   Math.round(total * 100),
+        tax_cents:            Math.round(tax * 100),
+        external_reference_id: orderNumber,
+        success_url: `${appUrl}/checkout/success?order=${orderNumber}`,
+        decline_url: `${appUrl}/checkout?mondu=declined`,
+        cancel_url:  `${appUrl}/checkout?mondu=cancelled`,
+      })
+
+      await prisma.order.update({
+        where: { id: order.id },
+        data:  { stripePaymentId: monduRes.order.uuid }, // reuse field to store mondu uuid
+      })
+
+      return NextResponse.json({
+        type:        'mondu',
+        orderId:     order.id,
+        orderNumber,
+        redirectUrl: monduRes.order.hosted_checkout_url,
+        total,
       })
     }
 

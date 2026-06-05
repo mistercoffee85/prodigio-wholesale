@@ -10,7 +10,7 @@ import Footer from '@/components/layout/Footer'
 import StripePaymentForm from '@/components/checkout/StripePaymentForm'
 import toast from 'react-hot-toast'
 
-type PaymentMethod  = 'BANK_TRANSFER' | 'STRIPE_CARD' | 'STRIPE_TWINT' | 'STRIPE_PAYPAL'
+type PaymentMethod  = 'BANK_TRANSFER' | 'STRIPE_CARD' | 'STRIPE_TWINT' | 'STRIPE_PAYPAL' | 'MONDU'
 type ShippingOption = 'PRODIGIO_DELIVERS' | 'SELF_PICKUP' | 'LOCAL_PICKUP' | 'LOCAL_DELIVERY'
 type CheckoutStep   = 'form' | 'stripe-payment'
 
@@ -107,6 +107,13 @@ export default function CheckoutPage() {
         return
       }
 
+      if (data.type === 'mondu' && data.redirectUrl) {
+        // ── Mondu: redirect to hosted checkout (credit check + payment flow)
+        clearCart()
+        window.location.href = data.redirectUrl
+        return
+      }
+
       if (data.type === 'stripe' && data.clientSecret) {
         // ── Stripe: show card form — use server total for display (not client cart total)
         setStripeData({
@@ -171,6 +178,19 @@ export default function CheckoutPage() {
     //   desc:  'Bezahlen Sie direkt mit der TWINT-App — sofortige Zahlung.',
     // },
     {
+      value: 'MONDU',
+      icon:  '📄',
+      title: 'Rechnung (30 Tage) – Mondu',
+      desc:  'Kaufen Sie jetzt, zahlen Sie in 30 Tagen. Sofortige Bonitätsprüfung — kein Risiko für Sie.',
+      detail: (
+        <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: 8, padding: '14px 16px', marginTop: 10, fontSize: 13, lineHeight: 1.7 }}>
+          <strong style={{ color: '#1d4ed8' }}>✓ Zahlung auf Rechnung — 30 Tage Zahlungsziel</strong><br />
+          Automatische Bonitätsprüfung in Sekunden. Sie erhalten sofort eine Rechnung per E-Mail.<br />
+          <span style={{ color: '#6b7280', fontSize: 11.5 }}>Powered by Mondu · Nur für geprüfte B2B-Unternehmen</span>
+        </div>
+      ),
+    },
+    {
       value: 'BANK_TRANSFER',
       icon:  '🏦',
       title: 'Vorauskasse',
@@ -188,7 +208,9 @@ export default function CheckoutPage() {
 
   const displayTotal = total > 0 ? total : null
   const totalLabel   = displayTotal ? formatPrice(displayTotal) : '…'
-  const submitLabel  = paymentMethod === 'STRIPE_CARD'
+  const submitLabel  = paymentMethod === 'MONDU'
+    ? `Weiter zur Bonitätsprüfung – ${totalLabel}`
+    : paymentMethod === 'STRIPE_CARD'
     ? `Weiter zur Kartenzahlung – ${totalLabel}`
     : paymentMethod === 'STRIPE_TWINT'
     ? `Weiter zu TWINT – ${totalLabel}`
