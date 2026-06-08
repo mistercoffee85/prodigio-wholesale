@@ -11,7 +11,7 @@ import StripePaymentForm from '@/components/checkout/StripePaymentForm'
 import toast from 'react-hot-toast'
 import { loadStripe } from '@stripe/stripe-js'
 
-type PaymentMethod  = 'BANK_TRANSFER' | 'STRIPE_CARD' | 'STRIPE_TWINT' | 'STRIPE_PAYPAL'
+type PaymentMethod  = 'BANK_TRANSFER' | 'STRIPE_CARD' | 'STRIPE_TWINT' | 'STRIPE_PAYPAL' | 'STRIPE_KLARNA'
 type ShippingOption = 'PRODIGIO_DELIVERS' | 'SELF_PICKUP' | 'LOCAL_PICKUP' | 'LOCAL_DELIVERY'
 type CheckoutStep   = 'form' | 'stripe-payment'
 
@@ -109,19 +109,20 @@ export default function CheckoutPage() {
       }
 
       if (data.type === 'stripe' && data.clientSecret) {
-        // ── PayPal: direkter Redirect zu PayPal — kein Formular nötig
-        if (paymentMethod === 'STRIPE_PAYPAL') {
+        // ── PayPal / Klarna: direkter Redirect — kein Formular nötig
+        if (paymentMethod === 'STRIPE_PAYPAL' || paymentMethod === 'STRIPE_KLARNA') {
           const stripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
           if (stripe) {
-            const { error: ppError } = await (stripe as any).confirmPayPalPayment(
-              data.clientSecret,
-              { return_url: `${window.location.origin}/checkout/success?order=${data.orderNumber}` }
-            )
-            if (ppError) {
-              toast.error(ppError.message ?? 'PayPal Fehler. Bitte erneut versuchen.')
+            const returnUrl = `${window.location.origin}/checkout/success?order=${data.orderNumber}`
+            const confirmFn = paymentMethod === 'STRIPE_PAYPAL'
+              ? (stripe as any).confirmPayPalPayment(data.clientSecret, { return_url: returnUrl })
+              : (stripe as any).confirmKlarnaPayment(data.clientSecret, { return_url: returnUrl })
+            const { error: redirectError } = await confirmFn
+            if (redirectError) {
+              toast.error(redirectError.message ?? 'Zahlung fehlgeschlagen. Bitte erneut versuchen.')
               setLoading(false)
             }
-            // else: Seite wechselt zu PayPal — Warenkorb bleibt in localStorage
+            // else: Redirect zu PayPal/Klarna — Warenkorb bleibt in localStorage
           }
           return
         }
@@ -181,13 +182,31 @@ export default function CheckoutPage() {
         </div>
       ),
     },
-    // TWINT: uncomment once activated in Stripe Dashboard → Payment settings
-    // {
-    //   value: 'STRIPE_TWINT',
-    //   icon:  '📱',
-    //   title: 'TWINT',
-    //   desc:  'Bezahlen Sie direkt mit der TWINT-App — sofortige Zahlung.',
-    // },
+    {
+      value: 'STRIPE_TWINT',
+      icon:  '📱',
+      title: 'TWINT',
+      desc:  'Bezahlen Sie direkt mit der TWINT-App — sofortige Zahlung. 🇨🇭',
+      detail: (
+        <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 8, padding: '12px 16px', marginTop: 10, fontSize: 13, lineHeight: 1.7, display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span style={{ fontSize: 18 }}>🔒</span>
+          <span>Gesichert durch <strong>Stripe</strong> · Schweizer Zahlungsmethode — QR-Code in der TWINT-App scannen.</span>
+        </div>
+      ),
+    },
+    {
+      value: 'STRIPE_KLARNA',
+      icon:  '🟣',
+      title: 'Klarna — Jetzt kaufen, später zahlen',
+      desc:  'Zahlen Sie in 30 Tagen oder in Raten — Bonitätsprüfung in Sekunden.',
+      detail: (
+        <div style={{ background: '#fdf4ff', border: '1px solid #e9d5ff', borderRadius: 8, padding: '14px 16px', marginTop: 10, fontSize: 13, lineHeight: 1.7 }}>
+          <strong style={{ color: '#7c3aed' }}>✓ Flexibles Zahlungsziel über Klarna</strong><br />
+          Sie werden zu <strong>Klarna</strong> weitergeleitet. Bonitätsprüfung erfolgt automatisch.<br />
+          <span style={{ color: '#6b7280', fontSize: 11.5 }}>Powered by Klarna · Stripe</span>
+        </div>
+      ),
+    },
     {
       value: 'BANK_TRANSFER',
       icon:  '🏦',
@@ -212,6 +231,8 @@ export default function CheckoutPage() {
     ? `Weiter zu TWINT – ${totalLabel}`
     : paymentMethod === 'STRIPE_PAYPAL'
     ? `Weiter zu PayPal – ${totalLabel}`
+    : paymentMethod === 'STRIPE_KLARNA'
+    ? `Weiter zu Klarna – ${totalLabel}`
     : `Jetzt bestellen – ${totalLabel}`
 
   return (

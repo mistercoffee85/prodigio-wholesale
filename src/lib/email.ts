@@ -137,10 +137,11 @@ export async function sendOrderConfirmationEmail(
   `).join('')
 
   const paymentLabel: Record<string, string> = {
-    STRIPE_CARD:  'Kreditkarte',
-    STRIPE_TWINT: 'TWINT',
-    STRIPE_PAYPAL:'PayPal',
-    BANK_TRANSFER:'Vorauskasse (Banküberweisung)',
+    STRIPE_CARD:   'Kreditkarte / Apple Pay / Google Pay',
+    STRIPE_TWINT:  'TWINT',
+    STRIPE_PAYPAL: 'PayPal',
+    STRIPE_KLARNA: 'Klarna',
+    BANK_TRANSFER: 'Vorauskasse (Banküberweisung)',
     NET_30:       'Vorauskasse (Banküberweisung)',
     MONDU:        'Rechnung 30 Tage (Mondu)',
   }

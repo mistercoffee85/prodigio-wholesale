@@ -16,7 +16,7 @@ const itemSchema = z.object({
 
 const schema = z.object({
   items:          z.array(itemSchema).min(1),
-  paymentMethod:  z.enum(['STRIPE_CARD', 'STRIPE_TWINT', 'STRIPE_PAYPAL', 'BANK_TRANSFER']),
+  paymentMethod:  z.enum(['STRIPE_CARD', 'STRIPE_TWINT', 'STRIPE_PAYPAL', 'STRIPE_KLARNA', 'BANK_TRANSFER']),
   shippingOption:      z.enum(['PRODIGIO_DELIVERS', 'SELF_PICKUP', 'LOCAL_PICKUP', 'LOCAL_DELIVERY']).default('LOCAL_DELIVERY'),
   shippingOptionLocal: z.enum(['LOCAL_PICKUP', 'LOCAL_DELIVERY']).optional(), // only for mixed carts
   notes:          z.string().optional(),
@@ -157,8 +157,8 @@ export async function POST(req: NextRequest) {
     })
 
     // ── Stripe Payment (card / TWINT) ─────────────────────────────
-    if (paymentMethod === 'STRIPE_CARD' || paymentMethod === 'STRIPE_TWINT' || paymentMethod === 'STRIPE_PAYPAL') {
-      const paymentMethods = paymentMethod === 'STRIPE_TWINT' ? ['twint'] : paymentMethod === 'STRIPE_PAYPAL' ? ['paypal'] : ['card']
+    if (paymentMethod === 'STRIPE_CARD' || paymentMethod === 'STRIPE_TWINT' || paymentMethod === 'STRIPE_PAYPAL' || paymentMethod === 'STRIPE_KLARNA') {
+      const paymentMethods = paymentMethod === 'STRIPE_TWINT' ? ['twint'] : paymentMethod === 'STRIPE_PAYPAL' ? ['paypal'] : paymentMethod === 'STRIPE_KLARNA' ? ['klarna'] : ['card']
 
       const paymentIntent = await stripe.paymentIntents.create({
         amount:   toStripeAmount(total),
