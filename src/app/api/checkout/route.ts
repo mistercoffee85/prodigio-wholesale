@@ -5,7 +5,7 @@ import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { requireAuth } from '@/lib/auth'
 import { stripe, toStripeAmount } from '@/lib/stripe'
-import { generateOrderNumber, calcShipping, calcCartTaxBreakdown, applyDiscount } from '@/lib/utils'
+import { generateOrderNumber, calcShipping, shippingLabel, calcCartTaxBreakdown, applyDiscount } from '@/lib/utils'
 import { sendOrderConfirmationEmail } from '@/lib/email'
 
 const itemSchema = z.object({
@@ -96,14 +96,14 @@ export async function POST(req: NextRequest) {
 
     const subtotal   = orderItems.reduce((s, i) => s + i.total, 0)
 
-    // ── Lieferkosten: CHF 90.00 pro Palette ──────────────────────
+    // ── Lieferkosten: gestaffelt nach Bestellwert ────────────────
     // Abholung (LOCAL_PICKUP / SELF_PICKUP) = kostenlos
-    // Lieferung durch PRO.DI.GIO = CHF 90.00 pro Lieferung (min. 1 Palette)
-    const PALETTE_COST = 90
+    // Lieferung: CHF 9.90 / 19.90 / 29.90 / 49.90 / 90.00 (Palette)
     const needsDelivery = shippingOption === 'LOCAL_DELIVERY'
       || shippingOption === 'PRODIGIO_DELIVERS'
       || shippingOptionLocal === 'LOCAL_DELIVERY'
-    const shipping = needsDelivery ? PALETTE_COST : 0
+    const shipping = needsDelivery ? calcShipping(subtotal) : 0
+    const shipLabel = needsDelivery ? shippingLabel(subtotal) : 'Abholung'
 
     const taxBreak   = calcCartTaxBreakdown(orderItems, shipping)
     const tax        = taxBreak.total

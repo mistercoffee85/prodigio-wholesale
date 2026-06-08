@@ -31,20 +31,42 @@ export function discountLabel(priceGroup: string): string | null {
   return labels[priceGroup] ?? null
 }
 
-/** Free shipping threshold */
-export const FREE_SHIPPING_THRESHOLD = 300
-export const SHIPPING_COST = 29.90
-export const SHIPPING_CARRIER = 'DPD Tracking'
+/** Versandkostenrechner PRO.DI.GIO
+ *  Gilt nur bei Lieferung (LOCAL_DELIVERY / PRODIGIO_DELIVERS).
+ *  Abholung (LOCAL_PICKUP / SELF_PICKUP) = CHF 0.00
+ *
+ *  Staffel nach Bestellwert (Netto ohne MwSt.):
+ *  bis CHF 100   → CHF  9.90
+ *  bis CHF 200   → CHF 19.90
+ *  bis CHF 300   → CHF 29.90
+ *  bis CHF 400   → CHF 49.90
+ *  ab  CHF 400   → CHF 90.00 (Palette)
+ */
+export const SHIPPING_CARRIER = 'DPD / Eigene Lieferung'
+
+export const SHIPPING_TIERS: Array<{ upTo: number; cost: number; label: string }> = [
+  { upTo: 100,  cost:  9.90, label: 'Paket (bis CHF 100)' },
+  { upTo: 200,  cost: 19.90, label: 'Paket (bis CHF 200)' },
+  { upTo: 300,  cost: 29.90, label: 'Paket (bis CHF 300)' },
+  { upTo: 400,  cost: 49.90, label: 'Paket (bis CHF 400)' },
+  { upTo: Infinity, cost: 90.00, label: 'Palette (ab CHF 400)' },
+]
+
+export function calcShipping(subtotal: number): number {
+  const tier = SHIPPING_TIERS.find(t => subtotal <= t.upTo)
+  return tier ? tier.cost : 90.00
+}
+
+export function shippingLabel(subtotal: number): string {
+  const tier = SHIPPING_TIERS.find(t => subtotal <= t.upTo)
+  return tier ? tier.label : 'Palette'
+}
 
 /** Swiss VAT rates */
 export const VAT_RATE_FOOD     = 0.026  // Lebensmittel (reduzierter Satz)
 export const VAT_RATE_STANDARD = 0.081  // Normalsatz
 /** @deprecated Use VAT_RATE_STANDARD for non-food or VAT_RATE_FOOD for food */
 export const VAT_RATE = VAT_RATE_STANDARD
-
-export function calcShipping(subtotal: number): number {
-  return subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_COST
-}
 
 /** Calculate tax for a single amount at the given rate */
 export function calcTaxAtRate(amount: number, rate: number): number {

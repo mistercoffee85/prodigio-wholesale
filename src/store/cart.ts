@@ -3,7 +3,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { useEffect, useState } from 'react'
 import { CartItem, CartState } from '@/types'
-import { calcShipping, calcCartTaxBreakdown } from '@/lib/utils'
+import { calcShipping, shippingLabel, calcCartTaxBreakdown } from '@/lib/utils'
 
 export const useCartStore = create<CartState>()(
   persist(
@@ -70,18 +70,16 @@ export const useCartStore = create<CartState>()(
   )
 )
 
-export const PALETTE_COST = 90 // CHF per palette delivery
-
 export function useCartTotals(shippingOption?: string) {
   const items = useCartStore(s => s.items)
   const subtotal  = items.reduce((s, i) => s + i.total, 0)
-  // Lieferkosten: CHF 90 bei Lieferung, 0 bei Abholung
   const needsDelivery = shippingOption === 'LOCAL_DELIVERY' || shippingOption === 'PRODIGIO_DELIVERS'
-  const shipping  = needsDelivery ? PALETTE_COST : 0
+  const shipping  = needsDelivery ? calcShipping(subtotal) : 0
+  const label     = needsDelivery ? shippingLabel(subtotal) : 'Abholung'
   const taxBreak  = calcCartTaxBreakdown(items, shipping)
   const tax       = taxBreak.total
   const total     = Math.round((subtotal + shipping + tax) * 100) / 100
-  return { subtotal, shipping, tax, taxFood: taxBreak.food, taxStandard: taxBreak.standard, total }
+  return { subtotal, shipping, shippingLabel: label, tax, taxFood: taxBreak.food, taxStandard: taxBreak.standard, total }
 }
 
 /**
