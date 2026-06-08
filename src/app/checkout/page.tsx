@@ -118,7 +118,10 @@ export default function CheckoutPage() {
             if (paymentMethod === 'STRIPE_PAYPAL') {
               confirmFn = (stripe as any).confirmPayPalPayment(data.clientSecret, { return_url: returnUrl })
             } else if (paymentMethod === 'STRIPE_TWINT') {
-              confirmFn = (stripe as any).confirmTwintPayment(data.clientSecret, { return_url: returnUrl })
+              confirmFn = (stripe as any).confirmTwintPayment(data.clientSecret, {
+                payment_method_data: { billing_details: { email: session?.user?.email ?? '' } },
+                return_url: returnUrl,
+              })
             } else {
               confirmFn = (stripe as any).confirmKlarnaPayment(data.clientSecret, { return_url: returnUrl })
             }
