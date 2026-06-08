@@ -109,20 +109,25 @@ export default function CheckoutPage() {
       }
 
       if (data.type === 'stripe' && data.clientSecret) {
-        // ── PayPal / Klarna: direkter Redirect — kein Formular nötig
-        if (paymentMethod === 'STRIPE_PAYPAL' || paymentMethod === 'STRIPE_KLARNA') {
+        // ── PayPal / TWINT / Klarna: direkter Redirect — kein Formular nötig
+        if (paymentMethod === 'STRIPE_PAYPAL' || paymentMethod === 'STRIPE_TWINT' || paymentMethod === 'STRIPE_KLARNA') {
           const stripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
           if (stripe) {
             const returnUrl = `${window.location.origin}/checkout/success?order=${data.orderNumber}`
-            const confirmFn = paymentMethod === 'STRIPE_PAYPAL'
-              ? (stripe as any).confirmPayPalPayment(data.clientSecret, { return_url: returnUrl })
-              : (stripe as any).confirmKlarnaPayment(data.clientSecret, { return_url: returnUrl })
+            let confirmFn
+            if (paymentMethod === 'STRIPE_PAYPAL') {
+              confirmFn = (stripe as any).confirmPayPalPayment(data.clientSecret, { return_url: returnUrl })
+            } else if (paymentMethod === 'STRIPE_TWINT') {
+              confirmFn = (stripe as any).confirmTwintPayment(data.clientSecret, { return_url: returnUrl })
+            } else {
+              confirmFn = (stripe as any).confirmKlarnaPayment(data.clientSecret, { return_url: returnUrl })
+            }
             const { error: redirectError } = await confirmFn
             if (redirectError) {
               toast.error(redirectError.message ?? 'Zahlung fehlgeschlagen. Bitte erneut versuchen.')
               setLoading(false)
             }
-            // else: Redirect zu PayPal/Klarna — Warenkorb bleibt in localStorage
+            // else: Redirect zu PayPal/TWINT/Klarna — Warenkorb bleibt in localStorage
           }
           return
         }
