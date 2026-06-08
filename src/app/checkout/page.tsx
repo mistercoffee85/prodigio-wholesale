@@ -119,7 +119,7 @@ export default function CheckoutPage() {
               confirmFn = (stripe as any).confirmPayPalPayment(data.clientSecret, { return_url: returnUrl })
             } else if (paymentMethod === 'STRIPE_TWINT') {
               confirmFn = (stripe as any).confirmTwintPayment(data.clientSecret, {
-                payment_method_data: { billing_details: { email: session?.user?.email ?? '' } },
+                payment_method: { billing_details: { email: session?.user?.email ?? '' } },
                 return_url: returnUrl,
               })
             } else {

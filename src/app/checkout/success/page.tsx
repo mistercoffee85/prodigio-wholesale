@@ -15,13 +15,13 @@ function SuccessContent() {
   const clearCart      = useCartStore(s => s.clearCart)
 
   useEffect(() => {
-    // Stripe PayPal/TWINT: redirect_status='failed' oder 'canceled' → zurück zur Kasse
+    // Stripe: redirect_status='failed' oder 'canceled' → zurück zur Kasse
     if (redirectStatus === 'failed' || redirectStatus === 'canceled') {
       toast.error('Zahlung fehlgeschlagen oder abgebrochen. Warenkorb bleibt erhalten.')
       router.replace('/checkout')
       return
     }
-    // Erfolgreiche Zahlung (kein redirect_status = Vorauskasse/manuell, oder 'succeeded' = Stripe)
+    // 'succeeded' oder 'processing' (TWINT/async) oder kein Status (Vorauskasse) → Erfolg
     clearCart()
   }, [redirectStatus, clearCart, router])
 
