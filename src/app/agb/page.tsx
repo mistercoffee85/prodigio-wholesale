@@ -29,11 +29,11 @@ export default function AGBPage() {
             </Section>
 
             <Section title="3. Preise und Zahlungsbedingungen">
-              Alle Preise verstehen sich in Schweizer Franken (CHF) exklusive Mehrwertsteuer. Auf Lebensmittel wird der reduzierte MwSt.-Satz von 2,6 % erhoben; auf übrige Artikel der Normalsatz von 8,1 %. Die Zahlung erfolgt per Banküberweisung (Zahlungsziel 14 Tage) oder auf Rechnung Net 30 (nur für freigegebene B2B-Partner). Bei Zahlungsverzug werden Verzugszinsen von 5 % p.a. berechnet.
+              Alle Preise verstehen sich in Schweizer Franken (CHF) exklusive Mehrwertsteuer. Auf Lebensmittel wird der reduzierte MwSt.-Satz von 2,6 % erhoben; auf übrige Artikel der Normalsatz von 8,1 %. Die Zahlung erfolgt ausschliesslich per Vorauskasse (Banküberweisung) innert 3 Werktagen nach Bestelleingang. Bei nicht fristgerechter Zahlung wird die Bestellung automatisch storniert. Bei Zahlungsverzug werden Verzugszinsen von 5 % p.a. berechnet.
             </Section>
 
             <Section title="4. Lieferung">
-              Die Lieferung erfolgt ausschliesslich innerhalb der Schweiz per DPD mit Tracking. Lieferkosten werden nach Bestelleingang separat mitgeteilt und in Rechnung gestellt. Die Lieferzeit beträgt in der Regel 2–4 Werktage. Liefertermine sind unverbindlich, sofern nicht ausdrücklich schriftlich anders vereinbart.
+              Die Lieferung erfolgt ausschliesslich innerhalb der Schweiz. Lieferkosten betragen CHF 90.00 pro Palette und werden direkt bei Bestellung berechnet. Die Lieferzeit beträgt in der Regel 2–4 Werktage. Liefertermine sind unverbindlich, sofern nicht ausdrücklich schriftlich anders vereinbart.
             </Section>
 
             <Section title="5. Mindestbestellmengen">
