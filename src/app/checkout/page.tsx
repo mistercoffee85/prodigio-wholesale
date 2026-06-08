@@ -9,6 +9,7 @@ import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import StripePaymentForm from '@/components/checkout/StripePaymentForm'
 import toast from 'react-hot-toast'
+import { loadStripe } from '@stripe/stripe-js'
 
 type PaymentMethod  = 'BANK_TRANSFER' | 'STRIPE_CARD' | 'STRIPE_TWINT' | 'STRIPE_PAYPAL'
 type ShippingOption = 'PRODIGIO_DELIVERS' | 'SELF_PICKUP' | 'LOCAL_PICKUP' | 'LOCAL_DELIVERY'
@@ -108,7 +109,24 @@ export default function CheckoutPage() {
       }
 
       if (data.type === 'stripe' && data.clientSecret) {
-        // ── Stripe: show card form — use server total for display (not client cart total)
+        // ── PayPal: direkter Redirect zu PayPal — kein Formular nötig
+        if (paymentMethod === 'STRIPE_PAYPAL') {
+          const stripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
+          if (stripe) {
+            const { error: ppError } = await (stripe as any).confirmPayPalPayment(
+              data.clientSecret,
+              { return_url: `${window.location.origin}/checkout/success?order=${data.orderNumber}` }
+            )
+            if (ppError) {
+              toast.error(ppError.message ?? 'PayPal Fehler. Bitte erneut versuchen.')
+              setLoading(false)
+            }
+            // else: Seite wechselt zu PayPal — Warenkorb bleibt in localStorage
+          }
+          return
+        }
+
+        // ── Stripe Karte: Zahlungsformular anzeigen
         setStripeData({
           clientSecret:  data.clientSecret,
           orderNumber:   data.orderNumber,

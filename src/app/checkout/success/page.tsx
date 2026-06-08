@@ -1,19 +1,34 @@
 'use client'
 import { useEffect, Suspense } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import { useCartStore } from '@/store/cart'
+import toast from 'react-hot-toast'
 
 function SuccessContent() {
-  const searchParams = useSearchParams()
-  const orderNumber  = searchParams.get('order')
-  const clearCart    = useCartStore(s => s.clearCart)
+  const searchParams   = useSearchParams()
+  const router         = useRouter()
+  const orderNumber    = searchParams.get('order')
+  const redirectStatus = searchParams.get('redirect_status') // Stripe setzt dies nach Redirect
+  const clearCart      = useCartStore(s => s.clearCart)
 
   useEffect(() => {
+    // Stripe PayPal/TWINT: redirect_status='failed' oder 'canceled' → zurück zur Kasse
+    if (redirectStatus === 'failed' || redirectStatus === 'canceled') {
+      toast.error('Zahlung fehlgeschlagen oder abgebrochen. Warenkorb bleibt erhalten.')
+      router.replace('/checkout')
+      return
+    }
+    // Erfolgreiche Zahlung (kein redirect_status = Vorauskasse/manuell, oder 'succeeded' = Stripe)
     clearCart()
-  }, [clearCart])
+  }, [redirectStatus, clearCart, router])
+
+  // Wenn Zahlung fehlgeschlagen → kurz leer zeigen während Redirect
+  if (redirectStatus === 'failed' || redirectStatus === 'canceled') {
+    return <main style={{ minHeight: '80vh' }} />
+  }
 
   return (
     <main style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--gray-50)', padding: 20 }}>
