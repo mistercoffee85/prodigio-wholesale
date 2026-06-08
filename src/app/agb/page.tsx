@@ -33,7 +33,7 @@ export default function AGBPage() {
             </Section>
 
             <Section title="4. Lieferung">
-              Die Lieferung erfolgt ausschliesslich innerhalb der Schweiz. Lieferkosten betragen CHF 90.00 pro Palette und werden direkt bei Bestellung berechnet. Die Lieferzeit beträgt in der Regel 2–4 Werktage. Liefertermine sind unverbindlich, sofern nicht ausdrücklich schriftlich anders vereinbart.
+              Die Lieferung erfolgt ausschliesslich innerhalb der Schweiz. Die Versandkosten werden automatisch nach Bestellwert berechnet: bis CHF 100 → CHF 9.90; bis CHF 200 → CHF 19.90; bis CHF 300 → CHF 29.90; bis CHF 400 → CHF 49.90; ab CHF 400 → CHF 90.00 (Palette). Die Lieferkosten werden direkt bei Bestellung berechnet und sind im Gesamtbetrag enthalten. Die Lieferzeit beträgt in der Regel 2–4 Werktage. Liefertermine sind unverbindlich, sofern nicht ausdrücklich schriftlich anders vereinbart.
             </Section>
 
             <Section title="5. Mindestbestellmengen">

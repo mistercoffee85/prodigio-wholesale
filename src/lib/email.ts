@@ -170,7 +170,7 @@ export async function sendOrderConfirmationEmail(
           <strong>🇨🇭 Lagerprodukte (ab Basel):</strong><br/>
           ${order.shippingOptionLocal === 'LOCAL_PICKUP'
             ? '🏢 Abholung bei PRO.DI.GIO GmbH, Mailand-Strasse 31, 4053 Basel — wir kontaktieren Sie zur Terminvereinbarung.'
-            : '🚚 Lieferung durch PRO.DI.GIO GmbH — Lieferkosten werden separat mitgeteilt.'}
+            : '🚚 Lieferung durch PRO.DI.GIO GmbH — Versandkosten im Gesamtbetrag enthalten.'}
         </div>
       ` : `
         <p><strong>Lieferung:</strong> ${order.shippingOption === 'SELF_PICKUP'
@@ -178,7 +178,7 @@ export async function sendOrderConfirmationEmail(
           : order.shippingOption === 'LOCAL_PICKUP'
           ? '🏢 Abholung bei PRO.DI.GIO GmbH, Mailand-Strasse 31, 4053 Basel – wir kontaktieren Sie zur Terminvereinbarung.'
           : order.shippingOption === 'LOCAL_DELIVERY'
-          ? '🚚 Lieferung durch PRO.DI.GIO GmbH – Lieferkosten werden separat mitgeteilt.'
+          ? '🚚 Lieferung durch PRO.DI.GIO GmbH – Versandkosten im Gesamtbetrag enthalten.'
           : '🚚 Transport &amp; Verzollung durch PRO.DI.GIO GmbH – Transportkosten werden separat bestätigt.'
         }</p>
       `}
