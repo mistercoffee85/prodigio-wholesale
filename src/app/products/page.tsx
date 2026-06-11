@@ -29,10 +29,10 @@ interface Product {
 
 // ── Kategorie-Bilder (gleiche Assets wie Startseiten-Markenkarten) ─────────
 const CATEGORY_IMAGES: Record<string, { img: string; bg: string }> = {
-  'bubble-tea':  { img: 'https://cdn.shopify.com/s/files/1/0769/8520/5054/files/9690ED77-8273-4F9F-B137-9A7A55D5A6B7.jpg?v=1736538559', bg: '#0c1f3a' },
-  'teaballs':    { img: 'https://cdn.shopify.com/s/files/1/0368/6150/9769/files/TEABALLS_Hibiskus_Flasche.png?v=1762428964', bg: '#0e1f0e' },
-  'patislove':   { img: 'https://cdn.shopify.com/s/files/1/0763/2302/9259/files/Untitleddesign_49.webp?v=1759780663', bg: '#1e0f00' },
-  'the-mallows': { img: 'https://cdn.shopify.com/s/files/1/0763/2302/9259/files/43f6ead8336003ff8d56a822586ec842d1058f18327592c95d20214258a85e9b.jpg?v=1765704974', bg: '#1a0c1a' },
+  'bubble-tea':  { img: 'https://cdn.shopify.com/s/files/1/0769/8520/5054/files/9690ED77-8273-4F9F-B137-9A7A55D5A6B7.jpg?v=1736538559', bg: '#ffffff' },
+  'teaballs':    { img: 'https://cdn.shopify.com/s/files/1/0368/6150/9769/files/TEABALLS_Hibiskus_Flasche.png?v=1762428964', bg: '#ffffff' },
+  'patislove':   { img: 'https://cdn.shopify.com/s/files/1/0763/2302/9259/files/Untitleddesign_49.webp?v=1759780663', bg: '#ffffff' },
+  'the-mallows': { img: 'https://cdn.shopify.com/s/files/1/0763/2302/9259/files/43f6ead8336003ff8d56a822586ec842d1058f18327592c95d20214258a85e9b.jpg?v=1765704974', bg: '#ffffff' },
 }
 
 // ── Constants ──────────────────────────────────────────────────────────────
