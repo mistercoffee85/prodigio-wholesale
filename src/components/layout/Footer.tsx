@@ -76,7 +76,7 @@ export default function Footer() {
           <div style={{ fontSize: 9, letterSpacing: 3, color: 'rgba(255,255,255,.3)', marginBottom: 18 }}>GMBH · GROSSHANDEL · BASEL</div>
           <p style={{ fontSize: 13.5, lineHeight: 1.75, opacity: .62, maxWidth: 300 }}>
             Ihr Partner für innovative Trendprodukte. Direktimport aus aller Welt —
-            Logistik & Grosshandel Basel seit 2015.
+            Logistik & Grosshandel Basel seit 2013.
           </p>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 24 }}>
             {['B2B Grosshandel', 'CH-Unternehmen', 'Direktimport'].map(tag => (

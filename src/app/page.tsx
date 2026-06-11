@@ -413,7 +413,7 @@ export default async function HomePage() {
             { icon:'🏭', main:'Direktimport', sub:'Beste Konditionen schweizweit' },
             { icon:'✅', main:'Kein Zwischenhandel', sub:'Direkt vom Importeur' },
             { icon:'📦', main:'Flexible Mindestmengen', sub:'Ab 6 Verkaufseinheiten' },
-            { icon:'🇨🇭', main:'Schweizer Unternehmen', sub:'Prodigio GmbH seit 2015' },
+            { icon:'🇨🇭', main:'Schweizer Unternehmen', sub:'Prodigio GmbH seit 2013' },
           ].map(({ icon, main, sub }) => (
             <div key={main} className="trust-item">
               <span className="trust-icon">{icon}</span>
