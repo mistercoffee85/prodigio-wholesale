@@ -5,9 +5,18 @@ import { Toaster } from 'react-hot-toast'
 import CookieBanner from '@/components/layout/CookieBanner'
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://b2b.prodigio.ch'),
   title: { default: 'PRO.DI.GIO Grosshandel', template: '%s | PRO.DI.GIO Grosshandel' },
-  description: 'B2B Grosshandel für Bubble Tea, Tea Balls & Sweets. Exklusive Preise für Wiederverkäufer, Gastronomie und Einzelhandel.',
-  keywords: ['Grosshandel', 'B2B', 'Bubble Tea', 'Tea Balls', 'Sweets', 'Basel', 'Schweiz'],
+  description: 'B2B Grosshandel für Bubble Tea, TEABALLS & Sweets. Direktimport, exklusive Preise für Wiederverkäufer, Gastronomie und Einzelhandel in der Schweiz.',
+  keywords: ['Grosshandel', 'B2B', 'Bubble Tea', 'TEABALLS', 'Sweets', 'Basel', 'Schweiz', 'Direktimport'],
+  openGraph: {
+    title: 'PRO.DI.GIO Grosshandel',
+    description: 'B2B Grosshandel für Bubble Tea, TEABALLS & Sweets — Direktimport, beste Konditionen schweizweit.',
+    url: 'https://b2b.prodigio.ch',
+    siteName: 'PRO.DI.GIO Grosshandel',
+    locale: 'de_CH',
+    type: 'website',
+  },
 }
 
 export const viewport: Viewport = {

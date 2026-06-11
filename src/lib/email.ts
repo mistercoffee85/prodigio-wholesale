@@ -142,8 +142,6 @@ export async function sendOrderConfirmationEmail(
     STRIPE_PAYPAL: 'PayPal',
     STRIPE_KLARNA: 'Klarna',
     BANK_TRANSFER: 'Vorauskasse (Banküberweisung)',
-    NET_30:       'Vorauskasse (Banküberweisung)',
-    MONDU:        'Rechnung 30 Tage (Mondu)',
   }
 
   await sendMail({

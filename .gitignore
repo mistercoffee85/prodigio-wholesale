@@ -28,3 +28,7 @@ yarn-error.log*
 # Misc
 .DS_Store
 *.pem
+
+# Vercel temp env files
+.env.vercel.tmp
+.env*.tmp

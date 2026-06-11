@@ -560,7 +560,7 @@ export default async function HomePage() {
             Bereit für exklusive<br />B2B-Konditionen?
           </h2>
           <p style={{ fontSize:16.5, color:'var(--gray-600)', maxWidth:480, margin:'0 auto 40px', lineHeight:1.8 }}>
-            Registrieren Sie sich kostenlos und erhalten Sie sofortigen Zugang
+            Registrieren Sie sich kostenlos und erhalten Sie nach Freigabe Zugang
             zu Grosshandelspreisen, Neuheiten und persönlichem Support.
           </p>
           <div className="cta-btns">
@@ -586,7 +586,7 @@ export default async function HomePage() {
             </a>
           </div>
           <div style={{ display:'flex', gap:24, justifyContent:'center', marginTop:36, flexWrap:'wrap' }}>
-            {['✓ Keine Mindestbestellung', '✓ Sofort freischaltbar', '✓ Persönlicher Support'].map(t => (
+            {['✓ Keine Mindestbestellung', '✓ Freigabe innert 1 Werktag', '✓ Persönlicher Support'].map(t => (
               <span key={t} style={{ fontSize:13, color:'var(--gray-400)', fontWeight:500 }}>{t}</span>
             ))}
           </div>

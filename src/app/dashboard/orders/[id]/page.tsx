@@ -150,8 +150,8 @@ export default async function OrderDetailPage({ params }: { params: { id: string
               <h2 style={{ fontSize: 15, fontWeight: 700, marginBottom: 20 }}>Kostenübersicht</h2>
               {[
                 ['Zwischensumme', formatPrice(subtotal)],
-                ['Versand', shipping === 0 ? 'Kostenlos' : formatPrice(shipping)],
-                ['MwSt. (8,1 %)', formatPrice(tax)],
+                ['Versand', shipping === 0 ? 'Abholung — CHF 0.00' : formatPrice(shipping)],
+                ['MwSt.', formatPrice(tax)],
               ].map(([label, value]) => (
                 <div key={label} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12, fontSize: 14, color: 'var(--gray-600)' }}>
                   <span>{label}</span><span>{value}</span>
@@ -178,7 +178,7 @@ export default async function OrderDetailPage({ params }: { params: { id: string
                   ['Bank', 'UBS Basel'],
                   ['Verwendungszweck', `#${order.orderNumber}`],
                   ['Betrag', formatPrice(total)],
-                  ['Zahlungsziel', '14 Tage'],
+                  ['Zahlungsziel', '3 Werktage'],
                 ].map(([label, value]) => (
                   <div key={label} style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 10, fontSize: 13 }}>
                     <span style={{ color: 'var(--gray-400)', minWidth: 100, flexShrink: 0 }}>{label}</span>
