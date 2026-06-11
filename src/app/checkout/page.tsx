@@ -225,7 +225,7 @@ export default function CheckoutPage() {
           <strong style={{ color: '#c2430c' }}>⚠️ Wichtig: Zahlung innert 3 Werktagen.</strong><br />
           Bei nicht fristgerechter Zahlung wird die Bestellung automatisch storniert.<br /><br />
           <strong>Bankdaten werden nach Bestellbestätigung per E-Mail zugestellt.</strong><br />
-          IBAN: CH56 0483 5012 3456 7800 9 · UBS Basel
+          IBAN: CH40 0023 3233 2287 0701 P · UBS Basel
         </div>
       ),
     },

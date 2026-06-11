@@ -185,7 +185,7 @@ export async function sendOrderConfirmationEmail(
           <strong style="color:#c2430c;">⚠️ Wichtig: Zahlung innert 3 Werktagen!</strong><br/>
           Bei nicht fristgerechter Zahlung wird die Bestellung automatisch storniert.<br/><br/>
           <strong>Bankdaten für Vorauszahlung:</strong><br/>
-          IBAN: CH56 0483 5012 3456 7800 9<br/>
+          IBAN: CH40 0023 3233 2287 0701 P<br/>
           Bank: UBS Basel<br/>
           Zahlungsreferenz: <strong>#${order.orderNumber}</strong>
         </div>

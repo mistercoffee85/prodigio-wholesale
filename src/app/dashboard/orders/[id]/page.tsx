@@ -22,9 +22,11 @@ const STATUS_COLOR: Record<string, string> = {
 }
 
 const PAYMENT_LABELS: Record<string, string> = {
-  BANK_TRANSFER: 'Banküberweisung',
-  NET_30:        'Rechnung Net 30',
-  STRIPE:        'Kreditkarte',
+  BANK_TRANSFER: 'Vorauskasse (Banküberweisung)',
+  STRIPE_CARD:   'Kreditkarte / Apple Pay / Google Pay',
+  STRIPE_TWINT:  'TWINT',
+  STRIPE_PAYPAL: 'PayPal',
+  STRIPE_KLARNA: 'Klarna',
 }
 
 export default async function OrderDetailPage({ params }: { params: { id: string } }) {
@@ -174,7 +176,7 @@ export default async function OrderDetailPage({ params }: { params: { id: string
                 <h2 style={{ fontSize: 15, fontWeight: 700, marginBottom: 16 }}>Bankdaten</h2>
                 {[
                   ['Empfänger', 'PRO.DI.GIO GmbH'],
-                  ['IBAN', 'CH56 0483 5012 3456 7800 9'],
+                  ['IBAN', 'CH40 0023 3233 2287 0701 P'],
                   ['Bank', 'UBS Basel'],
                   ['Verwendungszweck', `#${order.orderNumber}`],
                   ['Betrag', formatPrice(total)],
