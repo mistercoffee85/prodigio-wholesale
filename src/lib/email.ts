@@ -195,6 +195,23 @@ export async function sendOrderConfirmationEmail(
   })
 }
 
+export async function sendOrderCancelledEmail(to: string, name: string, orderNumber: string) {
+  await sendMail({
+    to,
+    subject: `Bestellung #${orderNumber} storniert — Zahlung nicht eingegangen`,
+    html: baseTemplate(`
+      <h2>Bestellung storniert</h2>
+      <p>Hallo ${name},</p>
+      <p>Ihre Bestellung <strong>#${orderNumber}</strong> wurde <span class="badge badge-red">storniert</span>,
+      da die Vorauszahlung nicht innert 3 Werktagen bei uns eingegangen ist.</p>
+      <p>Die reservierten Artikel wurden wieder freigegeben. Sie können jederzeit eine neue Bestellung aufgeben.</p>
+      <a href="${APP_URL}/products" class="btn">Neue Bestellung aufgeben →</a>
+      <p style="color:#9e9e9e; font-size:13px;">Bereits überwiesen? Melden Sie sich bitte umgehend unter
+      <a href="mailto:contact@prodigio.ch" style="color:#1a9e7a;">contact@prodigio.ch</a> — wir kümmern uns darum.</p>
+    `),
+  })
+}
+
 export async function sendPasswordResetEmail(to: string, resetUrl: string) {
   await sendMail({
     to,
