@@ -410,8 +410,8 @@ export default async function HomePage() {
         <div className="trust-bar">
           {[
             { icon:'🚚', main:'Schnelle Lieferung', sub:'2–4 Werktage · Schweizweit' },
-            { icon:'🏭', main:'Direktimport Basel', sub:'Kein Zwischenhändler' },
-            { icon:'💰', main:'Bis –20% Rabatt', sub:'VIP · PREMIUM · STANDARD' },
+            { icon:'🏭', main:'Direktimport', sub:'Beste Konditionen schweizweit' },
+            { icon:'✅', main:'Kein Zwischenhandel', sub:'Direkt vom Importeur' },
             { icon:'📦', main:'Flexible Mindestmengen', sub:'Ab 6 Verkaufseinheiten' },
             { icon:'🇨🇭', main:'Schweizer Unternehmen', sub:'Prodigio GmbH seit 2015' },
           ].map(({ icon, main, sub }) => (
