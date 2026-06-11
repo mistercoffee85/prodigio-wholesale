@@ -27,6 +27,14 @@ interface Product {
   category: { name: string; slug: string }
 }
 
+// ── Kategorie-Bilder (gleiche Assets wie Startseiten-Markenkarten) ─────────
+const CATEGORY_IMAGES: Record<string, { img: string; bg: string }> = {
+  'bubble-tea':  { img: 'https://cdn.shopify.com/s/files/1/0769/8520/5054/files/9690ED77-8273-4F9F-B137-9A7A55D5A6B7.jpg?v=1736538559', bg: '#0c1f3a' },
+  'teaballs':    { img: 'https://cdn.shopify.com/s/files/1/0368/6150/9769/files/TEABALLS_Hibiskus_Flasche.png?v=1762428964', bg: '#0e1f0e' },
+  'patislove':   { img: 'https://cdn.shopify.com/s/files/1/0763/2302/9259/files/Untitleddesign_49.webp?v=1759780663', bg: '#1e0f00' },
+  'the-mallows': { img: 'https://cdn.shopify.com/s/files/1/0763/2302/9259/files/43f6ead8336003ff8d56a822586ec842d1058f18327592c95d20214258a85e9b.jpg?v=1765704974', bg: '#1a0c1a' },
+}
+
 // ── Constants ──────────────────────────────────────────────────────────────
 const PAGE_SIZE     = 200   // products per page (high for fast browsing)
 const PREVIEW_SIZE  = 12    // products shown per subcategory in parent view
@@ -349,7 +357,23 @@ function ProductsContent() {
                     onMouseOver={e => (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'}
                     onMouseOut={e => (e.currentTarget as HTMLElement).style.transform = ''}
                   >
-                    <div style={{ fontSize: 40, marginBottom: 12 }}>{cat.emoji ?? '📦'}</div>
+                    {CATEGORY_IMAGES[cat.slug] ? (
+                      <div style={{
+                        height: 150, borderRadius: 10, marginBottom: 16, overflow: 'hidden',
+                        background: CATEGORY_IMAGES[cat.slug].bg,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      }}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={CATEGORY_IMAGES[cat.slug].img}
+                          alt={cat.name}
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                          loading="lazy"
+                        />
+                      </div>
+                    ) : (
+                      <div style={{ fontSize: 40, marginBottom: 12 }}>{cat.emoji ?? '📦'}</div>
+                    )}
                     <div style={{ fontWeight: 700, fontSize: 18, marginBottom: 4 }}>{cat.name}</div>
                     <div style={{ fontSize: 13, color: 'var(--gray-400)', marginBottom: 16 }}>
                       {totalProducts(cat).toLocaleString()} Produkte

@@ -11,7 +11,7 @@ type NavItem = { href: string; label: string; children?: { href: string; label: 
 const NAV: NavItem[] = [
   { href: '/products', label: 'Alle Produkte' },
   {
-    href: '/products?category=bubble-tea', label: '🧋 Bubble Tea',
+    href: '/products?category=bubble-tea', label: 'Bubble Tea',
     children: [
       { href: '/products?category=bubble-tea-rtd',               label: 'Ready to Drink' },
       { href: '/products?category=bubble-tea-sets',              label: 'Sets' },
@@ -22,7 +22,7 @@ const NAV: NavItem[] = [
     ],
   },
   {
-    href: '/products?category=teaballs', label: '🍵 TEABALLS',
+    href: '/products?category=teaballs', label: 'TEABALLS',
     children: [
       { href: '/products?category=teaballs-glasflaschen',      label: 'Glasflaschen' },
       { href: '/products?category=teaballs-glasflaschen-bio',  label: 'Glasflaschen Bio' },
@@ -31,7 +31,7 @@ const NAV: NavItem[] = [
     ],
   },
   {
-    href: '/products?category=patislove', label: '🍫 Patislove',
+    href: '/products?category=patislove', label: 'Patislove',
     children: [
       { href: '/products?category=patislove-bars',    label: 'Bars' },
       { href: '/products?category=patislove-dragees', label: 'Dragées' },
@@ -39,8 +39,8 @@ const NAV: NavItem[] = [
       { href: '/products?category=patislove-sticks',  label: 'Sticks' },
     ],
   },
-  { href: '/products?category=the-mallows', label: '☁️ The Mallows' },
-  { href: '/products?category=gastro-reinigung', label: '🧹 Gastro/Reinigung' },
+  { href: '/products?category=the-mallows', label: 'The Mallows' },
+  { href: '/products?category=gastro-reinigung', label: 'Gastro/Reinigung' },
 ]
 
 /* ── Desktop dropdown item ── */
