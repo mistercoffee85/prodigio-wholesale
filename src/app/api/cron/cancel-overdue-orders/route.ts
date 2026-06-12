@@ -50,7 +50,7 @@ export async function GET(req: NextRequest) {
 
     cancelled.push(order.orderNumber)
 
-    sendOrderCancelledEmail(order.user.email, order.user.name, order.orderNumber)
+    await sendOrderCancelledEmail(order.user.email, order.user.name, order.orderNumber)
       .catch(err => console.error('[cron] Storno-Email fehlgeschlagen:', order.orderNumber, err))
   }
 

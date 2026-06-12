@@ -45,7 +45,8 @@ export async function POST(req: NextRequest) {
         )
       )
 
-      sendOrderConfirmationEmail(order.user.email, order.user.name, {
+      // await: Vercel friert die Funktion nach der Response ein
+      await sendOrderConfirmationEmail(order.user.email, order.user.name, {
         orderNumber:      order.orderNumber,
         total:            Number(order.total),
         paymentMethod:    order.paymentMethod,

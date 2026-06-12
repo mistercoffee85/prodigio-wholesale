@@ -65,13 +65,14 @@ export async function POST(req: NextRequest) {
           data: { priceGroup: priceGroup as any },
         })
       }
-      sendApprovalEmail(user.email, user.name).catch(console.error)
+      // await: Vercel friert die Funktion nach der Response ein
+      await sendApprovalEmail(user.email, user.name).catch(console.error)
       return NextResponse.json({ message: 'Kunde freigegeben' })
     }
 
     if (action === 'reject') {
       await prisma.user.update({ where: { id: userId }, data: { status: 'REJECTED' } })
-      sendRejectionEmail(user.email, user.name).catch(console.error)
+      await sendRejectionEmail(user.email, user.name).catch(console.error)
       return NextResponse.json({ message: 'Kunde abgelehnt' })
     }
   } catch (err) {
