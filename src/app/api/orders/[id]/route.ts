@@ -4,6 +4,10 @@ export const dynamic = 'force-dynamic'
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { requireAuth } from '@/lib/auth'
+import { stripe, toStripeAmount } from '@/lib/stripe'
+import { sendTransportCostEmail } from '@/lib/email'
+
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://b2b.prodigio.ch'
 
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
   try {
@@ -47,13 +51,42 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     const body = await req.json()
     const data = updateSchema.parse(body)
 
-    // If shippingCost is being set, recalculate total and mark shipping as no longer pending
+    // If shippingCost is being set, recalculate total, create Stripe payment link, send email
     let extraData: Record<string, unknown> = {}
+    let transportPaymentLinkUrl: string | null = null
+    let orderForEmail: { orderNumber: string; shippingCost: number; subtotal: number; tax: number; total: number; user: { email: string; name: string } } | null = null
+
     if (data.shippingCost !== undefined) {
-      const current = await prisma.order.findUnique({ where: { id: params.id }, select: { subtotal: true, tax: true } })
+      const current = await prisma.order.findUnique({
+        where: { id: params.id },
+        select: { subtotal: true, tax: true, orderNumber: true, user: { select: { email: true, name: true } } },
+      })
       if (current) {
         const newTotal = Math.round((Number(current.subtotal) + Number(current.tax) + data.shippingCost) * 100) / 100
         extraData = { shippingCost: data.shippingCost, total: newTotal, shippingPending: false }
+
+        // Create Stripe payment link for transport cost
+        if (data.shippingCost > 0) {
+          const price = await stripe.prices.create({
+            currency: 'chf',
+            unit_amount: toStripeAmount(data.shippingCost),
+            product_data: { name: `Transportkosten Bestellung #${current.orderNumber}` },
+          })
+          const link = await stripe.paymentLinks.create({
+            line_items: [{ price: price.id, quantity: 1 }],
+            metadata: { orderId: params.id, type: 'transport_cost' },
+            after_completion: { type: 'redirect', redirect: { url: `${APP_URL}/dashboard/orders` } },
+          })
+          transportPaymentLinkUrl = link.url
+          orderForEmail = {
+            orderNumber: current.orderNumber,
+            shippingCost: data.shippingCost,
+            subtotal: Number(current.subtotal),
+            tax: Number(current.tax),
+            total: newTotal,
+            user: current.user,
+          }
+        }
       }
     }
 
@@ -68,6 +101,16 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
         ...(data.paymentStatus === 'PAID' && { paidAt:    new Date() }),
       },
     })
+
+    // Send transport cost email after DB update
+    if (orderForEmail && transportPaymentLinkUrl) {
+      await sendTransportCostEmail(
+        orderForEmail.user.email,
+        orderForEmail.user.name,
+        orderForEmail,
+        transportPaymentLinkUrl
+      ).catch(console.error)
+    }
 
     return NextResponse.json(order)
   } catch (err) {

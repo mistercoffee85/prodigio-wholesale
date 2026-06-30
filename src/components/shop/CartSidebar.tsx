@@ -173,10 +173,12 @@ export default function CartSidebar({ open, onClose }: Props) {
 
         {/* ── Transport info banner ──────────────── */}
         {subtotal > 0 && (
-          <div className="cart-sidebar-banner" style={{ background: '#f8f9fb', borderBottom: '1px solid var(--gray-100)', flexShrink: 0 }}>
-            <div style={{ fontSize: 12, color: 'var(--gray-500)', display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span>⏳</span>
-              <span>Transportkosten werden nach Bestellung individuell bestätigt.</span>
+          <div className="cart-sidebar-banner" style={{ background: '#fff7ed', borderBottom: '1px solid #fcd9b6', flexShrink: 0 }}>
+            <div style={{ fontSize: 12, color: '#92400e', display: 'flex', alignItems: 'flex-start', gap: 6 }}>
+              <span style={{ flexShrink: 0 }}>📧</span>
+              <span>
+                <strong>Transportkosten:</strong> Sie erhalten nach der Bestellung eine E-Mail mit dem definitiven Betrag und einem Zahlungslink — bitte sofort bezahlen.
+              </span>
             </div>
           </div>
         )}

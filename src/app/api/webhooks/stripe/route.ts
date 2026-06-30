@@ -63,6 +63,17 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  // ── Transport cost paid via Payment Link ──────────────────────
+  if (event.type === 'checkout.session.completed') {
+    const session = event.data.object as any
+    if (session.metadata?.type === 'transport_cost' && session.metadata?.orderId) {
+      await prisma.order.update({
+        where: { id: session.metadata.orderId },
+        data: { status: 'CONFIRMED', paymentStatus: 'PAID', paidAt: new Date() },
+      })
+    }
+  }
+
   // ── Payment failed ────────────────────────────────────────────
   if (event.type === 'payment_intent.payment_failed') {
     const order = await prisma.order.findFirst({

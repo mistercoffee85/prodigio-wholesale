@@ -212,6 +212,45 @@ export async function sendOrderCancelledEmail(to: string, name: string, orderNum
   })
 }
 
+export async function sendTransportCostEmail(
+  to: string,
+  name: string,
+  order: { orderNumber: string; shippingCost: number; subtotal: number; tax: number; total: number },
+  paymentLinkUrl: string
+) {
+  await sendMail({
+    to,
+    subject: `Transportkosten Bestellung #${order.orderNumber} — Bitte sofort bezahlen`,
+    html: baseTemplate(`
+      <h2>Transportkosten bestätigt</h2>
+      <p>Hallo ${name},</p>
+      <p>Die Transportkosten für Ihre Bestellung <strong>#${order.orderNumber}</strong> wurden berechnet und müssen separat bezahlt werden.</p>
+
+      <div style="background:#f8f9fb; border-radius:10px; padding:18px 20px; margin:20px 0;">
+        <table>
+          <tr><td style="color:#666;">Warenwert</td><td style="text-align:right;">CHF ${order.subtotal.toFixed(2)}</td></tr>
+          <tr><td style="color:#666;">MwSt.</td><td style="text-align:right;">CHF ${order.tax.toFixed(2)}</td></tr>
+          <tr><td style="color:#666;"><strong>Transportkosten</strong></td><td style="text-align:right;"><strong>CHF ${order.shippingCost.toFixed(2)}</strong></td></tr>
+          <tr style="border-top:2px solid #0d0d0d;"><td style="padding-top:10px;font-weight:800;font-size:16px;">Gesamttotal</td><td style="text-align:right;padding-top:10px;font-weight:800;font-size:16px;">CHF ${order.total.toFixed(2)}</td></tr>
+        </table>
+      </div>
+
+      <div style="background:#fff7ed; border:1px solid #fcd9b6; border-radius:10px; padding:16px 18px; margin:16px 0;">
+        <strong style="color:#c2430c;">⚠️ Bitte sofort bezahlen!</strong><br/>
+        Klicken Sie auf den Button und bezahlen Sie die Transportkosten direkt online. Ihre Bestellung wird erst nach Zahlungseingang bearbeitet und versendet.
+      </div>
+
+      <a href="${paymentLinkUrl}" class="btn" style="font-size:16px; padding:14px 32px;">
+        CHF ${order.shippingCost.toFixed(2)} jetzt bezahlen →
+      </a>
+
+      <p style="font-size:12px; color:#9e9e9e; margin-top:20px;">
+        Bei Fragen: <a href="mailto:contact@prodigio.ch" style="color:#1a9e7a;">contact@prodigio.ch</a>
+      </p>
+    `),
+  })
+}
+
 export async function sendPasswordResetEmail(to: string, resetUrl: string) {
   await sendMail({
     to,

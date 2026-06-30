@@ -552,6 +552,19 @@ export default function CheckoutPage() {
                   }
                 </div>
 
+                {/* Transport cost notice — shown when delivery is selected */}
+                {(shippingOptionCNC === 'PRODIGIO_DELIVERS' && hasCNC) || (shippingOptionLocal === 'LOCAL_DELIVERY' && hasLocal) ? (
+                  <div style={{ background: '#fff7ed', border: '1px solid #fcd9b6', borderRadius: 10, padding: '12px 14px', marginBottom: 14 }}>
+                    <div style={{ fontSize: 12.5, color: '#92400e', display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                      <span style={{ fontSize: 15, flexShrink: 0 }}>📧</span>
+                      <div>
+                        <strong>Transportkosten werden separat verrechnet.</strong><br />
+                        Nach der Bestellung erhalten Sie eine E-Mail mit dem definitiven Betrag und einem Zahlungslink. <strong>Bitte sofort bezahlen</strong> — die Bestellung wird erst nach Zahlungseingang bearbeitet.
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
+
                 <button
                   type="submit"
                   className="btn btn-primary"
