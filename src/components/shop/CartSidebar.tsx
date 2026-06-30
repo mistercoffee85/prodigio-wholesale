@@ -174,21 +174,14 @@ export default function CartSidebar({ open, onClose }: Props) {
         {/* ── Transport info banner ──────────────── */}
         {subtotal > 0 && (
           <div className="cart-sidebar-banner" style={{ background: '#f0fdf4', borderBottom: '1px solid #bbf7d0', flexShrink: 0, padding: '10px 16px' }}>
-            <div style={{ fontSize: 12, color: '#166534' }}>
-              <div style={{ fontWeight: 700, marginBottom: 4, fontSize: 12.5 }}>🚚 Faire Transportkosten — kein Aufschlag</div>
-              <div style={{ marginBottom: 8, lineHeight: 1.5 }}>
-                Wir geben die Lieferkosten <strong>1:1 weiter</strong> — exakt was der Spediteur verrechnet, nicht mehr.
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '3px 10px', fontSize: 11, borderTop: '1px solid #bbf7d0', paddingTop: 7 }}>
-                <span style={{ color: '#4ade80', fontWeight: 600 }}>✓ Bis CHF 100</span><span style={{ fontWeight: 700 }}>CHF 9.90</span>
-                <span style={{ color: '#4ade80', fontWeight: 600 }}>✓ Bis CHF 200</span><span style={{ fontWeight: 700 }}>CHF 19.90</span>
-                <span style={{ color: '#4ade80', fontWeight: 600 }}>✓ Bis CHF 300</span><span style={{ fontWeight: 700 }}>CHF 29.90</span>
-                <span style={{ color: '#4ade80', fontWeight: 600 }}>✓ Bis CHF 400</span><span style={{ fontWeight: 700 }}>CHF 49.90</span>
-                <span style={{ color: '#4ade80', fontWeight: 600 }}>✓ Palette (ab CHF 400)</span><span style={{ fontWeight: 700 }}>CHF 89.00</span>
-              </div>
-              <div style={{ marginTop: 7, paddingTop: 6, borderTop: '1px solid #bbf7d0', fontWeight: 600, fontSize: 12 }}>
-                📦 Ihre Bestellung: ca. <strong>CHF {calcShipping(subtotal).toFixed(2)}</strong>
-                <span style={{ fontWeight: 400, color: '#15803d' }}> — wird per E-Mail bestätigt</span>
+            <div style={{ fontSize: 12, color: '#166534', display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+              <span style={{ fontSize: 16, flexShrink: 0 }}>🚚</span>
+              <div>
+                <strong>Lieferung ca. CHF {calcShipping(subtotal).toFixed(2)}</strong>
+                <span style={{ color: '#15803d' }}> — gestaffelt nach Bestellwert, 1:1 weitergegeben.</span>
+                <div style={{ marginTop: 3, color: '#15803d', fontSize: 11.5 }}>
+                  Definitiver Betrag kommt per E-Mail nach der Bestellung.
+                </div>
               </div>
             </div>
           </div>
