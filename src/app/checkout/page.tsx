@@ -85,7 +85,7 @@ export default function CheckoutPage() {
 
   const buildPayload = () => ({
     items: items.map(i => ({ productId: i.productId, quantity: i.quantity, variantLabel: i.variantLabel })),
-    paymentMethod: needsTransportEmail ? 'BANK_TRANSFER' : paymentMethod,
+    paymentMethod,
     shippingOption: primaryShipping,
     ...(isMixed && { shippingOptionLocal }),
     notes,
@@ -449,10 +449,15 @@ export default function CheckoutPage() {
                   )}
                 </div>
 
-                {/* Zahlungsmethode — nur bei Abholung/Ex Works (Lieferung: Rechnung per E-Mail) */}
-                {!needsTransportEmail && <div className="card" style={{ padding: 'clamp(16px, 4vw, 28px)' }}>
+                {/* Zahlungsmethode */}
+                <div className="card" style={{ padding: 'clamp(16px, 4vw, 28px)' }}>
                   <h2 style={{ fontSize: 17, fontWeight: 700, marginBottom: 20 }}>Zahlungsmethode</h2>
-                  {PAYMENT_OPTIONS.map(opt => (
+                  {needsTransportEmail && (
+                    <div style={{ background: '#fff7ed', border: '1px solid #fcd9b6', borderRadius: 8, padding: '10px 14px', marginBottom: 14, fontSize: 13, color: '#92400e' }}>
+                      📧 Zahlung erfolgt nach Bestelleingang per E-Mail-Link — inkl. Transportkosten
+                    </div>
+                  )}
+                  {PAYMENT_OPTIONS.filter(opt => needsTransportEmail ? opt.value !== 'BANK_TRANSFER' : true).map(opt => (
                     <div key={opt.value}>
                       <label style={{
                         display: 'flex', gap: 14, padding: '14px 16px',
@@ -477,7 +482,7 @@ export default function CheckoutPage() {
                       {paymentMethod === opt.value && opt.detail}
                     </div>
                   ))}
-                </div>}
+                </div>
 
                 {/* Notizen */}
                 <div className="card" style={{ padding: 'clamp(16px, 4vw, 28px)' }}>

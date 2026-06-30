@@ -59,14 +59,21 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     if (data.shippingCost !== undefined) {
       const current = await prisma.order.findUnique({
         where: { id: params.id },
-        select: { subtotal: true, tax: true, orderNumber: true, user: { select: { email: true, name: true } } },
+        select: { subtotal: true, tax: true, orderNumber: true, paymentMethod: true, user: { select: { email: true, name: true } } },
       })
       if (current) {
         const newTotal = Math.round((Number(current.subtotal) + Number(current.tax) + data.shippingCost) * 100) / 100
         extraData = { shippingCost: data.shippingCost, total: newTotal, shippingPending: false }
 
-        // Create Stripe payment link for transport cost
+        // Create Stripe payment link for full amount using customer's chosen payment method
         if (data.shippingCost > 0) {
+          const pmMap: Record<string, string[]> = {
+            STRIPE_CARD:   ['card'],
+            STRIPE_TWINT:  ['twint'],
+            STRIPE_PAYPAL: ['paypal'],
+            STRIPE_KLARNA: ['klarna'],
+          }
+          const paymentMethodTypes = pmMap[current.paymentMethod] ?? ['card', 'twint', 'klarna', 'paypal']
           const price = await stripe.prices.create({
             currency: 'chf',
             unit_amount: toStripeAmount(newTotal),
@@ -74,6 +81,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
           })
           const link = await stripe.paymentLinks.create({
             line_items: [{ price: price.id, quantity: 1 }],
+            payment_method_types: paymentMethodTypes as any,
             metadata: { orderId: params.id, type: 'transport_cost' },
             after_completion: { type: 'redirect', redirect: { url: `${APP_URL}/dashboard/orders` } },
           })

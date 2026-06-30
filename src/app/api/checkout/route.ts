@@ -156,8 +156,27 @@ export async function POST(req: NextRequest) {
       include: { items: { include: { product: true } } },
     })
 
-    // ── Stripe Payment (card / TWINT) — nur bei Abholung/Ex Works ──
-    if (!needsDelivery && (paymentMethod === 'STRIPE_CARD' || paymentMethod === 'STRIPE_TWINT' || paymentMethod === 'STRIPE_PAYPAL' || paymentMethod === 'STRIPE_KLARNA')) {
+    // ── Delivery orders: save payment preference, wait for admin to confirm transport ──
+    if (needsDelivery) {
+      // Decrement stock to reserve items
+      for (const item of items) {
+        await prisma.product.update({
+          where: { id: item.productId },
+          data:  { stock: { decrement: item.quantity } },
+        })
+      }
+      await sendOrderConfirmationEmail(user.email, user.name, {
+        orderNumber, total, paymentMethod, shippingOption, shippingOptionLocal,
+        items: order.items.map(i => ({
+          name: i.product.name, quantity: i.quantity, unitPrice: Number(i.unitPrice),
+          unit: (i as any).unit || i.product.unit || '', sku: (i as any).productSku || i.product.supplierSku || '',
+        })),
+      }).catch(console.error)
+      return NextResponse.json({ orderId: order.id, orderNumber, type: 'manual' })
+    }
+
+    // ── Stripe Payment (card / TWINT) — Abholung/Ex Works ──
+    if (paymentMethod === 'STRIPE_CARD' || paymentMethod === 'STRIPE_TWINT' || paymentMethod === 'STRIPE_PAYPAL' || paymentMethod === 'STRIPE_KLARNA') {
       const paymentMethods = paymentMethod === 'STRIPE_TWINT' ? ['twint'] : paymentMethod === 'STRIPE_PAYPAL' ? ['paypal'] : paymentMethod === 'STRIPE_KLARNA' ? ['klarna'] : ['card']
 
       const paymentIntent = await stripe.paymentIntents.create({
