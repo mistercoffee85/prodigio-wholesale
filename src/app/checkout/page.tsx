@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useCartStore, useCartTotals, useCartHydrated } from '@/store/cart'
-import { formatPrice } from '@/lib/utils'
+import { formatPrice, calcShipping } from '@/lib/utils'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import StripePaymentForm from '@/components/checkout/StripePaymentForm'
@@ -568,6 +568,19 @@ export default function CheckoutPage() {
 
                 {/* Transport cost notice — shown when delivery is selected */}
                 {needsTransportEmail ? (
+                  <>
+                  <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 10, padding: '10px 14px', marginBottom: 8 }}>
+                    <div style={{ fontSize: 12.5, color: '#166534', display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                      <span style={{ fontSize: 15, flexShrink: 0 }}>🚚</span>
+                      <div>
+                        <strong>Lieferung ca. CHF {calcShipping(subtotal).toFixed(2)}</strong>
+                        <span style={{ color: '#15803d' }}> — gestaffelt nach Bestellwert, 1:1 weitergegeben.</span>
+                        <div style={{ marginTop: 2, fontSize: 11.5, color: '#15803d' }}>
+                          Definitiver Betrag kommt per E-Mail nach der Bestellung.
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                   <div style={{ background: '#fff7ed', border: '1px solid #fcd9b6', borderRadius: 10, padding: '12px 14px', marginBottom: 14 }}>
                     <div style={{ fontSize: 12.5, color: '#92400e', display: 'flex', gap: 8, alignItems: 'flex-start' }}>
                       <span style={{ fontSize: 15, flexShrink: 0 }}>📧</span>
@@ -577,6 +590,7 @@ export default function CheckoutPage() {
                       </div>
                     </div>
                   </div>
+                  </>
                 ) : null}
 
                 <button
