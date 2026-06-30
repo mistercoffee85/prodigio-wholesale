@@ -1,6 +1,6 @@
 'use client'
 import { useCartStore, useCartTotals } from '@/store/cart'
-import { formatPrice } from '@/lib/utils'
+import { formatPrice, calcShipping } from '@/lib/utils'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useSession } from 'next-auth/react'
@@ -173,12 +173,23 @@ export default function CartSidebar({ open, onClose }: Props) {
 
         {/* ── Transport info banner ──────────────── */}
         {subtotal > 0 && (
-          <div className="cart-sidebar-banner" style={{ background: '#fff7ed', borderBottom: '1px solid #fcd9b6', flexShrink: 0 }}>
-            <div style={{ fontSize: 12, color: '#92400e', display: 'flex', alignItems: 'flex-start', gap: 6 }}>
-              <span style={{ flexShrink: 0 }}>📧</span>
-              <span>
-                <strong>Transportkosten:</strong> Sie erhalten nach der Bestellung eine E-Mail mit dem definitiven Betrag und einem Zahlungslink — bitte sofort bezahlen.
-              </span>
+          <div className="cart-sidebar-banner" style={{ background: '#f0fdf4', borderBottom: '1px solid #bbf7d0', flexShrink: 0, padding: '10px 16px' }}>
+            <div style={{ fontSize: 12, color: '#166534' }}>
+              <div style={{ fontWeight: 700, marginBottom: 4, fontSize: 12.5 }}>🚚 Faire Transportkosten — kein Aufschlag</div>
+              <div style={{ marginBottom: 8, lineHeight: 1.5 }}>
+                Wir geben die Lieferkosten <strong>1:1 weiter</strong> — exakt was der Spediteur verrechnet, nicht mehr.
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '3px 10px', fontSize: 11, borderTop: '1px solid #bbf7d0', paddingTop: 7 }}>
+                <span style={{ color: '#4ade80', fontWeight: 600 }}>✓ Bis CHF 100</span><span style={{ fontWeight: 700 }}>CHF 9.90</span>
+                <span style={{ color: '#4ade80', fontWeight: 600 }}>✓ Bis CHF 200</span><span style={{ fontWeight: 700 }}>CHF 19.90</span>
+                <span style={{ color: '#4ade80', fontWeight: 600 }}>✓ Bis CHF 300</span><span style={{ fontWeight: 700 }}>CHF 29.90</span>
+                <span style={{ color: '#4ade80', fontWeight: 600 }}>✓ Bis CHF 400</span><span style={{ fontWeight: 700 }}>CHF 49.90</span>
+                <span style={{ color: '#4ade80', fontWeight: 600 }}>✓ Palette (ab CHF 400)</span><span style={{ fontWeight: 700 }}>CHF 89.00</span>
+              </div>
+              <div style={{ marginTop: 7, paddingTop: 6, borderTop: '1px solid #bbf7d0', fontWeight: 600, fontSize: 12 }}>
+                📦 Ihre Bestellung: ca. <strong>CHF {calcShipping(subtotal).toFixed(2)}</strong>
+                <span style={{ fontWeight: 400, color: '#15803d' }}> — wird per E-Mail bestätigt</span>
+              </div>
             </div>
           </div>
         )}
