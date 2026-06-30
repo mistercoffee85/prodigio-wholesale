@@ -69,8 +69,8 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
         if (data.shippingCost > 0) {
           const price = await stripe.prices.create({
             currency: 'chf',
-            unit_amount: toStripeAmount(data.shippingCost),
-            product_data: { name: `Transportkosten Bestellung #${current.orderNumber}` },
+            unit_amount: toStripeAmount(newTotal),
+            product_data: { name: `Bestellung #${current.orderNumber}` },
           })
           const link = await stripe.paymentLinks.create({
             line_items: [{ price: price.id, quantity: 1 }],

@@ -241,7 +241,7 @@ export async function sendTransportCostEmail(
       </div>
 
       <a href="${paymentLinkUrl}" class="btn" style="font-size:16px; padding:14px 32px;">
-        CHF ${order.shippingCost.toFixed(2)} jetzt bezahlen →
+        CHF ${order.total.toFixed(2)} jetzt bezahlen →
       </a>
 
       <p style="font-size:12px; color:#9e9e9e; margin-top:20px;">

@@ -156,8 +156,8 @@ export async function POST(req: NextRequest) {
       include: { items: { include: { product: true } } },
     })
 
-    // ── Stripe Payment (card / TWINT) ─────────────────────────────
-    if (paymentMethod === 'STRIPE_CARD' || paymentMethod === 'STRIPE_TWINT' || paymentMethod === 'STRIPE_PAYPAL' || paymentMethod === 'STRIPE_KLARNA') {
+    // ── Stripe Payment (card / TWINT) — nur bei Abholung/Ex Works ──
+    if (!needsDelivery && (paymentMethod === 'STRIPE_CARD' || paymentMethod === 'STRIPE_TWINT' || paymentMethod === 'STRIPE_PAYPAL' || paymentMethod === 'STRIPE_KLARNA')) {
       const paymentMethods = paymentMethod === 'STRIPE_TWINT' ? ['twint'] : paymentMethod === 'STRIPE_PAYPAL' ? ['paypal'] : paymentMethod === 'STRIPE_KLARNA' ? ['klarna'] : ['card']
 
       const paymentIntent = await stripe.paymentIntents.create({
