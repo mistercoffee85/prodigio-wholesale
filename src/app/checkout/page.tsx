@@ -81,7 +81,7 @@ export default function CheckoutPage() {
   // Compute totals — shipping always 0 (confirmed separately by email)
   const { subtotal, shipping, shippingLabel: shipLabel, tax, taxFood, taxStandard, total } = useCartTotals(primaryShipping)
   const needsTransportEmail = (hasCNC && shippingOptionCNC === 'PRODIGIO_DELIVERS') || (hasLocal && shippingOptionLocal === 'LOCAL_DELIVERY')
-  const displayTotal = needsTransportEmail ? Math.round((subtotal + tax) * 100) / 100 : total
+  const shownTotal = needsTransportEmail ? Math.round((subtotal + tax) * 100) / 100 : total
 
   const buildPayload = () => ({
     items: items.map(i => ({ productId: i.productId, quantity: i.quantity, variantLabel: i.variantLabel })),
@@ -543,7 +543,7 @@ export default function CheckoutPage() {
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 800, fontSize: 22, marginTop: 16, paddingTop: 14, borderTop: '2px solid var(--black)' }}>
                   <span>Gesamt</span>
-                  <span>{formatPrice(displayTotal)}</span>
+                  <span>{formatPrice(shownTotal)}</span>
                 </div>
                 {needsTransportEmail && (
                   <div style={{ fontSize: 11.5, color: '#92400e', textAlign: 'right', marginTop: 4 }}>
