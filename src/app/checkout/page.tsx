@@ -233,7 +233,7 @@ export default function CheckoutPage() {
     },
   ]
 
-  const displayTotal = total > 0 ? total : null
+  const displayTotal = (needsTransportEmail ? shownTotal : total) > 0 ? (needsTransportEmail ? shownTotal : total) : null
   const totalLabel   = displayTotal ? formatPrice(displayTotal) : '…'
   const submitLabel  = paymentMethod === 'STRIPE_CARD'
     ? `Weiter zur Kartenzahlung – ${totalLabel}`
