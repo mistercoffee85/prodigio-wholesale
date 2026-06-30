@@ -146,7 +146,7 @@ export default function AdminOrdersPage() {
                         )}
                       </td>
                       <td onClick={e => e.stopPropagation()}>
-                        {o.shippingOption === 'PRODIGIO_DELIVERS' ? (
+                        {(o.shippingOption === 'PRODIGIO_DELIVERS' || o.shippingOption === 'LOCAL_DELIVERY') ? (
                           <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                             <input
                               type="number"

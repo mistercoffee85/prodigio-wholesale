@@ -34,7 +34,7 @@ const updateSchema = z.object({
   status:        z.enum(['PENDING','CONFIRMED','PROCESSING','SHIPPED','DELIVERED','CANCELLED']).optional(),
   paymentStatus: z.enum(['UNPAID','PAID','PARTIALLY_PAID','REFUNDED']).optional(),
   notes:         z.string().optional(),
-  shippingCost:  z.number().min(0).optional(), // Admin sets transport cost for PRODIGIO_DELIVERS orders
+  shippingCost:  z.number().min(0).optional(), // Admin sets transport cost manually
 })
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
