@@ -102,8 +102,8 @@ export async function POST(req: NextRequest) {
     const needsDelivery = shippingOption === 'LOCAL_DELIVERY'
       || shippingOption === 'PRODIGIO_DELIVERS'
       || shippingOptionLocal === 'LOCAL_DELIVERY'
-    const shipping = needsDelivery ? calcShipping(subtotal) : 0
-    const shipLabel = needsDelivery ? shippingLabel(subtotal) : 'Abholung'
+    const shipping = 0 // Transportkosten immer per E-Mail bestätigt
+    const shipLabel = needsDelivery ? 'per E-Mail bestätigt' : 'Abholung'
 
     const taxBreak   = calcCartTaxBreakdown(orderItems, shipping)
     const tax        = taxBreak.total
@@ -116,7 +116,7 @@ export async function POST(req: NextRequest) {
       }, { status: 400 })
     }
 
-    const shippingPending = false // Lieferkosten werden direkt berechnet
+    const shippingPending = needsDelivery // Transportkosten werden per E-Mail bestätigt
 
     const orderNumber = generateOrderNumber()
     // Vorauskasse: 3 Werktage Zahlungsziel

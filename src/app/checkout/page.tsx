@@ -78,8 +78,10 @@ export default function CheckoutPage() {
   // Derive the "primary" shippingOption for the API
   const primaryShipping: ShippingOption = hasCNC ? shippingOptionCNC : shippingOptionLocal
 
-  // Compute totals with shipping included
+  // Compute totals — shipping always 0 (confirmed separately by email)
   const { subtotal, shipping, shippingLabel: shipLabel, tax, taxFood, taxStandard, total } = useCartTotals(primaryShipping)
+  const needsTransportEmail = (hasCNC && shippingOptionCNC === 'PRODIGIO_DELIVERS') || (hasLocal && shippingOptionLocal === 'LOCAL_DELIVERY')
+  const displayTotal = needsTransportEmail ? Math.round((subtotal + tax) * 100) / 100 : total
 
   const buildPayload = () => ({
     items: items.map(i => ({ productId: i.productId, quantity: i.quantity, variantLabel: i.variantLabel })),
@@ -417,8 +419,8 @@ export default function CheckoutPage() {
                       {!isMixed && <p style={{ fontSize: 12.5, color: 'var(--gray-400)', marginBottom: 14 }}>Ware ab Lager PRO.DI.GIO GmbH, Basel.</p>}
                       {([
                         { value: 'LOCAL_DELIVERY' as ShippingOption, title: '🚚 Lieferung durch PRO.DI.GIO GmbH',
-                          rows: [['📦','Versand','Wir liefern direkt zu Ihnen'],['💶','Kosten','Ab CHF 9.90 — gestaffelt nach Bestellwert'],['📅','Lieferzeit','2–4 Werktage nach Bestellbestätigung'],['📞','Kontakt','Wir melden uns zur Koordination']],
-                          note: { color: 'var(--accent)', text: `✓ Versandkosten CHF ${shipping.toFixed(2)} — bereits im Total eingerechnet` } },
+                          rows: [['📦','Versand','Wir liefern direkt zu Ihnen'],['💶','Kosten','Wird per E-Mail bestätigt — angepasst an Bestellmenge'],['📅','Lieferzeit','2–4 Werktage nach Bestellbestätigung'],['📞','Kontakt','Wir melden uns zur Koordination']],
+                          note: { color: '#92400e', text: '📧 Transportkosten werden per E-Mail bestätigt — bitte sofort bezahlen' } },
                         { value: 'LOCAL_PICKUP' as ShippingOption, title: '🏢 Abholung bei PRO.DI.GIO GmbH, Basel',
                           rows: [['📍','Adresse','Mailand-Strasse 31, 4053 Basel'],['🕐','Termin','Nach Absprache — wir kontaktieren Sie'],['💶','Kosten','Kostenlos — keine Versandkosten'],['📦','Bereit','Wir informieren Sie sobald Ware bereit ist']],
                           note: { color: 'var(--accent)', text: '✓ Keine Lieferkosten — Abholung bei PRO.DI.GIO Basel' } },
@@ -519,10 +521,10 @@ export default function CheckoutPage() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
                   {[
                     ['Zwischensumme', formatPrice(subtotal)],
-                    [`Lieferung${shipping > 0 ? ` (${shipLabel})` : ''}`,
+                    ['Lieferung',
                       primaryShipping === 'LOCAL_PICKUP' ? '🏢 Abholung — CHF 0.00' :
                       primaryShipping === 'SELF_PICKUP'  ? '🚗 Ex Works — CHF 0.00' :
-                      `🚚 CHF ${shipping.toFixed(2)}`
+                      '📧 Per E-Mail bestätigt'
                     ],
                     ...(taxFood > 0     ? [['MwSt. 2.6% (Lebensmittel)', formatPrice(taxFood)]]   : []),
                     ...(taxStandard > 0 ? [['MwSt. 8.1%',                formatPrice(taxStandard)]] : []),
@@ -541,8 +543,13 @@ export default function CheckoutPage() {
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 800, fontSize: 22, marginTop: 16, paddingTop: 14, borderTop: '2px solid var(--black)' }}>
                   <span>Gesamt</span>
-                  <span>{formatPrice(total)}</span>
+                  <span>{formatPrice(displayTotal)}</span>
                 </div>
+                {needsTransportEmail && (
+                  <div style={{ fontSize: 11.5, color: '#92400e', textAlign: 'right', marginTop: 4 }}>
+                    + Transportkosten per E-Mail
+                  </div>
+                )}
                 <div style={{ fontSize: 11.5, color: 'var(--gray-400)', textAlign: 'right', marginBottom: 16 }}>
                   {!hasLocal && hasCNC
                     ? 'Ex Works IT — Zoll & Einfuhr-MwSt. bei Import separat'
@@ -553,7 +560,7 @@ export default function CheckoutPage() {
                 </div>
 
                 {/* Transport cost notice — shown when delivery is selected */}
-                {(shippingOptionCNC === 'PRODIGIO_DELIVERS' && hasCNC) || (shippingOptionLocal === 'LOCAL_DELIVERY' && hasLocal) ? (
+                {needsTransportEmail ? (
                   <div style={{ background: '#fff7ed', border: '1px solid #fcd9b6', borderRadius: 10, padding: '12px 14px', marginBottom: 14 }}>
                     <div style={{ fontSize: 12.5, color: '#92400e', display: 'flex', gap: 8, alignItems: 'flex-start' }}>
                       <span style={{ fontSize: 15, flexShrink: 0 }}>📧</span>
