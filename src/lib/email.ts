@@ -251,6 +251,53 @@ export async function sendTransportCostEmail(
   })
 }
 
+export async function sendPaymentConfirmationEmail(
+  to: string,
+  name: string,
+  order: { orderNumber: string; total: number }
+) {
+  await sendMail({
+    to,
+    subject: `✅ Zahlung erhalten — Bestellung #${order.orderNumber} wird bearbeitet`,
+    html: baseTemplate(`
+      <h2>Vielen Dank — Zahlung erhalten!</h2>
+      <p>Hallo ${name},</p>
+      <p>Wir haben Ihre Zahlung für Bestellung <strong>#${order.orderNumber}</strong> erhalten.</p>
+
+      <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:10px; padding:16px 18px; margin:16px 0;">
+        <strong style="color:#166534;">✓ Bezahlt: CHF ${order.total.toFixed(2)}</strong><br/>
+        <span style="color:#15803d; font-size:13px;">Ihre Bestellung wird jetzt bearbeitet und baldmöglichst versandt.</span>
+      </div>
+
+      <p>Bei Fragen: <a href="mailto:contact@prodigio.ch" style="color:#1a9e7a;">contact@prodigio.ch</a></p>
+      <a href="${APP_URL}/dashboard/orders" class="btn">Bestellung ansehen →</a>
+    `),
+  })
+}
+
+export async function sendAdminOrderPaidEmail(
+  orderNumber: string,
+  customerName: string,
+  customerEmail: string,
+  total: number,
+  orderId: string
+) {
+  await sendMail({
+    to: ADMIN,
+    subject: `💰 Bestellung #${orderNumber} bezahlt — bereit zur Bearbeitung`,
+    html: baseTemplate(`
+      <h2>Zahlung eingegangen</h2>
+      <p>Bestellung <strong>#${orderNumber}</strong> wurde vollständig bezahlt.</p>
+      <table>
+        <tr><td><strong>Kunde:</strong></td><td>${customerName}</td></tr>
+        <tr><td><strong>E-Mail:</strong></td><td>${customerEmail}</td></tr>
+        <tr><td><strong>Betrag:</strong></td><td><strong>CHF ${total.toFixed(2)}</strong></td></tr>
+      </table>
+      <a href="${APP_URL}/admin/orders" class="btn">Im Admin ansehen →</a>
+    `),
+  })
+}
+
 export async function sendPasswordResetEmail(to: string, resetUrl: string) {
   await sendMail({
     to,

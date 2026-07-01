@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 export const dynamic = 'force-dynamic'
 import { stripe } from '@/lib/stripe'
 import { prisma } from '@/lib/prisma'
-import { sendOrderConfirmationEmail } from '@/lib/email'
+import { sendOrderConfirmationEmail, sendPaymentConfirmationEmail, sendAdminOrderPaidEmail } from '@/lib/email'
 
 export async function POST(req: NextRequest) {
   const body = await req.text()
@@ -67,10 +67,25 @@ export async function POST(req: NextRequest) {
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as any
     if (session.metadata?.type === 'transport_cost' && session.metadata?.orderId) {
-      await prisma.order.update({
+      const order = await prisma.order.update({
         where: { id: session.metadata.orderId },
         data: { status: 'CONFIRMED', paymentStatus: 'PAID', paidAt: new Date() },
+        include: { user: true },
       })
+      // Kunde: Zahlungsbestätigung
+      await sendPaymentConfirmationEmail(
+        order.user.email,
+        order.user.name,
+        { orderNumber: order.orderNumber, total: Number(order.total) }
+      ).catch(console.error)
+      // Admin: Benachrichtigung
+      await sendAdminOrderPaidEmail(
+        order.orderNumber,
+        order.user.name,
+        order.user.email,
+        Number(order.total),
+        order.id
+      ).catch(console.error)
     }
   }
 
