@@ -345,11 +345,28 @@ export default async function HomePage() {
           display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;
         }
 
-        /* ── HERO BANNER: show desktop by default, mobile only on small screens ── */
+        /* ── HERO BANNER: fullscreen background ── */
         .hero-banner-mobile { display: none !important; }
         @media (max-width: 768px) {
           .hero-banner-desktop { display: none !important; }
           .hero-banner-mobile { display: block !important; }
+        }
+        /* Banner mode: single column, text centred, full width */
+        .hero-inner-banner {
+          grid-template-columns: 1fr !important;
+          position: relative; z-index: 2;
+        }
+        .hero-inner-banner .hero-left {
+          max-width: 680px;
+          margin: 0 auto;
+          text-align: center;
+          align-items: center;
+        }
+        .hero-inner-banner .hero-btns {
+          justify-content: center;
+        }
+        .hero-inner-banner .hero-stats {
+          justify-content: center;
         }
 
         /* ── RESPONSIVE ── */
@@ -406,15 +423,47 @@ export default async function HomePage() {
 
         {/* ══ HERO ══════════════════════════════════════════════════════ */}
         <section className="hero">
-          {/* Ambient glows */}
-          <div style={{ position:'absolute', top:'20%', left:'5%', width:500, height:500,
-            background:'radial-gradient(circle, rgba(22,163,122,.1) 0%, transparent 65%)',
-            pointerEvents:'none', zIndex:1 }}/>
-          <div style={{ position:'absolute', bottom:'0', left:'25%', width:300, height:300,
-            background:'radial-gradient(circle, rgba(92,245,204,.06) 0%, transparent 65%)',
-            pointerEvents:'none', zIndex:1 }}/>
+          {/* ── Full-width banner background (when enabled) ── */}
+          {useBanner && bannerDesktop && (
+            <Image
+              src={bannerDesktop}
+              alt="Hero Banner"
+              fill
+              sizes="100vw"
+              style={{ objectFit:'cover', objectPosition:'center' }}
+              priority
+              className="hero-banner-desktop"
+              unoptimized
+            />
+          )}
+          {useBanner && bannerMobile && (
+            <Image
+              src={bannerMobile}
+              alt="Hero Banner Mobile"
+              fill
+              sizes="100vw"
+              style={{ objectFit:'cover', objectPosition:'center' }}
+              priority
+              className="hero-banner-mobile"
+              unoptimized
+            />
+          )}
+          {/* Dark overlay so text stays readable over banner */}
+          {useBanner && (bannerDesktop || bannerMobile) && (
+            <div style={{ position:'absolute', inset:0, background:'rgba(0,0,0,.45)', zIndex:1 }} />
+          )}
 
-          <div className="hero-inner">
+          {/* Ambient glows (only without banner) */}
+          {!useBanner && <>
+            <div style={{ position:'absolute', top:'20%', left:'5%', width:500, height:500,
+              background:'radial-gradient(circle, rgba(22,163,122,.1) 0%, transparent 65%)',
+              pointerEvents:'none', zIndex:1 }}/>
+            <div style={{ position:'absolute', bottom:'0', left:'25%', width:300, height:300,
+              background:'radial-gradient(circle, rgba(92,245,204,.06) 0%, transparent 65%)',
+              pointerEvents:'none', zIndex:1 }}/>
+          </>}
+
+          <div className={useBanner && (bannerDesktop || bannerMobile) ? 'hero-inner hero-inner-banner' : 'hero-inner'}>
             {/* ── Left: Copy ── */}
             <div className="hero-left">
               <div className="hero-tag">
@@ -452,35 +501,8 @@ export default async function HomePage() {
               </div>
             </div>
 
-            {/* ── Right: Banner or Brand Mosaic ── */}
-            {useBanner && (bannerDesktop || bannerMobile) ? (
-              <div className="hero-right" style={{ position:'relative', overflow:'hidden' }}>
-                {bannerDesktop && (
-                  <Image
-                    src={bannerDesktop}
-                    alt="Hero Banner"
-                    fill
-                    sizes="50vw"
-                    style={{ objectFit:'cover' }}
-                    priority
-                    className="hero-banner-desktop"
-                    unoptimized
-                  />
-                )}
-                {bannerMobile && (
-                  <Image
-                    src={bannerMobile}
-                    alt="Hero Banner Mobile"
-                    fill
-                    sizes="100vw"
-                    style={{ objectFit:'cover' }}
-                    priority
-                    className="hero-banner-mobile"
-                    unoptimized
-                  />
-                )}
-              </div>
-            ) : (
+            {/* ── Right: Brand Mosaic (only when no banner active) ── */}
+            {(!useBanner || (!bannerDesktop && !bannerMobile)) && (
               <div className="hero-right">
                 {HERO_MOSAIC.map((item, i) => (
                   <div key={item.label} className="hero-tile"
