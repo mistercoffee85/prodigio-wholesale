@@ -165,6 +165,7 @@ export default async function AdminDashboard() {
           { href: '/admin/orders',    icon: '📦', label: 'Bestellungen',      sub: 'Status & Zahlungen' },
           { href: '/admin/products',  icon: '🛍️', label: 'Produkte',           sub: 'Lagerbestand & Status' },
           { href: '/admin/sync',      icon: '🔄', label: 'Lieferanten-Sync',  sub: 'Migroweb · tägl. 02:00 Uhr' },
+          { href: '/admin/homepage',  icon: '🏠', label: 'Hauptseite',         sub: 'Banner · Texte · Buttons' },
         ].map(a => (
           <Link key={a.href} href={a.href} className="quick-action" style={{
             display: 'flex', alignItems: 'center', gap: 14, padding: '18px 20px',

@@ -56,11 +56,42 @@ const HERO_MOSAIC = [
   { img: 'https://cdn.shopify.com/s/files/1/0769/8520/5054/files/BobaTeaDrinkGreenApple_Photomountage_1080x1080_copy.png?v=1752934721', bg: '#0d2b22', label: 'BobaJoy',  accent: '#5cf5cc' },
 ]
 
+// ── Default CMS values (used when no DB override is set) ──────────────────
+const CMS_DEFAULTS = {
+  homepage_hero_tag:         'B2B Grosshandel · Schweiz',
+  homepage_hero_h1_line1:    'Premium-Produkte.',
+  homepage_hero_h1_line2:    'Direktimport.',
+  homepage_hero_h1_accent:   'Ihr Erfolg.',
+  homepage_hero_paragraph:   'Bubble Tea, TEABALLS, Gourmet-Spezialitäten und mehr — direkt vom Importeur. Exklusive B2B-Grosshandelspreise für Wiederverkäufer und Gastronomie in der Schweiz.',
+  homepage_hero_btn1_text:   'Sortiment entdecken →',
+  homepage_hero_btn1_url:    '/products',
+  homepage_hero_btn2_text:   'B2B-Konto eröffnen',
+  homepage_hero_btn2_url:    '/register',
+  homepage_hero_banner_desktop: '',
+  homepage_hero_banner_mobile:  '',
+  homepage_hero_use_banner:     'false',
+  homepage_announcement:        '',
+  homepage_announcement_active: 'false',
+  homepage_stats: JSON.stringify([
+    { num: '500+', label: 'B2B-Kunden' },
+    { num: '',     label: '' },
+    { num: '5',    label: 'Marken' },
+    { num: '2–4',  label: 'Werktage' },
+  ]),
+  homepage_trust_bar: JSON.stringify([
+    { icon: '🚚', main: 'Schnelle Lieferung',       sub: '2–4 Werktage · Schweizweit' },
+    { icon: '🏭', main: 'Direktimport',              sub: 'Beste Konditionen schweizweit' },
+    { icon: '✅', main: 'Kein Zwischenhandel',       sub: 'Direkt vom Importeur' },
+    { icon: '📦', main: 'Flexible Mindestmengen',   sub: 'Ab 6 Verkaufseinheiten' },
+    { icon: '🇨🇭', main: 'Schweizer Unternehmen',  sub: 'Prodigio GmbH seit 2013' },
+  ]),
+}
+
 export default async function HomePage() {
   const session  = await getServerSession(authOptions)
   const approved = session?.user?.status === 'APPROVED'
 
-  const [featuredProducts, newProducts, productCount] = await Promise.all([
+  const [featuredProducts, newProducts, productCount, cmsSettings] = await Promise.all([
     prisma.product.findMany({
       where: { active: true, badge: 'hot' },
       include: { category: true },
@@ -72,9 +103,37 @@ export default async function HomePage() {
       take: 4,
     }),
     prisma.product.count({ where: { active: true } }),
+    prisma.setting.findMany({ where: { key: { startsWith: 'homepage_' } } }),
   ])
 
   const allFeatured = [...featuredProducts, ...newProducts].slice(0, 8)
+
+  // Merge DB settings over defaults
+  const cmsMap: Record<string, string> = { ...CMS_DEFAULTS }
+  for (const s of cmsSettings) cmsMap[s.key] = s.value
+
+  const heroTag       = cmsMap.homepage_hero_tag
+  const heroH1Line1   = cmsMap.homepage_hero_h1_line1
+  const heroH1Line2   = cmsMap.homepage_hero_h1_line2
+  const heroH1Accent  = cmsMap.homepage_hero_h1_accent
+  const heroParagraph = cmsMap.homepage_hero_paragraph
+  const heroBtn1Text  = cmsMap.homepage_hero_btn1_text
+  const heroBtn1Url   = cmsMap.homepage_hero_btn1_url
+  const heroBtn2Text  = cmsMap.homepage_hero_btn2_text
+  const heroBtn2Url   = cmsMap.homepage_hero_btn2_url
+  const useBanner     = cmsMap.homepage_hero_use_banner === 'true'
+  const bannerDesktop = cmsMap.homepage_hero_banner_desktop
+  const bannerMobile  = cmsMap.homepage_hero_banner_mobile
+  const announcement  = cmsMap.homepage_announcement
+  const announcementActive = cmsMap.homepage_announcement_active === 'true'
+
+  let heroStats: { num: string; label: string }[] = []
+  try { heroStats = JSON.parse(cmsMap.homepage_stats) } catch { /* keep empty */ }
+  // Replace placeholder with live product count
+  heroStats = heroStats.map(s => s.num === '' && s.label === '' ? { num: productCount.toString(), label: 'Produkte' } : s)
+
+  let trustBar: { icon: string; main: string; sub: string }[] = []
+  try { trustBar = JSON.parse(cmsMap.homepage_trust_bar) } catch { /* keep empty */ }
 
   return (
     <>
@@ -286,6 +345,13 @@ export default async function HomePage() {
           display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;
         }
 
+        /* ── HERO BANNER: show desktop by default, mobile only on small screens ── */
+        .hero-banner-mobile { display: none !important; }
+        @media (max-width: 768px) {
+          .hero-banner-desktop { display: none !important; }
+          .hero-banner-mobile { display: block !important; }
+        }
+
         /* ── RESPONSIVE ── */
         @media (max-width: 1100px) {
           .brands-grid { grid-template-columns: repeat(3,1fr); }
@@ -327,6 +393,17 @@ export default async function HomePage() {
       <Header />
       <main>
 
+        {/* ══ ANKÜNDIGUNG ══════════════════════════════════════════════ */}
+        {announcementActive && announcement && (
+          <div style={{
+            background: 'linear-gradient(90deg, #10b981, #059669)',
+            color: '#fff', textAlign: 'center',
+            padding: '10px 20px', fontSize: 14, fontWeight: 600,
+          }}>
+            {announcement}
+          </div>
+        )}
+
         {/* ══ HERO ══════════════════════════════════════════════════════ */}
         <section className="hero">
           {/* Ambient glows */}
@@ -343,36 +420,30 @@ export default async function HomePage() {
               <div className="hero-tag">
                 <span style={{ width:7, height:7, borderRadius:'50%', background:'#5cf5cc',
                   display:'inline-block' }}/>
-                B2B Grosshandel · Schweiz
+                {heroTag}
               </div>
 
               <h1 className="hero-h1">
-                Premium-Produkte.<br />
-                Direktimport.<br />
-                <span style={{ color:'#5cf5cc' }}>Ihr Erfolg.</span>
+                {heroH1Line1}<br />
+                {heroH1Line2}<br />
+                <span style={{ color:'#5cf5cc' }}>{heroH1Accent}</span>
               </h1>
 
-              <p className="hero-p">
-                Bubble Tea, TEABALLS, Gourmet-Spezialitäten und mehr — direkt vom Importeur.
-                Exklusive B2B-Grosshandelspreise für Wiederverkäufer und Gastronomie in der Schweiz.
-              </p>
+              <p className="hero-p">{heroParagraph}</p>
 
               <div className="hero-btns">
-                <Link href="/products" className="hero-btn-primary">
-                  Sortiment entdecken →
+                <Link href={heroBtn1Url} className="hero-btn-primary">
+                  {heroBtn1Text}
                 </Link>
-                <Link href="/register" className="hero-btn-ghost">
-                  B2B-Konto eröffnen
-                </Link>
+                {heroBtn2Text && (
+                  <Link href={heroBtn2Url} className="hero-btn-ghost">
+                    {heroBtn2Text}
+                  </Link>
+                )}
               </div>
 
               <div className="hero-stats">
-                {[
-                  { num: '500+',               label: 'B2B-Kunden' },
-                  { num: productCount.toString(), label: 'Produkte' },
-                  { num: '5',                  label: 'Marken' },
-                  { num: '2–4',                label: 'Werktage' },
-                ].map(({ num, label }) => (
+                {heroStats.filter(s => s.label).map(({ num, label }) => (
                   <div key={label} className="hero-stat-item">
                     <div className="hero-stat-num">{num}</div>
                     <div className="hero-stat-label">{label}</div>
@@ -381,40 +452,63 @@ export default async function HomePage() {
               </div>
             </div>
 
-            {/* ── Right: 5-Brand Mosaic ── */}
-            <div className="hero-right">
-              {HERO_MOSAIC.map((item, i) => (
-                <div key={item.label} className="hero-tile"
-                  style={{ background: item.bg, gridColumn: i === 0 ? 'span 2' : i === 2 ? '3' : undefined,
-                    gridRow: i === 2 ? '1 / span 2' : undefined }}>
+            {/* ── Right: Banner or Brand Mosaic ── */}
+            {useBanner && (bannerDesktop || bannerMobile) ? (
+              <div className="hero-right" style={{ position:'relative', overflow:'hidden' }}>
+                {bannerDesktop && (
                   <Image
-                    src={item.img}
-                    alt={item.label}
+                    src={bannerDesktop}
+                    alt="Hero Banner"
                     fill
-                    sizes="(max-width:1100px) 0px, 25vw"
-                    style={{ objectFit: i === 0 ? 'cover' : 'contain', padding: i === 0 ? 0 : 16 }}
-                    priority={i < 2}
+                    sizes="50vw"
+                    style={{ objectFit:'cover' }}
+                    priority
+                    className="hero-banner-desktop"
+                    unoptimized
                   />
-                  <div className="hero-tile-overlay" />
-                  <div className="hero-tile-label"
-                    style={{ borderColor: `${item.accent}40`, color: item.accent }}>
-                    {item.label}
+                )}
+                {bannerMobile && (
+                  <Image
+                    src={bannerMobile}
+                    alt="Hero Banner Mobile"
+                    fill
+                    sizes="100vw"
+                    style={{ objectFit:'cover' }}
+                    priority
+                    className="hero-banner-mobile"
+                    unoptimized
+                  />
+                )}
+              </div>
+            ) : (
+              <div className="hero-right">
+                {HERO_MOSAIC.map((item, i) => (
+                  <div key={item.label} className="hero-tile"
+                    style={{ background: item.bg, gridColumn: i === 0 ? 'span 2' : i === 2 ? '3' : undefined,
+                      gridRow: i === 2 ? '1 / span 2' : undefined }}>
+                    <Image
+                      src={item.img}
+                      alt={item.label}
+                      fill
+                      sizes="(max-width:1100px) 0px, 25vw"
+                      style={{ objectFit: i === 0 ? 'cover' : 'contain', padding: i === 0 ? 0 : 16 }}
+                      priority={i < 2}
+                    />
+                    <div className="hero-tile-overlay" />
+                    <div className="hero-tile-label"
+                      style={{ borderColor: `${item.accent}40`, color: item.accent }}>
+                      {item.label}
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </section>
 
         {/* ══ TRUST BAR ════════════════════════════════════════════════ */}
         <div className="trust-bar">
-          {[
-            { icon:'🚚', main:'Schnelle Lieferung', sub:'2–4 Werktage · Schweizweit' },
-            { icon:'🏭', main:'Direktimport', sub:'Beste Konditionen schweizweit' },
-            { icon:'✅', main:'Kein Zwischenhandel', sub:'Direkt vom Importeur' },
-            { icon:'📦', main:'Flexible Mindestmengen', sub:'Ab 6 Verkaufseinheiten' },
-            { icon:'🇨🇭', main:'Schweizer Unternehmen', sub:'Prodigio GmbH seit 2013' },
-          ].map(({ icon, main, sub }) => (
+          {trustBar.map(({ icon, main, sub }) => (
             <div key={main} className="trust-item">
               <span className="trust-icon">{icon}</span>
               <div>

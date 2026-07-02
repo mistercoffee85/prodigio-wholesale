@@ -10,6 +10,7 @@ const NAV = [
   { href: '/admin/customers', icon: '👥', label: 'Kunden'             },
   { href: '/admin/products',  icon: '🛍️', label: 'Produkte'           },
   { href: '/admin/preise',    icon: '💰', label: 'Marge & Preise'     },
+  { href: '/admin/homepage',  icon: '🏠', label: 'Hauptseite'         },
 ]
 
 export default function AdminSidebar() {
