@@ -205,6 +205,14 @@ export default async function OrderDetailPage({ params }: { params: { id: string
             <Link href="/dashboard" className="btn btn-outline" style={{ padding: '10px 24px', flex: '1 1 auto', textAlign: 'center' }}>
               ← Zurück zum Konto
             </Link>
+            <a
+              href={`/api/orders/${order.id}/invoice`}
+              download={`Rechnung-${order.orderNumber}.pdf`}
+              className="btn btn-outline"
+              style={{ padding: '10px 24px', flex: '1 1 auto', textAlign: 'center', textDecoration: 'none' }}
+            >
+              📄 Rechnung herunterladen
+            </a>
             <Link href="/products" className="btn btn-primary" style={{ padding: '10px 24px', flex: '1 1 auto', textAlign: 'center' }}>
               Weiter bestellen →
             </Link>
