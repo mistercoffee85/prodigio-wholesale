@@ -115,10 +115,23 @@ export default function RegisterPage() {
         <div style={{ maxWidth: 500, width: '100%', textAlign: 'center' }}>
           <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'var(--accent-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36, margin: '0 auto 28px' }}>✅</div>
           <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(24px, 5vw, 32px)', fontWeight: 700, marginBottom: 14 }}>Registrierung erfolgreich!</h1>
-          <p style={{ color: 'var(--gray-600)', lineHeight: 1.75, fontSize: 15, marginBottom: 32 }}>
-            Vielen Dank! Ihre Anfrage wurde erhalten. Unser Team prüft Ihr Konto und schaltet es
-            innerhalb von <strong>1 Werktag</strong> frei. Sie erhalten eine Bestätigungs-E-Mail.
+          <p style={{ color: 'var(--gray-600)', lineHeight: 1.75, fontSize: 15, marginBottom: 24 }}>
+            Vielen Dank für Ihre Bewerbung als B2B-Partner! Unser Team prüft Ihr Konto und schaltet es
+            innerhalb von <strong>1 Werktag</strong> frei. Sie erhalten eine Bestätigungs-E-Mail sobald Ihr Zugang aktiviert ist.
           </p>
+          <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 10, padding: '16px 20px', marginBottom: 32, textAlign: 'left' }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#166534', marginBottom: 10 }}>Was passiert als nächstes?</div>
+            {[
+              'Unser Team prüft Ihre Angaben (1 Werktag)',
+              'Sie erhalten eine E-Mail mit Ihren Zugangsdaten',
+              'Sofortiger Zugang zu allen B2B-Preisen und Produkten',
+            ].map((step, i) => (
+              <div key={i} style={{ display: 'flex', gap: 10, marginBottom: 8, alignItems: 'flex-start' }}>
+                <span style={{ color: '#16a34a', fontWeight: 700, flexShrink: 0, marginTop: 1 }}>✓</span>
+                <span style={{ fontSize: 13, color: '#374151', lineHeight: 1.5 }}>{step}</span>
+              </div>
+            ))}
+          </div>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link href="/" className="btn btn-black btn-lg">Zur Startseite</Link>
             <Link href="/login" className="btn btn-outline btn-lg">Anmelden</Link>
@@ -188,29 +201,59 @@ export default function RegisterPage() {
 
           <div>
             <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, color: 'var(--accent)', marginBottom: 18, textTransform: 'uppercase' }}>B2B Konto eröffnen</div>
-            <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 34, fontWeight: 700, lineHeight: 1.2, marginBottom: 18 }}>
-              Werden Sie<br />B2B-Partner
+            <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 30, fontWeight: 700, lineHeight: 1.2, marginBottom: 14 }}>
+              Werden Sie<br />B2B-Grosshändler
             </h2>
-            <p style={{ fontSize: 14, opacity: .68, lineHeight: 1.75, marginBottom: 36, maxWidth: 300 }}>
-              Registrieren Sie sich kostenlos und erhalten Sie Zugang zu exklusiven Grosshandelskonditionen.
+            <p style={{ fontSize: 13.5, opacity: .72, lineHeight: 1.75, marginBottom: 28, maxWidth: 310 }}>
+              Kostenlose Registrierung. Exklusive Einkaufspreise. Direkter Zugang zu internationalen Markenprodukten — geliefert ab unserem Lager in Basel.
             </p>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {/* Benefits */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 11, marginBottom: 28 }}>
+              {[
+                { icon: '💰', text: 'Grosshandelspreise ab CHF 1 Bestellung' },
+                { icon: '🏭', text: 'Direktimport — kein Zwischenhändler' },
+                { icon: '🚚', text: 'Schnelle Lieferung in der ganzen Schweiz' },
+                { icon: '🤝', text: 'Persönliche Betreuung durch unser Team' },
+              ].map(({ icon, text }) => (
+                <div key={text} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <span style={{ fontSize: 16, flexShrink: 0 }}>{icon}</span>
+                  <span style={{ fontSize: 13, opacity: .8, lineHeight: 1.4 }}>{text}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Who can apply */}
+            <div style={{ background: 'rgba(255,255,255,.06)', border: '1px solid rgba(255,255,255,.1)', borderRadius: 8, padding: '12px 14px', marginBottom: 28 }}>
+              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, color: 'var(--accent)', textTransform: 'uppercase', marginBottom: 8 }}>Für wen ist das?</div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                {['Detailhandel', 'Gastronomie', 'Kiosk', 'E-Commerce', 'Bäckerei', 'Hotel & Catering'].map(tag => (
+                  <span key={tag} style={{ fontSize: 11, background: 'rgba(26,158,122,.2)', border: '1px solid rgba(26,158,122,.35)', borderRadius: 20, padding: '3px 9px', color: '#a7f3d0' }}>
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Steps */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, color: 'rgba(255,255,255,.35)', textTransform: 'uppercase', marginBottom: 2 }}>So geht's</div>
               {[
                 { n: 1, label: 'Kontaktdaten', done: step > 1 },
                 { n: 2, label: 'Unternehmen', done: false },
-              ].map(({ n, label, done }) => (
+                { n: 3, label: 'Prüfung & Freischaltung', done: false, dim: true },
+              ].map(({ n, label, done, dim }) => (
                 <div key={n} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   <div style={{
-                    width: 30, height: 30, borderRadius: '50%', flexShrink: 0,
-                    background: done ? 'var(--accent)' : step === n ? 'rgba(26,158,122,.3)' : 'rgba(255,255,255,.1)',
-                    border: `2px solid ${done || step === n ? 'var(--accent)' : 'rgba(255,255,255,.2)'}`,
+                    width: 28, height: 28, borderRadius: '50%', flexShrink: 0,
+                    background: done ? 'var(--accent)' : step === n ? 'rgba(26,158,122,.3)' : 'rgba(255,255,255,.08)',
+                    border: `2px solid ${done || step === n ? 'var(--accent)' : 'rgba(255,255,255,.15)'}`,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 12, fontWeight: 700,
+                    fontSize: 11, fontWeight: 700,
                   }}>
                     {done ? '✓' : n}
                   </div>
-                  <span style={{ fontSize: 14, opacity: step === n ? 1 : .55, fontWeight: step === n ? 600 : 400 }}>{label}</span>
+                  <span style={{ fontSize: 13, opacity: dim ? .35 : step === n ? 1 : .55, fontWeight: step === n ? 600 : 400 }}>{label}</span>
                 </div>
               ))}
             </div>
@@ -229,6 +272,7 @@ export default function RegisterPage() {
               <span style={{ fontSize: 13, color: 'var(--gray-400)', fontWeight: 500 }}>Schritt {step} / 2</span>
             </div>
             <p style={{ fontSize: 14, color: 'var(--gray-400)', marginBottom: 32 }}>
+              {step === 1 ? 'Kostenloses B2B-Konto in 2 Minuten erstellen.' : 'Fast geschafft — Ihre Unternehmensdaten für die Verifikation.'}{' '}
               Bereits registriert?{' '}
               <Link href="/login" style={{ color: 'var(--accent)', fontWeight: 600 }}>Anmelden</Link>
             </p>
