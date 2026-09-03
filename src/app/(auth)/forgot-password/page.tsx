@@ -63,6 +63,11 @@ export default function ForgotPasswordPage() {
           background: var(--cream);
         }
         @media (max-width: 640px) {
+          /* fp-outer is a wrapping row: the intro wraps to its own line but still
+             stretches to the line height, leaving dead space under its text. */
+          .fp-outer {
+            flex-direction: column;
+          }
           .fp-brand {
             display: none;
           }
