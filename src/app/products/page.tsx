@@ -2,6 +2,7 @@
 import { useEffect, useState, useCallback, useRef, Suspense, useLayoutEffect } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
+import Image from 'next/image'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import ProductCard from '@/components/shop/ProductCard'
@@ -381,15 +382,16 @@ function ProductsContent() {
                     {CATEGORY_IMAGES[cat.slug] ? (
                       <div style={{
                         height: 150, borderRadius: 10, marginBottom: 16, overflow: 'hidden',
+                        position: 'relative',
                         background: CATEGORY_IMAGES[cat.slug].bg,
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                       }}>
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
+                        <Image
                           src={CATEGORY_IMAGES[cat.slug].img}
                           alt={cat.name}
-                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                          loading="lazy"
+                          fill
+                          sizes="(max-width: 768px) 50vw, 280px"
+                          style={{ objectFit: 'cover' }}
                         />
                       </div>
                     ) : (
@@ -439,10 +441,10 @@ function ProductsContent() {
                     onMouseOut={e => (e.currentTarget as HTMLElement).style.transform = ''}
                   >
                     {CATEGORY_IMAGES[sub.slug] ? (
-                      <div style={{ height: 120, overflow: 'hidden', background: CATEGORY_IMAGES[sub.slug].bg }}>
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={CATEGORY_IMAGES[sub.slug].img} alt={sub.name}
-                          style={{ width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" />
+                      <div style={{ height: 120, overflow: 'hidden', position: 'relative', background: CATEGORY_IMAGES[sub.slug].bg }}>
+                        <Image src={CATEGORY_IMAGES[sub.slug].img} alt={sub.name}
+                          fill sizes="(max-width: 768px) 45vw, 180px"
+                          style={{ objectFit: 'cover' }} />
                       </div>
                     ) : (
                       <div style={{ height: 80, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36, background: 'var(--cream)' }}>
