@@ -175,12 +175,15 @@ export default function RegisterPage() {
           width: 100%;
           max-width: 500px;
         }
+        .register-mobile-intro { display: none; }
         @media (max-width: 768px) {
-          .register-brand-panel {
-            display: none;
-          }
-          .register-layout {
-            flex-direction: column;
+          .register-brand-panel { display: none; }
+          .register-layout { flex-direction: column; }
+          .register-mobile-intro {
+            display: block;
+            background: linear-gradient(150deg, var(--forest) 0%, #1a3d28 70%, #0d2218 100%);
+            color: white;
+            padding: 28px 24px 26px;
           }
         }
         @media (max-width: 560px) {
@@ -260,6 +263,39 @@ export default function RegisterPage() {
           </div>
 
           <div style={{ fontSize: 12, opacity: .4 }}>© {new Date().getFullYear()} PRO.DI.GIO GmbH</div>
+        </div>
+
+        {/* Mobile-only condensed pitch — the brand panel is hidden below 768px */}
+        <div className="register-mobile-intro">
+          <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: 2, color: 'var(--accent)', marginBottom: 10, textTransform: 'uppercase' }}>
+            B2B Konto eröffnen
+          </div>
+          <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 25, fontWeight: 700, lineHeight: 1.2, marginBottom: 10 }}>
+            Werden Sie B2B-Grosshändler
+          </h2>
+          <p style={{ fontSize: 13.5, opacity: .75, lineHeight: 1.65, marginBottom: 18 }}>
+            Kostenlose Registrierung. Exklusive Einkaufspreise. Direkter Zugang zu internationalen Markenprodukten — geliefert ab unserem Lager in Basel.
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 9, marginBottom: 18 }}>
+            {[
+              { icon: '💰', text: 'Grosshandelspreise ab CHF 1 Bestellung' },
+              { icon: '🏭', text: 'Direktimport — kein Zwischenhändler' },
+              { icon: '🚚', text: 'Schnelle Lieferung in der ganzen Schweiz' },
+              { icon: '🤝', text: 'Persönliche Betreuung durch unser Team' },
+            ].map(({ icon, text }) => (
+              <div key={text} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <span style={{ fontSize: 15, flexShrink: 0 }}>{icon}</span>
+                <span style={{ fontSize: 13, opacity: .85, lineHeight: 1.4 }}>{text}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+            {['Detailhandel', 'Gastronomie', 'Kiosk', 'E-Commerce', 'Bäckerei', 'Hotel & Catering'].map(tag => (
+              <span key={tag} style={{ fontSize: 11, background: 'rgba(26,158,122,.2)', border: '1px solid rgba(26,158,122,.35)', borderRadius: 20, padding: '3px 9px', color: '#a7f3d0' }}>
+                {tag}
+              </span>
+            ))}
+          </div>
         </div>
 
         {/* Right — Form */}

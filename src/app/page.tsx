@@ -47,14 +47,6 @@ const BRANDS = [
   },
 ]
 
-// Hero mosaic: all brands
-const HERO_MOSAIC = [
-  { img: 'https://cdn.shopify.com/s/files/1/0769/8520/5054/files/9690ED77-8273-4F9F-B137-9A7A55D5A6B7.jpg?v=1736538559',        bg: '#0c1f3a', label: 'My Bubble Tea',  accent: '#7eb8f7' },
-  { img: 'https://cdn.shopify.com/s/files/1/0368/6150/9769/files/TEABALLS_Hibiskus_Flasche.png?v=1762428964',                   bg: '#0e1f0e', label: 'TEABALLS',       accent: '#a8e6a3' },
-  { img: 'https://cdn.shopify.com/s/files/1/0763/2302/9259/files/Untitleddesign_49.webp?v=1759780663',                          bg: '#1e0f00', label: 'Patislove',      accent: '#f7bc7e' },
-  { img: 'https://cdn.shopify.com/s/files/1/0763/2302/9259/files/43f6ead8336003ff8d56a822586ec842d1058f18327592c95d20214258a85e9b.jpg?v=1765704974', bg: '#1a0c1a', label: 'The Mallows', accent: '#e8a0e8' },
-  { img: 'https://cdn.shopify.com/s/files/1/0769/8520/5054/files/BobaTeaDrinkGreenApple_Photomountage_1080x1080_copy.png?v=1752934721', bg: '#0d2b22', label: 'BobaJoy',  accent: '#5cf5cc' },
-]
 
 // ── Default CMS values (used when no DB override is set) ──────────────────
 const CMS_DEFAULTS = {
@@ -72,12 +64,6 @@ const CMS_DEFAULTS = {
   homepage_hero_use_banner:     'false',
   homepage_announcement:        '',
   homepage_announcement_active: 'false',
-  homepage_stats: JSON.stringify([
-    { num: '500+', label: 'B2B-Kunden' },
-    { num: '',     label: '' },
-    { num: '5',    label: 'Marken' },
-    { num: '2–4',  label: 'Werktage' },
-  ]),
   homepage_trust_bar: JSON.stringify([
     { icon: '🚚', main: 'Schnelle Lieferung',       sub: '2–4 Werktage · Schweizweit' },
     { icon: '🏭', main: 'Direktimport',              sub: 'Beste Konditionen schweizweit' },
@@ -112,25 +98,9 @@ export default async function HomePage() {
   const cmsMap: Record<string, string> = { ...CMS_DEFAULTS }
   for (const s of cmsSettings) cmsMap[s.key] = s.value
 
-  const heroTag       = cmsMap.homepage_hero_tag
-  const heroH1Line1   = cmsMap.homepage_hero_h1_line1
-  const heroH1Line2   = cmsMap.homepage_hero_h1_line2
-  const heroH1Accent  = cmsMap.homepage_hero_h1_accent
-  const heroParagraph = cmsMap.homepage_hero_paragraph
-  const heroBtn1Text  = cmsMap.homepage_hero_btn1_text
-  const heroBtn1Url   = cmsMap.homepage_hero_btn1_url
-  const heroBtn2Text  = cmsMap.homepage_hero_btn2_text
-  const heroBtn2Url   = cmsMap.homepage_hero_btn2_url
-  const useBanner     = cmsMap.homepage_hero_use_banner === 'true'
-  const bannerDesktop = cmsMap.homepage_hero_banner_desktop
-  const bannerMobile  = cmsMap.homepage_hero_banner_mobile
   const announcement  = cmsMap.homepage_announcement
   const announcementActive = cmsMap.homepage_announcement_active === 'true'
 
-  let heroStats: { num: string; label: string }[] = []
-  try { heroStats = JSON.parse(cmsMap.homepage_stats) } catch { /* keep empty */ }
-  // Replace placeholder with live product count
-  heroStats = heroStats.map(s => s.num === '' && s.label === '' ? { num: productCount.toString(), label: 'Produkte' } : s)
 
   let trustBar: { icon: string; main: string; sub: string }[] = []
   try { trustBar = JSON.parse(cmsMap.homepage_trust_bar) } catch { /* keep empty */ }
@@ -138,98 +108,6 @@ export default async function HomePage() {
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: `
-        /* ── HERO ── */
-        .hero {
-          background: #080e0c;
-          position: relative; overflow: hidden;
-          min-height: 720px;
-        }
-        .hero-inner {
-          display: grid; grid-template-columns: 1fr 1fr;
-          min-height: 720px;
-        }
-        .hero-left {
-          padding: clamp(60px,7vw,100px) clamp(32px,5vw,72px);
-          display: flex; flex-direction: column; justify-content: center;
-          position: relative; z-index: 2;
-        }
-        /* 5-tile mosaic: 2 top + 1 tall right + 2 bottom-left */
-        .hero-right {
-          display: grid;
-          grid-template-columns: 1fr 1fr 1fr;
-          grid-template-rows: 1fr 1fr;
-          gap: 2px; position: relative; overflow: hidden;
-        }
-        .hero-tile {
-          position: relative; overflow: hidden;
-          transition: transform .4s;
-        }
-        .hero-tile:hover { transform: scale(1.03); z-index: 2; }
-        /* Tile layout: span assignments */
-        .hero-tile:nth-child(1) { grid-column: span 2; }
-        .hero-tile:nth-child(3) { grid-row: span 2; grid-column: 3; grid-row: 1 / span 2; }
-        .hero-tile-overlay {
-          position: absolute; inset: 0;
-          background: linear-gradient(to top, rgba(0,0,0,.7) 0%, rgba(0,0,0,.1) 60%, transparent 100%);
-          transition: opacity .3s;
-        }
-        .hero-tile:hover .hero-tile-overlay { opacity: .5; }
-        .hero-tile-label {
-          position: absolute; bottom: 12px; left: 14px; z-index: 2;
-          font-family: 'Space Grotesk', sans-serif;
-          font-size: 12px; font-weight: 700; color: white;
-          background: rgba(0,0,0,.45); backdrop-filter: blur(6px);
-          border: 1px solid rgba(255,255,255,.12);
-          padding: 5px 12px; border-radius: 20px; letter-spacing: .3px;
-        }
-        .hero-tag {
-          display: inline-flex; align-items: center; gap: 8px;
-          background: rgba(22,163,122,.15); border: 1px solid rgba(22,163,122,.35);
-          color: #5cf5cc; font-size: 10.5px; font-weight: 700;
-          letter-spacing: 2.5px; text-transform: uppercase;
-          padding: 7px 18px; border-radius: 100px; margin-bottom: 32px;
-          width: fit-content;
-        }
-        .hero-h1 {
-          font-family: 'Space Grotesk', sans-serif;
-          font-size: clamp(36px,4.4vw,60px); font-weight: 800;
-          line-height: 1.04; letter-spacing: -0.04em; color: white;
-          margin-bottom: 22px;
-        }
-        .hero-p {
-          font-size: clamp(14px,1.4vw,16px); color: rgba(255,255,255,.55);
-          line-height: 1.85; max-width: 440px; margin-bottom: 40px;
-        }
-        .hero-btns { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 52px; }
-        .hero-btn-primary {
-          display: inline-flex; align-items: center; gap: 8px;
-          background: var(--accent); color: white;
-          padding: 15px 32px; border-radius: 12px;
-          font-size: 15px; font-weight: 700;
-          box-shadow: 0 8px 28px rgba(22,163,122,.4);
-          transition: transform .2s, box-shadow .2s; white-space: nowrap;
-        }
-        .hero-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 36px rgba(22,163,122,.5); }
-        .hero-btn-ghost {
-          display: inline-flex; align-items: center; gap: 8px;
-          border: 1.5px solid rgba(255,255,255,.18); color: rgba(255,255,255,.8);
-          padding: 14px 28px; border-radius: 12px;
-          font-size: 15px; font-weight: 600;
-          background: rgba(255,255,255,.04);
-          transition: border-color .2s, background .2s; white-space: nowrap;
-        }
-        .hero-btn-ghost:hover { border-color: rgba(255,255,255,.45); background: rgba(255,255,255,.09); }
-        .hero-stats { display: flex; gap: 0; flex-wrap: wrap; }
-        .hero-stat-item { padding: 0 28px; border-right: 1px solid rgba(255,255,255,.1); }
-        .hero-stat-item:first-child { padding-left: 0; }
-        .hero-stat-item:last-child { border-right: none; }
-        .hero-stat-num {
-          font-family: 'Space Grotesk', sans-serif;
-          font-size: 30px; font-weight: 700; color: white; line-height: 1;
-          letter-spacing: -0.05em;
-        }
-        .hero-stat-label { font-size: 12px; color: rgba(255,255,255,.4); margin-top: 6px; }
-
         /* ── TRUST BAR ── */
         .trust-bar {
           background: white; border-bottom: 1px solid var(--gray-100);
@@ -345,47 +223,19 @@ export default async function HomePage() {
           display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;
         }
 
-        /* ── HERO BANNER: fullscreen background ── */
-        .hero-banner-mobile { display: none !important; }
-        @media (max-width: 768px) {
-          .hero-banner-desktop { display: none !important; }
-          .hero-banner-mobile { display: block !important; }
-        }
-        /* Banner mode: single column, text centred, full width */
-        .hero-inner-banner {
-          grid-template-columns: 1fr !important;
-          position: relative; z-index: 2;
-        }
-        .hero-inner-banner .hero-left {
-          max-width: 680px;
-          margin: 0 auto;
-          text-align: center;
-          align-items: center;
-        }
-        .hero-inner-banner .hero-btns {
-          justify-content: center;
-        }
-        .hero-inner-banner .hero-stats {
-          justify-content: center;
-        }
-
         /* ── RESPONSIVE ── */
         @media (max-width: 1100px) {
           .brands-grid { grid-template-columns: repeat(3,1fr); }
           .featured-grid { grid-template-columns: repeat(3,1fr); }
-          .hero-inner { grid-template-columns: 1fr; min-height: unset; }
-          .hero { min-height: unset; }
-          .hero-right { display: none; }
-          .hero-left { padding: clamp(60px,7vw,88px) clamp(20px,5vw,60px); }
         }
         @media (max-width: 768px) {
           .brands-grid { grid-template-columns: repeat(2,1fr); gap: 12px; }
           .featured-grid { grid-template-columns: repeat(2,1fr); gap: 14px; }
           .steps-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
           .step-item::after { display: none; }
-          .hero-stat-item { padding: 0 16px; }
-          .trust-bar { gap: 0; }
-          .trust-item { padding: 18px 20px; }
+          .trust-bar { flex-direction: column; align-items: stretch; overflow-x: visible; padding: 0; }
+          .trust-item { border-right: none; border-bottom: 1px solid var(--gray-100); padding: 14px 20px; width: 100%; box-sizing: border-box; }
+          .trust-item:last-child { border-bottom: none; }
         }
         @media (max-width: 540px) {
           .brands-grid { grid-template-columns: 1fr 1fr; }
@@ -396,11 +246,6 @@ export default async function HomePage() {
           .feat-img { height: 160px; }
         }
         @media (max-width: 400px) {
-          .hero-stat-item { padding: 0 10px; }
-          .hero-stat-num { font-size: 22px; }
-          .hero-stat-label { font-size: 11px; }
-          .trust-bar { flex-wrap: wrap; }
-          .trust-item { flex-shrink: 1; padding: 12px 14px; min-width: 140px; }
           .brand-tile { min-height: 180px; }
           .cta-btns { flex-direction: column; align-items: stretch; }
           .cta-btns a { text-align: center; justify-content: center; width: 100%; box-sizing: border-box; }

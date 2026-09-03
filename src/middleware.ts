@@ -51,6 +51,10 @@ export default withAuth(
   }
 )
 
+// Static files live in /public but are served from the root path, so they must be
+// excluded by extension — a "public/" prefix never appears in the request URL.
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|public/).*)'],
+  matcher: [
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:png|jpe?g|gif|webp|avif|svg|ico|woff2?|ttf|otf|eot|mp4|webm|pdf|txt|xml|json|csv)$).*)',
+  ],
 }
