@@ -98,6 +98,7 @@ export default function Footer() {
               ['🌿 TEABALLS Bio', '/products?category=teaballs-glasflaschen-bio'],
               ['🍶 Glasflaschen', '/products?category=teaballs-glasflaschen'],
               ['🫙 Vorratsgläser', '/products?category=teaballs-vorratsglas-100g'],
+              ['📦 Tea-Packs', '/products?category=teaballs-tea-packs'],
               ['🍫 Patislove', '/products?category=patislove'],
               ['☁️ The Mallows', '/products?category=the-mallows'],
               ['Neuheiten', '/products?badge=new'],
