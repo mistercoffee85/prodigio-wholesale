@@ -276,7 +276,7 @@ export default async function HomePage() {
               media="(max-width: 768px)"
               srcSet="/hero-banner-mobile.webp"
               width={1080}
-              height={1080}
+              height={1440}
             />
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
