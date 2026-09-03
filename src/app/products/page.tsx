@@ -27,12 +27,33 @@ interface Product {
   category: { name: string; slug: string }
 }
 
-// ── Kategorie-Bilder (gleiche Assets wie Startseiten-Markenkarten) ─────────
+// ── Kategorie-Bilder ────────────────────────────────────────────────────────
 const CATEGORY_IMAGES: Record<string, { img: string; bg: string }> = {
+  // ─ Top-Level ─
   'bubble-tea':  { img: 'https://cdn.shopify.com/s/files/1/0769/8520/5054/files/9690ED77-8273-4F9F-B137-9A7A55D5A6B7.jpg?v=1736538559', bg: '#ffffff' },
   'teaballs':    { img: 'https://cdn.shopify.com/s/files/1/0368/6150/9769/files/TEABALLS_Hibiskus_Flasche.png?v=1762428964', bg: '#ffffff' },
   'patislove':   { img: 'https://cdn.shopify.com/s/files/1/0763/2302/9259/files/Untitleddesign_49.webp?v=1759780663', bg: '#ffffff' },
   'the-mallows': { img: 'https://cdn.shopify.com/s/files/1/0763/2302/9259/files/43f6ead8336003ff8d56a822586ec842d1058f18327592c95d20214258a85e9b.jpg?v=1765704974', bg: '#ffffff' },
+  // ─ TEABALLS Unterkategorien ─
+  'teaballs-glasflaschen':      { img: 'https://cdn.shopify.com/s/files/1/0368/6150/9769/files/TEABALLS_Erdbeere_Flasche.png?v=1762428965', bg: '#fff' },
+  'teaballs-glasflaschen-bio':  { img: 'https://cdn.shopify.com/s/files/1/0368/6150/9769/files/Ingwer.png?v=1762430214', bg: '#fff' },
+  'teaballs-vorratsglas-100g':  { img: 'https://cdn.shopify.com/s/files/1/0368/6150/9769/files/100gGlas_TEABALLSWILDBERRY_6216e31b-7ca6-45b2-a642-dac1c3a08d92.png?v=1772191743', bg: '#fff' },
+  'teaballs-vorratsglas-500g':  { img: 'https://cdn.shopify.com/s/files/1/0368/6150/9769/files/500gWildberry_24738ca5-8a7d-40c2-87f6-0eedcb0d5dbf.png?v=1772191540', bg: '#fff' },
+  'teaballs-tea-packs':         { img: '/products/teaballs/tb-earl-grey-12er.jpeg', bg: '#f3f4f6' },
+  'teaballs-heiss-kalt-12er':   { img: '/products/teaballs/tb-wildberry-12er.jpeg', bg: '#f3f4f6' },
+  'teaballs-heiss-kalt-100er':  { img: '/products/teaballs/tb-earl-grey-100er.jpeg', bg: '#f3f4f6' },
+  // ─ Bubble Tea Unterkategorien ─
+  'bubble-tea-rtd':             { img: 'https://cdn.shopify.com/s/files/1/0769/8520/5054/files/BobaTeaDrinkPassionFruit_Photomountage_1080x1080_copy.png?v=1752934721', bg: '#fff' },
+  'bubble-tea-sets':            { img: 'https://cdn.shopify.com/s/files/1/0769/8520/5054/files/E69F89C8-C3FE-4AEC-BD38-DAFA6AC9E16D.jpg?v=1736538464', bg: '#fff' },
+  'bubble-tea-fruchtperlen-240g':{ img: 'https://cdn.shopify.com/s/files/1/0769/8520/5054/files/76130b4b318941572685dbaaa89c14e75ab5884b2c6ae853c9fb5247cfbcacca.jpg?v=1740514239', bg: '#fff' },
+  'bubble-tea-1-5kg':           { img: 'https://cdn.shopify.com/s/files/1/0769/8520/5054/files/c1f0997f36c45ca1b9536cde458ee070c4e09fb6905df62dde14ff38e727e693.jpg?v=1743503727', bg: '#fff' },
+  'bubble-tea-tapioka':         { img: 'https://www.meinbubbletea.ch/cdn/shop/files/perles_de_tapioca_v2.jpg?v=1752503318&width=1280', bg: '#fff' },
+  'bubble-tea-zubehoer':        { img: 'https://cdn.shopify.com/s/files/1/0769/8520/5054/products/2b4212866dbb888e0756d9545f8bf9b9dd87845ec461373d6fbe0b18bc238583.jpg?v=1685951836', bg: '#fff' },
+  // ─ Patislove Unterkategorien ─
+  'patislove-bars':    { img: 'https://cdn.shopify.com/s/files/1/0763/2302/9259/files/PL-baklava-crumbs-kapak-1_ff9027c9-3d42-4ee8-9380-a99e9f4dee2e.webp?v=1759780143', bg: '#fff' },
+  'patislove-dragees': { img: 'https://cdn.shopify.com/s/files/1/0763/2302/9259/files/Artboard1_17886e19-719a-4877-88bc-539a5833520d.png?v=1759777555', bg: '#fff' },
+  'patislove-cookies': { img: 'https://cdn.shopify.com/s/files/1/0763/2302/9259/files/imgi_5_patislove-cookie-2.jpg?v=1764938647', bg: '#fff' },
+  'patislove-sticks':  { img: 'https://cdn.shopify.com/s/files/1/0763/2302/9259/files/Artboard1_48110ce1-f79f-480a-b9ab-57d471b15eb6.png?v=1759778334', bg: '#fff' },
 }
 
 // ── Constants ──────────────────────────────────────────────────────────────
@@ -58,7 +79,7 @@ function buildCategoryTree(flat: Category[]): Category[] {
 }
 
 function totalProducts(cat: Category): number {
-  return cat._count.products + (cat.children ?? []).reduce((s, c) => s + c._count.products, 0)
+  return cat._count.products + (cat.children ?? []).reduce((s, c) => s + totalProducts(c), 0)
 }
 
 function findCategory(cats: Category[], slug: string): Category | undefined {
@@ -413,14 +434,26 @@ function ProductsContent() {
                     key={sub.slug}
                     onClick={() => navigate(sub.slug)}
                     className="card"
-                    style={{ padding: '20px 16px', cursor: 'pointer', textAlign: 'center', transition: 'all .2s' }}
-                    onMouseOver={e => (e.currentTarget as HTMLElement).style.background = '#f5f3f0'}
-                    onMouseOut={e => (e.currentTarget as HTMLElement).style.background = ''}
+                    style={{ padding: 0, cursor: 'pointer', textAlign: 'center', transition: 'all .2s', overflow: 'hidden' }}
+                    onMouseOver={e => (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'}
+                    onMouseOut={e => (e.currentTarget as HTMLElement).style.transform = ''}
                   >
-                    <div style={{ fontSize: 30, marginBottom: 10 }}>{sub.emoji ?? '📦'}</div>
-                    <div style={{ fontWeight: 600, fontSize: 13.5, marginBottom: 4 }}>{sub.name}</div>
-                    <div style={{ fontSize: 12, color: 'var(--gray-400)' }}>
-                      {sub._count.products.toLocaleString()} Produkte
+                    {CATEGORY_IMAGES[sub.slug] ? (
+                      <div style={{ height: 120, overflow: 'hidden', background: CATEGORY_IMAGES[sub.slug].bg }}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={CATEGORY_IMAGES[sub.slug].img} alt={sub.name}
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" />
+                      </div>
+                    ) : (
+                      <div style={{ height: 80, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36, background: 'var(--cream)' }}>
+                        {sub.emoji ?? '📦'}
+                      </div>
+                    )}
+                    <div style={{ padding: '12px 12px 14px' }}>
+                      <div style={{ fontWeight: 600, fontSize: 13.5, marginBottom: 3 }}>{sub.name}</div>
+                      <div style={{ fontSize: 12, color: 'var(--gray-400)' }}>
+                        {totalProducts(sub).toLocaleString()} Produkte
+                      </div>
                     </div>
                   </div>
                 ))}
