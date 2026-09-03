@@ -268,15 +268,27 @@ export default async function HomePage() {
 
         {/* ══ HERO ══════════════════════════════════════════════════════ */}
         <Link href="/products" style={{ display:'block', lineHeight:0 }}>
-          <Image
-            src="/hero-banner.webp"
-            alt="PRO.DI.GIO B2B Grosshandel Schweiz – Sortiment entdecken"
-            width={1920}
-            height={1080}
-            sizes="100vw"
-            style={{ width:'100%', height:'auto', display:'block', objectFit:'contain' }}
-            priority
-          />
+          {/* Art-directed: the 16:9 banner puts copy beside the products, which becomes
+              unreadable on a narrow screen — below 768px swap to the square crop that
+              stacks copy above them. <picture> downloads only the matching source. */}
+          <picture>
+            <source
+              media="(max-width: 768px)"
+              srcSet="/hero-banner-mobile.webp"
+              width={1080}
+              height={1080}
+            />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/hero-banner.webp"
+              alt="PRO.DI.GIO B2B Grosshandel Schweiz – Sortiment entdecken"
+              width={1920}
+              height={1080}
+              style={{ width:'100%', height:'auto', display:'block' }}
+              fetchPriority="high"
+              decoding="async"
+            />
+          </picture>
         </Link>
 
         {/* ══ TRUST BAR ════════════════════════════════════════════════ */}

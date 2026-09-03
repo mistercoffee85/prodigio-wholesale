@@ -49,7 +49,7 @@ function LoginForm() {
 
   return (
     <>
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .login-wrapper {
           min-height: 100vh;
           display: flex;
@@ -88,15 +88,41 @@ function LoginForm() {
           .login-brand {
             display: none;
           }
+          .auth-mobile-intro { display: block !important; }
           .login-form {
             min-height: 100vh;
             align-items: flex-start;
             padding: clamp(24px, 6vw, 40px) clamp(16px, 6vw, 32px);
           }
         }
-      `}</style>
+      ` }} />
       <div className="login-wrapper">
         {/* Left — Brand Panel */}
+        {/* Mobile-only pitch — .login-brand is hidden below 900px */}
+        <div className="auth-mobile-intro" style={{ display: 'none', background: 'linear-gradient(150deg, var(--forest) 0%, #1a3d28 70%, #0d2218 100%)', color: 'white', padding: '26px 24px 24px' }}>
+          <Link href="/" style={{ textDecoration: 'none', color: 'white' }}>
+            <div style={{ fontWeight: 800, fontSize: 17, letterSpacing: 3.5 }}>PRO.DI.GIO</div>
+            <div style={{ fontSize: 8.5, letterSpacing: 3, opacity: .5, marginTop: 3 }}>GROSSHANDEL · BASEL</div>
+          </Link>
+          <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: 2, color: 'var(--accent)', margin: '18px 0 8px', textTransform: 'uppercase' }}>B2B Grosshandel</div>
+          <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 25, fontWeight: 700, lineHeight: 1.2, marginBottom: 10 }}>Willkommen zurück</h1>
+          <p style={{ fontSize: 13.5, opacity: .75, lineHeight: 1.65, marginBottom: 16 }}>
+            Exklusive Grosshandelspreise für Wiederverkäufer, Gastronomie und Einzelhandel.
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
+            {[
+              { icon: '💰', text: 'STANDARD · PREMIUM · VIP Preise' },
+              { icon: '🚚', text: 'Lieferung & Abholung in der Schweiz' },
+              { icon: '📦', text: '88+ Produkte, Direktimport' },
+            ].map(({ icon, text }) => (
+              <div key={text} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <span style={{ fontSize: 15, flexShrink: 0 }}>{icon}</span>
+                <span style={{ fontSize: 13, opacity: .85 }}>{text}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
         <div className="login-brand">
           <div style={{ position: 'absolute', inset: 0, opacity: .03, backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%23fff\' fill-opacity=\'1\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/svg%3E")', pointerEvents: 'none' }} />
           <div style={{ position: 'absolute', top: '10%', right: '-15%', width: 380, height: 380, background: 'radial-gradient(circle, rgba(26,158,122,.2) 0%, transparent 70%)', pointerEvents: 'none' }} />

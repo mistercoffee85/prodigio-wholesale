@@ -157,13 +157,27 @@ export default function ResetPasswordPage() {
           .reset-brand-panel {
             display: none;
           }
+          .auth-mobile-intro { display: block !important; }
           .reset-form-panel {
-            min-height: 100vh;
+            min-height: unset;
           }
         }
       `}</style>
       <div className="reset-page-root">
         {/* Left — Brand Panel */}
+        {/* Mobile-only header — .reset-brand-panel is hidden on narrow screens */}
+        <div className="auth-mobile-intro" style={{ display: 'none', background: 'linear-gradient(150deg, var(--forest) 0%, #1a3d28 70%, #0d2218 100%)', color: 'white', padding: '26px 24px 24px' }}>
+          <Link href="/" style={{ textDecoration: 'none', color: 'white' }}>
+            <div style={{ fontWeight: 800, fontSize: 17, letterSpacing: 3.5 }}>PRO.DI.GIO</div>
+            <div style={{ fontSize: 8.5, letterSpacing: 3, opacity: .5, marginTop: 3 }}>GROSSHANDEL · BASEL</div>
+          </Link>
+          <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: 2, color: 'var(--accent)', margin: '18px 0 8px', textTransform: 'uppercase' }}>Sicherheit</div>
+          <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 25, fontWeight: 700, lineHeight: 1.2, marginBottom: 10 }}>Neues Passwort</h1>
+          <p style={{ fontSize: 13.5, opacity: .75, lineHeight: 1.65 }}>
+            Wählen Sie ein sicheres Passwort mit mindestens 8 Zeichen.
+          </p>
+        </div>
+
         <div className="reset-brand-panel">
           <div style={{ position: 'absolute', inset: 0, opacity: .03, backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%23fff\' fill-opacity=\'1\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/svg%3E")', pointerEvents: 'none' }} />
 
