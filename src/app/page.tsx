@@ -424,11 +424,12 @@ export default async function HomePage() {
         {/* ══ HERO ══════════════════════════════════════════════════════ */}
         <Link href="/products" style={{ display:'block', lineHeight:0 }}>
           <Image
-            src="/hero-banner.png"
+            src="/hero-banner.webp"
             alt="PRO.DI.GIO B2B Grosshandel Schweiz – Sortiment entdecken"
             width={1920}
             height={1080}
-            style={{ width:'100%', height:'auto', display:'block' }}
+            sizes="100vw"
+            style={{ width:'100%', height:'auto', display:'block', objectFit:'contain' }}
             priority
           />
         </Link>
