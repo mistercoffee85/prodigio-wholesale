@@ -28,6 +28,9 @@ const NAV: NavItem[] = [
       { href: '/products?category=teaballs-glasflaschen-bio',  label: 'Glasflaschen Bio' },
       { href: '/products?category=teaballs-vorratsglas-100g',  label: 'Vorratsglas 100g' },
       { href: '/products?category=teaballs-vorratsglas-500g',  label: 'Vorratsglas 500g' },
+      { href: '/products?category=teaballs-tea-packs',         label: 'Tea-Packs' },
+      { href: '/products?category=teaballs-heiss-kalt-12er',   label: '↳ 12er Box' },
+      { href: '/products?category=teaballs-heiss-kalt-100er',  label: '↳ 100er Gastrobox' },
     ],
   },
   {

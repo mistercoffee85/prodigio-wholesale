@@ -470,7 +470,7 @@ function ProductsContent() {
                     .sort((a, b) => a.sortOrder - b.sortOrder)
                     .map(sub => {
                       const subProds = subPreviews[sub.slug] ?? []
-                      if (sub._count.products === 0) return null
+                      if (totalProducts(sub) === 0) return null
                       return (
                         <section key={sub.slug}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16, paddingBottom: 12, borderBottom: '2px solid var(--gray-100)', flexWrap: 'wrap' }}>
