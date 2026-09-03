@@ -422,111 +422,16 @@ export default async function HomePage() {
         )}
 
         {/* ══ HERO ══════════════════════════════════════════════════════ */}
-        <section className="hero">
-          {/* ── Full-width banner background (when enabled) ── */}
-          {useBanner && bannerDesktop && (
-            <Image
-              src={bannerDesktop}
-              alt="Hero Banner"
-              fill
-              sizes="100vw"
-              style={{ objectFit:'cover', objectPosition:'center' }}
-              priority
-              className="hero-banner-desktop"
-              unoptimized
-            />
-          )}
-          {useBanner && bannerMobile && (
-            <Image
-              src={bannerMobile}
-              alt="Hero Banner Mobile"
-              fill
-              sizes="100vw"
-              style={{ objectFit:'cover', objectPosition:'center' }}
-              priority
-              className="hero-banner-mobile"
-              unoptimized
-            />
-          )}
-          {/* Dark overlay so text stays readable over banner */}
-          {useBanner && (bannerDesktop || bannerMobile) && (
-            <div style={{ position:'absolute', inset:0, background:'rgba(0,0,0,.45)', zIndex:1 }} />
-          )}
-
-          {/* Ambient glows (only without banner) */}
-          {!useBanner && <>
-            <div style={{ position:'absolute', top:'20%', left:'5%', width:500, height:500,
-              background:'radial-gradient(circle, rgba(22,163,122,.1) 0%, transparent 65%)',
-              pointerEvents:'none', zIndex:1 }}/>
-            <div style={{ position:'absolute', bottom:'0', left:'25%', width:300, height:300,
-              background:'radial-gradient(circle, rgba(92,245,204,.06) 0%, transparent 65%)',
-              pointerEvents:'none', zIndex:1 }}/>
-          </>}
-
-          <div className={useBanner && (bannerDesktop || bannerMobile) ? 'hero-inner hero-inner-banner' : 'hero-inner'}>
-            {/* ── Left: Copy ── */}
-            <div className="hero-left">
-              <div className="hero-tag">
-                <span style={{ width:7, height:7, borderRadius:'50%', background:'#5cf5cc',
-                  display:'inline-block' }}/>
-                {heroTag}
-              </div>
-
-              <h1 className="hero-h1">
-                {heroH1Line1}<br />
-                {heroH1Line2}<br />
-                <span style={{ color:'#5cf5cc' }}>{heroH1Accent}</span>
-              </h1>
-
-              <p className="hero-p">{heroParagraph}</p>
-
-              <div className="hero-btns">
-                <Link href={heroBtn1Url} className="hero-btn-primary">
-                  {heroBtn1Text}
-                </Link>
-                {heroBtn2Text && (
-                  <Link href={heroBtn2Url} className="hero-btn-ghost">
-                    {heroBtn2Text}
-                  </Link>
-                )}
-              </div>
-
-              <div className="hero-stats">
-                {heroStats.filter(s => s.label).map(({ num, label }) => (
-                  <div key={label} className="hero-stat-item">
-                    <div className="hero-stat-num">{num}</div>
-                    <div className="hero-stat-label">{label}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* ── Right: Brand Mosaic (only when no banner active) ── */}
-            {(!useBanner || (!bannerDesktop && !bannerMobile)) && (
-              <div className="hero-right">
-                {HERO_MOSAIC.map((item, i) => (
-                  <div key={item.label} className="hero-tile"
-                    style={{ background: item.bg, gridColumn: i === 0 ? 'span 2' : i === 2 ? '3' : undefined,
-                      gridRow: i === 2 ? '1 / span 2' : undefined }}>
-                    <Image
-                      src={item.img}
-                      alt={item.label}
-                      fill
-                      sizes="(max-width:1100px) 0px, 25vw"
-                      style={{ objectFit: i === 0 ? 'cover' : 'contain', padding: i === 0 ? 0 : 16 }}
-                      priority={i < 2}
-                    />
-                    <div className="hero-tile-overlay" />
-                    <div className="hero-tile-label"
-                      style={{ borderColor: `${item.accent}40`, color: item.accent }}>
-                      {item.label}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </section>
+        <Link href="/products" style={{ display:'block', lineHeight:0 }}>
+          <Image
+            src="/hero-banner.png"
+            alt="PRO.DI.GIO B2B Grosshandel Schweiz – Sortiment entdecken"
+            width={1920}
+            height={1080}
+            style={{ width:'100%', height:'auto', display:'block' }}
+            priority
+          />
+        </Link>
 
         {/* ══ TRUST BAR ════════════════════════════════════════════════ */}
         <div className="trust-bar">
