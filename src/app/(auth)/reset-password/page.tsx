@@ -48,7 +48,7 @@ function ResetPasswordForm() {
 
   if (!token) {
     return (
-      <div className="reset-form-panel" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'clamp(24px,5vw,48px)', background: 'var(--cream)' }}>
+      <div className="reset-form-panel" style={{ padding: 'clamp(24px,5vw,48px)', background: 'var(--cream)' }}>
         <div style={{ textAlign: 'center' }}>
           <p style={{ color: 'var(--gray-400)', marginBottom: 24 }}>Ungültiger Link.</p>
           <Link href="/forgot-password" className="btn btn-black" style={{ padding: '12px 28px', borderRadius: 'var(--radius-lg)' }}>
@@ -60,7 +60,7 @@ function ResetPasswordForm() {
   }
 
   return (
-    <div className="reset-form-panel" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'clamp(24px,5vw,48px) clamp(16px,5vw,40px)', background: 'var(--cream)' }}>
+    <div className="reset-form-panel" style={{ padding: 'clamp(24px,5vw,48px) clamp(16px,5vw,40px)', background: 'var(--cream)' }}>
       <div style={{ width: '100%', maxWidth: 400 }}>
         {done ? (
           <div style={{ textAlign: 'center' }}>
@@ -149,6 +149,9 @@ export default function ResetPasswordPage() {
         }
         .reset-form-panel {
           flex: 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
         @media (max-width: 640px) {
           .reset-page-root {
@@ -159,6 +162,9 @@ export default function ResetPasswordPage() {
           }
           .auth-mobile-intro { display: block !important; }
           .reset-form-panel {
+            /* The mobile intro sits above, so start the form right below it rather
+               than centring it in the remaining flex height. */
+            align-items: flex-start;
             min-height: unset;
           }
         }
