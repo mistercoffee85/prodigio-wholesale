@@ -4,8 +4,15 @@ export default function Footer() {
   return (
     <footer style={{ background: 'var(--black)', color: 'rgba(255,255,255,.65)' }}>
       <style>{`
-        .footer-link { transition: color .15s; }
+        .footer-link { transition: color .15s; display: inline-block; }
         .footer-link:hover { color: white !important; }
+        /* Footer links sit ~17px tall by default — too tight to tap reliably.
+           Give them a comfortable target on touch viewports. */
+        @media (max-width: 900px) {
+          .footer-link { padding: 7px 0; }
+          .footer-a { display: inline-block; padding: 5px 0; }
+          .footer-bottom-links a { display: inline-block; padding: 6px 0; }
+        }
         .footer-a { transition: color .15s; }
         .footer-a:hover { color: white !important; }
 

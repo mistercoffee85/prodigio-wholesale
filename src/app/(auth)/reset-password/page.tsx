@@ -92,7 +92,7 @@ function ResetPasswordForm() {
                     onChange={e => setPassword(e.target.value)}
                     style={{ paddingRight: 46 }}
                   />
-                  <button type="button" onClick={() => setShowPw(!showPw)} style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 17, color: 'var(--gray-300)', cursor: 'pointer' }}>
+                  <button type="button" onClick={() => setShowPw(!showPw)} style={{ position: 'absolute', right: 6, top: '50%', transform: 'translateY(-50%)', fontSize: 17, color: 'var(--gray-300)', cursor: 'pointer', width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'none', border: 'none' }}>
                     {showPw ? '🙈' : '👁'}
                   </button>
                 </div>
