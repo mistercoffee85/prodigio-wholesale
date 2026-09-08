@@ -295,6 +295,15 @@ tbody td { padding: 14px 18px; vertical-align: middle; }
   min-width: 40px; text-align: center; font-size: 14px;
   font-weight: 700; color: var(--black);
 }
+/* Typed quantity field — same footprint as the span it replaced. */
+.qty-stepper input {
+  width: 52px; min-width: 52px; height: 36px;
+  text-align: center; font-size: 14px; font-weight: 700;
+  color: var(--black); background: transparent;
+  border: none; outline: none; padding: 0;
+  -moz-appearance: textfield;
+}
+.qty-stepper input:focus { background: var(--gray-50); }
 
 /* ── Filter Pills ───────────────────────────────────────────── */
 .filter-pill {

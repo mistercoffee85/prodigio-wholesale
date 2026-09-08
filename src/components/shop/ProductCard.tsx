@@ -6,6 +6,36 @@ import { useCartStore } from '@/store/cart'
 import { formatPrice, parseTiers, tierPrice } from '@/lib/utils'
 import toast from 'react-hot-toast'
 
+/** Quantity picker. Steps by 1 and accepts direct input — stepping by MOQ made
+ *  quantities between multiples (and therefore volume tier boundaries) unreachable.
+ *  `moq` is enforced as a floor when the field loses focus, not while typing. */
+function QtyStepper({ qty, setQty, moq }: { qty: number; setQty: (n: number) => void; moq: number }) {
+  const [draft, setDraft] = useState<string | null>(null)
+  const shown = draft ?? String(qty)
+
+  const commit = () => {
+    const n = parseInt(draft ?? '', 10)
+    setQty(Number.isFinite(n) && n >= moq ? n : moq)
+    setDraft(null)
+  }
+
+  return (
+    <div className="qty-stepper" onClick={e => e.stopPropagation()}>
+      <button type="button" aria-label="Weniger" onClick={() => setQty(Math.max(moq, qty - 1))}>−</button>
+      <input
+        type="text"
+        inputMode="numeric"
+        aria-label="Menge"
+        value={shown}
+        onChange={e => setDraft(e.target.value.replace(/[^0-9]/g, ''))}
+        onBlur={commit}
+        onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); (e.target as HTMLInputElement).blur() } }}
+      />
+      <button type="button" aria-label="Mehr" onClick={() => setQty(qty + 1)}>+</button>
+    </div>
+  )
+}
+
 interface Variant {
   label: string; price: number; unit: string; moq: number; packCount?: number
 }
@@ -286,11 +316,7 @@ export default function ProductCard({ product: p, priority, approved = false }: 
             </a>
           ) : (
             <div style={{ display: 'flex', gap: 8 }}>
-              <div className="qty-stepper">
-                <button onClick={() => setQty(q => Math.max(activeMoq, q - activeMoq))}>−</button>
-                <span>{qty}</span>
-                <button onClick={() => setQty(q => q + activeMoq)}>+</button>
-              </div>
+              <QtyStepper qty={qty} setQty={setQty} moq={activeMoq} />
               <button
                 className="btn btn-black"
                 style={{ flex: 1, fontSize: 12.5, height: 38, padding: '0 10px' }}
@@ -490,11 +516,7 @@ export default function ProductCard({ product: p, priority, approved = false }: 
 
                 {approved && (
                   <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                    <div className="qty-stepper">
-                      <button onClick={() => setQty(q => Math.max(activeMoq, q - activeMoq))}>−</button>
-                      <span>{qty}</span>
-                      <button onClick={() => setQty(q => q + activeMoq)}>+</button>
-                    </div>
+                    <QtyStepper qty={qty} setQty={setQty} moq={activeMoq} />
                     <button
                       className="btn btn-primary"
                       style={{ fontSize: 14, padding: '10px 24px', height: 42 }}

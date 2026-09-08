@@ -39,6 +39,9 @@ export default function CartSidebar({ open, onClose }: Props) {
   const items        = useCartStore(s => s.items)
   const removeItem   = useCartStore(s => s.removeItem)
   const updateQty    = useCartStore(s => s.updateQuantity)
+  // Typed quantities are held locally until blur so the store doesn't
+  // re-price (and re-render) on every keystroke.
+  const [draft, setDraft] = useState<Record<string, string>>({})
   const clearCart    = useCartStore(s => s.clearCart)
   const { subtotal, shipping, tax, taxFood, taxStandard, total } = useCartTotals()
   const hasCNC   = items.some(i => i.supplierSource === 'migroweb')
@@ -228,9 +231,21 @@ export default function CartSidebar({ open, onClose }: Props) {
                       </div>
                       <div className="cart-item-bottom-row">
                         <div className="qty-stepper" style={{ transform: 'scale(.85)', transformOrigin: 'left' }}>
-                          <button onClick={() => updateQty(item.cartKey, Math.max(item.moq, item.quantity - item.moq))}>−</button>
-                          <span>{item.quantity}</span>
-                          <button onClick={() => updateQty(item.cartKey, item.quantity + item.moq)}>+</button>
+                          <button aria-label="Weniger" onClick={() => updateQty(item.cartKey, Math.max(item.moq, item.quantity - 1))}>−</button>
+                          <input
+                            type="text"
+                            inputMode="numeric"
+                            aria-label="Menge"
+                            value={draft[item.cartKey] ?? String(item.quantity)}
+                            onChange={e => setDraft(d => ({ ...d, [item.cartKey]: e.target.value.replace(/[^0-9]/g, '') }))}
+                            onBlur={() => {
+                              const n = parseInt(draft[item.cartKey] ?? '', 10)
+                              updateQty(item.cartKey, Number.isFinite(n) && n >= item.moq ? n : item.moq)
+                              setDraft(d => { const { [item.cartKey]: _drop, ...rest } = d; return rest })
+                            }}
+                            onKeyDown={e => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur() }}
+                          />
+                          <button aria-label="Mehr" onClick={() => updateQty(item.cartKey, item.quantity + 1)}>+</button>
                         </div>
                         <span style={{ fontSize: 14, fontWeight: 700 }}>{formatPrice(item.unitPrice * item.quantity)}</span>
                       </div>
