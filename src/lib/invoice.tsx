@@ -124,8 +124,8 @@ function chf(n: number) {
 }
 
 const SHIPPING_LABELS: Record<string, string> = {
+  // Kept for the two orders placed before Ex Works was retired
   PRODIGIO_DELIVERS: 'Lieferung durch Prodigio',
-  SELF_PICKUP:       'Abholung Ex-Works',
   LOCAL_PICKUP:      'Abholung lokal',
   LOCAL_DELIVERY:    'Lokale Lieferung',
 }

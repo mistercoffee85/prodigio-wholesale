@@ -157,29 +157,10 @@ export async function sendOrderConfirmationEmail(
         <tr class="total-row"><td colspan="2">Gesamtbetrag (inkl. MwSt.)</td><td style="text-align:right">CHF ${order.total.toFixed(2)}</td></tr>
       </table>
       <p><strong>Zahlungsmethode:</strong> ${paymentLabel[order.paymentMethod] ?? order.paymentMethod}</p>
-      ${order.shippingOptionLocal ? `
-        <div style="background:#f8f8f8;border-radius:8px;padding:14px 16px;margin:12px 0;">
-          <strong>🇮🇹 Cash &amp; Carry (aus Italien):</strong><br/>
-          ${order.shippingOption === 'SELF_PICKUP'
-            ? '🚗 Selbstabholung Ex Works — Sie holen direkt beim Lieferanten in Italien ab. Verzollung und Transport liegen bei Ihnen.'
-            : '🚚 Transport &amp; Verzollung durch PRO.DI.GIO GmbH — Transportkosten werden separat bestätigt und 1:1 weiterverrechnet.'}
-        </div>
-        <div style="background:#f8f8f8;border-radius:8px;padding:14px 16px;margin:12px 0;">
-          <strong>🇨🇭 Lagerprodukte (ab Basel):</strong><br/>
-          ${order.shippingOptionLocal === 'LOCAL_PICKUP'
-            ? '🏢 Abholung bei PRO.DI.GIO GmbH, Mailand-Strasse 31, 4053 Basel — wir kontaktieren Sie zur Terminvereinbarung.'
-            : '🚚 Lieferung durch PRO.DI.GIO GmbH — Versandkosten im Gesamtbetrag enthalten.'}
-        </div>
-      ` : `
-        <p><strong>Lieferung:</strong> ${order.shippingOption === 'SELF_PICKUP'
-          ? '🚗 Selbstabholung Ex Works – Verzollung und Transport liegen bei Ihnen.'
-          : order.shippingOption === 'LOCAL_PICKUP'
-          ? '🏢 Abholung bei PRO.DI.GIO GmbH, Mailand-Strasse 31, 4053 Basel – wir kontaktieren Sie zur Terminvereinbarung.'
-          : order.shippingOption === 'LOCAL_DELIVERY'
-          ? '🚚 Lieferung durch PRO.DI.GIO GmbH – Versandkosten im Gesamtbetrag enthalten.'
-          : '🚚 Transport &amp; Verzollung durch PRO.DI.GIO GmbH – Transportkosten werden separat bestätigt.'
+      <p><strong>Lieferung:</strong> ${order.shippingOption === 'LOCAL_PICKUP'
+        ? '🏢 Abholung bei PRO.DI.GIO GmbH, Mailand-Strasse 31, 4053 Basel – wir kontaktieren Sie zur Terminvereinbarung.'
+        : '🚚 Lieferung durch PRO.DI.GIO GmbH – Transportkosten werden separat bestätigt.'
         }</p>
-      `}
       ${order.paymentMethod === 'BANK_TRANSFER' || order.paymentMethod === 'NET_30' ? `
         <div style="background:#fff7ed; padding:16px; border-radius:8px; margin:16px 0; border:1px solid #fcd9b6;">
           <strong style="color:#c2430c;">⚠️ Wichtig: Zahlung innert 3 Werktagen!</strong><br/>

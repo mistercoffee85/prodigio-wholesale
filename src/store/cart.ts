@@ -85,7 +85,7 @@ export const useCartStore = create<CartState>()(
 export function useCartTotals(shippingOption?: string) {
   const items = useCartStore(s => s.items)
   const subtotal  = items.reduce((s, i) => s + i.total, 0)
-  const needsDelivery = shippingOption === 'LOCAL_DELIVERY' || shippingOption === 'PRODIGIO_DELIVERS'
+  const needsDelivery = shippingOption === 'LOCAL_DELIVERY'
   const shipping  = 0 // Transportkosten immer per E-Mail bestätigt
   const label     = needsDelivery ? shippingLabel(subtotal) : 'Abholung'
   const taxBreak  = calcCartTaxBreakdown(items, shipping)

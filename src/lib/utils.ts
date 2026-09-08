@@ -45,8 +45,7 @@ export function tierPrice(basePrice: number, tiers: PriceTier[], qty: number): n
 }
 
 /** Versandkostenrechner PRO.DI.GIO
- *  Gilt nur bei Lieferung (LOCAL_DELIVERY / PRODIGIO_DELIVERS).
- *  Abholung (LOCAL_PICKUP / SELF_PICKUP) = CHF 0.00
+ *  Gilt nur bei Lieferung (LOCAL_DELIVERY). Abholung (LOCAL_PICKUP) = CHF 0.00
  *
  *  Staffel nach Bestellwert (Netto ohne MwSt.):
  *  bis CHF 100   → CHF  9.90

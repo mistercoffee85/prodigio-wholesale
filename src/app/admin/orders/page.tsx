@@ -133,10 +133,10 @@ export default function AdminOrdersPage() {
                       <td style={{ fontSize: 11.5, lineHeight: 1.6 }}>
                         {/* Primary shipping option */}
                         <div style={{ color: o.shippingPending ? '#b45309' : 'var(--gray-600)', fontWeight: 600 }}>
-                          {o.shippingOption === 'SELF_PICKUP'   && '🚗 Ex Works IT'}
-                          {o.shippingOption === 'LOCAL_PICKUP'  && '🏢 Abholung Basel'}
-                          {o.shippingOption === 'LOCAL_DELIVERY'    && '🚚 Lieferung Basel'}
-                          {o.shippingOption === 'PRODIGIO_DELIVERS' && '🚚 Transport IT'}
+                          {o.shippingOption === 'LOCAL_PICKUP'   && '🏢 Abholung Basel'}
+                          {o.shippingOption === 'LOCAL_DELIVERY'  && '🚚 Lieferung Basel'}
+                          {/* Only the two orders placed before Ex Works was retired */}
+                          {o.shippingOption === 'PRODIGIO_DELIVERS' && '🚚 Lieferung (alt)'}
                         </div>
                         {/* Secondary option for mixed carts */}
                         {o.shippingOptionLocal && (
@@ -248,7 +248,7 @@ export default function AdminOrdersPage() {
                               {[
                                 ['Warenkorb', formatPrice(Number(o.subtotal))],
                                 ['MwSt.', formatPrice(Number(o.tax))],
-                                ['Transport', o.shippingOption === 'SELF_PICKUP' ? '🚗 Ex Works' : (o.shippingPending ? '⏳ offen' : formatPrice(Number(o.shippingCost)))],
+                                ['Transport', o.shippingPending ? '⏳ offen' : formatPrice(Number(o.shippingCost))],
                               ].map(([l, v]) => (
                                 <div key={l} style={{ display: 'flex', justifyContent: 'space-between', padding: '3px 0', color: 'var(--gray-500)' }}>
                                   <span>{l}</span><span>{v}</span>
