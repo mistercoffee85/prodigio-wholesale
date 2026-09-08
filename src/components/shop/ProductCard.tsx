@@ -283,7 +283,7 @@ export default function ProductCard({ product: p, priority, approved = false }: 
                 {/* BIG: Gesamtpreis für VE */}
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: 4 }}>
                   <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--black)', lineHeight: 1 }}>
-                    {formatPrice(moqTotal)}
+                    {formatPrice(tiers.length ? lineTotal : moqTotal)}
                   </div>
                   {p.comparePrice && (
                     <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--accent)', marginLeft: 'auto' }}>
@@ -294,9 +294,11 @@ export default function ProductCard({ product: p, priority, approved = false }: 
 
                 {/* Formel: X × CHF y.yy */}
                 <div style={{ fontSize: 11, color: 'var(--gray-500)', marginBottom: 2 }}>
-                  {activeMoq > 1
-                    ? `${activeMoq} × ${formatPrice(activePrice)}`
-                    : unitLabel}
+                  {tiers.length
+                    ? `${qty} × ${formatPrice(tieredPrice)}`
+                    : activeMoq > 1
+                      ? `${activeMoq} × ${formatPrice(activePrice)}`
+                      : unitLabel}
                 </div>
               </div>
             )}

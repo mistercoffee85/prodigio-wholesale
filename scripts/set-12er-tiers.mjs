@@ -6,6 +6,8 @@ const p = new PrismaClient()
 // Retailer-Tabelle: EK = VK x (1 - Handelsmarge), und VK ist dort über alle
 // vier Zeilen konsistent CHF 4.10  ->  4.10 x 0.75 = 3.07.
 const TIERS = [
+  { minQty:    1, price: 3.07 },  // 1-215, 25% Handelsmarge — als Stufe geführt,
+                                  // damit die Staffeltabelle im Shop lückenlos ist
   { minQty:  216, price: 2.99 },  // ab 1 Masterkarton
   { minQty: 1080, price: 2.87 },  // ¼ Palette
   { minQty: 2160, price: 2.74 },  // ½ Palette
