@@ -19,12 +19,6 @@ export function formatPrice(amount: number | string): string {
   return `CHF ${Number(amount).toFixed(2)}`
 }
 
-/** Apply price group discount */
-export function applyDiscount(price: number, priceGroup: string): number {
-  const factors: Record<string, number> = { STANDARD: 1, PREMIUM: 0.9, VIP: 0.8 }
-  return Math.round(price * (factors[priceGroup] ?? 1) * 100) / 100
-}
-
 export type PriceTier = { minQty: number; price: number }
 
 /** Parse the priceTiers JSON column into a sorted, validated tier list. */
@@ -48,12 +42,6 @@ export function tierPrice(basePrice: number, tiers: PriceTier[], qty: number): n
     else break
   }
   return price
-}
-
-/** Discount label */
-export function discountLabel(priceGroup: string): string | null {
-  const labels: Record<string, string> = { PREMIUM: '-10%', VIP: '-20%' }
-  return labels[priceGroup] ?? null
 }
 
 /** Versandkostenrechner PRO.DI.GIO
@@ -155,6 +143,5 @@ export const STATUS_LABELS: Record<string, string> = {
   PENDING: 'Ausstehend', CONFIRMED: 'Bestätigt', PROCESSING: 'In Bearbeitung',
   SHIPPED: 'Versendet', DELIVERED: 'Geliefert', CANCELLED: 'Storniert',
   UNPAID: 'Unbezahlt', PAID: 'Bezahlt', PARTIALLY_PAID: 'Teilweise bezahlt', REFUNDED: 'Erstattet',
-  STANDARD: 'Standard', PREMIUM: 'Premium (-10%)', VIP: 'VIP (-20%)',
   APPROVED: 'Freigegeben', REJECTED: 'Abgelehnt',
 }

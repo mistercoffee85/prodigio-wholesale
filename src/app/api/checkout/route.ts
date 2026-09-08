@@ -5,7 +5,7 @@ import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { requireAuth } from '@/lib/auth'
 import { stripe, toStripeAmount } from '@/lib/stripe'
-import { generateOrderNumber, calcShipping, shippingLabel, calcCartTaxBreakdown, applyDiscount, parseTiers, tierPrice } from '@/lib/utils'
+import { generateOrderNumber, calcShipping, shippingLabel, calcCartTaxBreakdown, parseTiers, tierPrice } from '@/lib/utils'
 import { sendOrderConfirmationEmail } from '@/lib/email'
 
 const itemSchema = z.object({
@@ -36,7 +36,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Konto nicht freigegeben' }, { status: 403 })
     }
 
-    const priceGroup = user.company?.priceGroup ?? 'STANDARD'
 
     // Fetch and validate products
     const productIds = items.map(i => i.productId)
@@ -78,10 +77,8 @@ export async function POST(req: NextRequest) {
         // packCount multiplies the per-pack price to get total per VE
         unitPrice = variant.price * (variant.packCount ?? 1)
       } else {
-        // Volume tier first, then the customer's price-group discount on top.
         const tiers = parseTiers(product.priceTiers)
-        const base  = tierPrice(Number(product.price), tiers, item.quantity)
-        unitPrice   = applyDiscount(base, priceGroup)
+        unitPrice   = tierPrice(Number(product.price), tiers, item.quantity)
       }
 
       return {

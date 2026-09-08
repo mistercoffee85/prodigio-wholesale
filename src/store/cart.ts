@@ -7,8 +7,7 @@ import { calcShipping, shippingLabel, calcCartTaxBreakdown, parseTiers, tierPric
 
 /** Re-price a line for a new quantity. Volume tiers make unitPrice a function of
  *  quantity, so it cannot stay frozen at the value captured when the item was added.
- *  basePrice and priceTiers arrive from the API already carrying the group discount,
- *  so no discount is applied here. Lines without tiers keep their unitPrice untouched.
+ *  Lines without tiers keep their unitPrice untouched.
  *  The server re-derives all of this from the DB at checkout; this is display only. */
 function reprice(i: CartItem, quantity: number): CartItem {
   const tiers = parseTiers(i.priceTiers)

@@ -42,7 +42,6 @@ export const authOptions: NextAuthOptions = {
           name: user.name,
           role: user.role,
           status: user.status,
-          priceGroup: user.company?.priceGroup ?? 'STANDARD',
           companyName: user.company?.name ?? null,
         }
       },
@@ -54,7 +53,6 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id
         token.role = (user as any).role
         token.status = (user as any).status
-        token.priceGroup = (user as any).priceGroup
         token.companyName = (user as any).companyName
       }
       return token
@@ -64,7 +62,6 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.id as string
         session.user.role = token.role as string
         session.user.status = token.status as string
-        session.user.priceGroup = token.priceGroup as string
         session.user.companyName = token.companyName as string | null
       }
       return session

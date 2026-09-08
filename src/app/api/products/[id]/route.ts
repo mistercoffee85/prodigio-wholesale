@@ -3,7 +3,6 @@ import { NextRequest, NextResponse } from 'next/server'
 export const dynamic = 'force-dynamic'
 import { prisma } from '@/lib/prisma'
 import { getSession } from '@/lib/auth'
-import { applyDiscount } from '@/lib/utils'
 
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
   try {
@@ -14,11 +13,10 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
     if (!product) return NextResponse.json({ error: 'Nicht gefunden' }, { status: 404 })
 
     const session = await getSession()
-    const priceGroup = session?.user?.priceGroup ?? 'STANDARD'
 
     return NextResponse.json({
       ...product,
-      price: applyDiscount(Number(product.price), priceGroup),
+      price: Number(product.price),
       comparePrice: product.comparePrice ? Number(product.comparePrice) : null,
     })
   } catch (err) {

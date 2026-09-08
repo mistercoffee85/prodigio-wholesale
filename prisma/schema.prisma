@@ -48,7 +48,6 @@ model Company {
   zip         String
   country     String     @default("CH")
   vatNumber   String?
-  priceGroup  PriceGroup @default(STANDARD)
   creditLimit Decimal    @default(0)
   userId      String     @unique
   createdAt   DateTime   @default(now())
@@ -194,12 +193,6 @@ enum UserStatus {
   PENDING
   APPROVED
   REJECTED
-}
-
-enum PriceGroup {
-  STANDARD
-  PREMIUM
-  VIP
 }
 
 enum OrderStatus {

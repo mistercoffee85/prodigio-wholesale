@@ -5,7 +5,7 @@ import { STATUS_LABELS } from '@/lib/utils'
 
 interface Customer {
   id: string; name: string; email: string; status: string; createdAt: string
-  company: { name: string; industry: string; uid?: string; priceGroup: string; city: string } | null
+  company: { name: string; industry: string; uid?: string; city: string } | null
   _count: { orders: number }
 }
 
@@ -24,11 +24,11 @@ export default function CustomersPage() {
 
   useEffect(() => { fetchCustomers() }, [filter])
 
-  const handleAction = async (userId: string, action: 'approve' | 'reject', priceGroup?: string) => {
+  const handleAction = async (userId: string, action: 'approve' | 'reject') => {
     const res = await fetch('/api/admin/customers', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, action, priceGroup }),
+      body: JSON.stringify({ userId, action }),
     })
     const data = await res.json()
     if (res.ok) {
@@ -61,7 +61,7 @@ export default function CustomersPage() {
         : (
           <div className="table-wrap">
             <table>
-              <thead><tr><th>Firma</th><th>Kontakt</th><th>Branche</th><th>Preisgruppe</th><th>Bestellungen</th><th>Registriert</th><th>Aktionen</th></tr></thead>
+              <thead><tr><th>Firma</th><th>Kontakt</th><th>Branche</th><th>Bestellungen</th><th>Registriert</th><th>Aktionen</th></tr></thead>
               <tbody>
                 {customers.map(c => (
                   <tr key={c.id}>
@@ -74,25 +74,16 @@ export default function CustomersPage() {
                       <a href={`mailto:${c.email}`} style={{ fontSize: 12, color: 'var(--accent)' }}>{c.email}</a>
                     </td>
                     <td style={{ fontSize: 13, color: 'var(--gray-600)' }}>{c.company?.industry}</td>
-                    <td>
-                      <span className={`badge ${c.company?.priceGroup === 'VIP' ? 'badge-purple' : c.company?.priceGroup === 'PREMIUM' ? 'badge-blue' : 'badge-gray'}`}>
-                        {c.company?.priceGroup ?? 'STANDARD'}
-                      </span>
-                    </td>
                     <td style={{ textAlign: 'center', fontWeight: 600 }}>{c._count.orders}</td>
                     <td style={{ fontSize: 12.5, color: 'var(--gray-600)' }}>{new Date(c.createdAt).toLocaleDateString('de-CH')}</td>
                     <td>
                       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                         {c.status === 'PENDING' && <>
-                          <button className="btn btn-primary btn-sm" onClick={() => handleAction(c.id, 'approve', 'STANDARD')}>Freigeben</button>
+                          <button className="btn btn-primary btn-sm" onClick={() => handleAction(c.id, 'approve')}>Freigeben</button>
                           <button className="btn btn-danger btn-sm" onClick={() => handleAction(c.id, 'reject')}>Ablehnen</button>
                         </>}
-                        {c.status === 'APPROVED' && <>
-                          <button className="btn btn-outline btn-sm" onClick={() => handleAction(c.id, 'approve', 'PREMIUM')}>→ Premium</button>
-                          <button className="btn btn-outline btn-sm" onClick={() => handleAction(c.id, 'approve', 'VIP')}>→ VIP</button>
-                        </>}
                         {c.status === 'REJECTED' && (
-                          <button className="btn btn-outline btn-sm" onClick={() => handleAction(c.id, 'approve', 'STANDARD')}>Doch freigeben</button>
+                          <button className="btn btn-outline btn-sm" onClick={() => handleAction(c.id, 'approve')}>Doch freigeben</button>
                         )}
                       </div>
                     </td>

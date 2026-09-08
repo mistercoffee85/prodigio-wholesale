@@ -111,7 +111,7 @@ function LoginForm() {
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
             {[
-              { icon: '💰', text: 'STANDARD · PREMIUM · VIP Preise' },
+              { icon: '💰', text: 'Exklusive B2B-Grosshandelspreise' },
               { icon: '🚚', text: 'Lieferung & Abholung in der Schweiz' },
               { icon: '📦', text: '88+ Produkte, Direktimport' },
             ].map(({ icon, text }) => (
@@ -142,7 +142,7 @@ function LoginForm() {
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               {[
-                { icon: '💰', text: 'STANDARD · PREMIUM · VIP Preise' },
+                { icon: '💰', text: 'Exklusive B2B-Grosshandelspreise' },
                 { icon: '🚚', text: 'Lieferung & Abholung in der Schweiz' },
                 { icon: '📦', text: '88+ Produkte, Direktimport' },
               ].map(({ icon, text }) => (

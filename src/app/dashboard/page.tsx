@@ -31,8 +31,6 @@ export default async function DashboardPage() {
   const totalOrders = orders.length
   const pendingOrders = orders.filter(o => o.status === 'PENDING' || o.status === 'CONFIRMED').length
 
-  const priceGroupColor = session.user.priceGroup === 'VIP' ? '#7c3aed' : session.user.priceGroup === 'PREMIUM' ? '#c2430c' : '#1a9e7a'
-  const priceGroupBg    = session.user.priceGroup === 'VIP' ? '#f5f3ff' : session.user.priceGroup === 'PREMIUM' ? '#fff7ed' : '#f0fdf9'
 
   const ORDER_COLOR: Record<string, string> = {
     PENDING: 'badge-yellow', CONFIRMED: 'badge-blue', PROCESSING: 'badge-blue',
@@ -114,9 +112,9 @@ export default async function DashboardPage() {
                 )}
                 <span style={{
                   fontSize: 11, fontWeight: 700, padding: '3px 12px', borderRadius: 20,
-                  background: priceGroupBg, color: priceGroupColor,
+                  background: '#f0fdf9', color: '#1a9e7a',
                 }}>
-                  {session.user.priceGroup === 'VIP' ? '⭐ VIP' : session.user.priceGroup === 'PREMIUM' ? '🏆 Premium' : '✓ Standard'} Preise
+                  ✓ B2B-Preise
                 </span>
               </div>
             </div>
@@ -135,7 +133,6 @@ export default async function DashboardPage() {
             {[
               { label: 'Bestellungen gesamt', value: totalOrders.toString(), icon: '📦', sub: totalOrders === 0 ? 'Noch keine' : `${pendingOrders} in Bearbeitung` },
               { label: 'Bezahlter Umsatz',    value: formatPrice(totalSpent),   icon: '💰', sub: 'Alle bezahlten Bestellungen' },
-              { label: 'Preisgruppe',          value: STATUS_LABELS[session.user.priceGroup] ?? session.user.priceGroup, icon: session.user.priceGroup === 'VIP' ? '⭐' : session.user.priceGroup === 'PREMIUM' ? '🏆' : '🏷️', sub: 'Ihre Konditionen' },
             ].map(s => (
               <div key={s.label} className="dash-stat" style={{
                 background: 'rgba(255,255,255,.1)', backdropFilter: 'blur(8px)',

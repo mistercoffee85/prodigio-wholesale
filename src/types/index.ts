@@ -7,7 +7,6 @@ declare module 'next-auth' {
       id: string
       role: string
       status: string
-      priceGroup: string
       companyName: string | null
     }
   }
@@ -29,7 +28,6 @@ export interface CartItem {
   unitPrice: number   // already discounted price for the CURRENT quantity
   basePrice?: number  // undiscounted list price, needed to re-derive tier prices
   priceTiers?: { minQty: number; price: number }[]
-  priceGroup?: string // customer group the unitPrice was derived with
   total: number
   taxRate?: number        // 0.026 Lebensmittel | 0.081 Normalsatz
   supplierSource?: string // 'migroweb' = Cash & Carry IT, undefined/null = local stock

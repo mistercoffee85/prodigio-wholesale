@@ -352,16 +352,6 @@ export default function Header() {
                         {session.user.companyName ?? session.user.name}
                       </div>
                       <div style={{ fontSize:12, color:'var(--gray-400)' }}>{session.user.email}</div>
-                      {session.user.priceGroup && session.user.priceGroup !== 'STANDARD' && (
-                        <span style={{
-                          display:'inline-block', marginTop:8, fontSize:11, fontWeight:700,
-                          color: session.user.priceGroup === 'VIP' ? '#92650a' : 'var(--accent)',
-                          background: session.user.priceGroup === 'VIP' ? '#fdf8ec' : 'var(--accent-light)',
-                          padding:'3px 10px', borderRadius:20,
-                        }}>
-                          {session.user.priceGroup === 'VIP' ? '⭐ VIP (-20%)' : '🏆 Premium (-10%)'}
-                        </span>
-                      )}
                     </div>
                     <div style={{ padding:'6px 0' }}>
                       {[

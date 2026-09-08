@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getSession } from '@/lib/auth'
-import { applyDiscount, parseTiers } from '@/lib/utils'
+import { parseTiers } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
 
@@ -18,7 +18,6 @@ export async function GET(req: NextRequest) {
 
     const session = await getSession()
     const approved   = session?.user?.status === 'APPROVED'
-    const priceGroup = session?.user?.priceGroup ?? 'STANDARD'
 
     // Special virtual category: cash-carry → filter by supplierSource=migroweb
     const isCashCarry = category === 'cash-carry'
@@ -66,11 +65,8 @@ export async function GET(req: NextRequest) {
     const priced = products.map(p => ({
       ...p,
       // Hide prices for non-approved users — show 0 so UI knows to display lock
-      price:         approved ? applyDiscount(Number(p.price), priceGroup) : 0,
-      // Tier prices carry the group discount too, so the client never applies it twice.
-      priceTiers:    approved
-        ? parseTiers(p.priceTiers).map(t => ({ ...t, price: applyDiscount(t.price, priceGroup) }))
-        : [],
+      price:         approved ? Number(p.price) : 0,
+      priceTiers:    approved ? parseTiers(p.priceTiers) : [],
       comparePrice:  approved && p.comparePrice ? Number(p.comparePrice) : null,
       originalPrice: approved ? Number(p.price) : 0,
       taxRate:       Number(p.taxRate),

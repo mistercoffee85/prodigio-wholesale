@@ -39,14 +39,13 @@ export async function GET(req: NextRequest) {
 const actionSchema = z.object({
   userId: z.string(),
   action: z.enum(['approve', 'reject']),
-  priceGroup: z.enum(['STANDARD', 'PREMIUM', 'VIP']).optional(),
 })
 
 export async function POST(req: NextRequest) {
   try {
     await requireAdmin()
     const body = await req.json()
-    const { userId, action, priceGroup } = actionSchema.parse(body)
+    const { userId, action } = actionSchema.parse(body)
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -59,12 +58,6 @@ export async function POST(req: NextRequest) {
         where: { id: userId },
         data: { status: 'APPROVED' },
       })
-      if (priceGroup && user.company) {
-        await prisma.company.update({
-          where: { id: user.company.id },
-          data: { priceGroup: priceGroup as any },
-        })
-      }
       // await: Vercel friert die Funktion nach der Response ein
       await sendApprovalEmail(user.email, user.name).catch(console.error)
       return NextResponse.json({ message: 'Kunde freigegeben' })

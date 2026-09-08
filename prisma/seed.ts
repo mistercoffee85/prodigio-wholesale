@@ -1,4 +1,4 @@
-import { PrismaClient, Role, UserStatus, PriceGroup } from '@prisma/client'
+import { PrismaClient, Role, UserStatus } from '@prisma/client'
 import bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()
@@ -41,7 +41,6 @@ async function main() {
           zip: '8001',
           country: 'CH',
           uid: 'CHE-123.456.789',
-          priceGroup: PriceGroup.STANDARD,
         },
       },
     },
