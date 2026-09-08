@@ -29,7 +29,7 @@ const DEFAULTS = {
     { icon: '🚚', main: 'Schnelle Lieferung',       sub: '2–4 Werktage · Schweizweit' },
     { icon: '🏭', main: 'Direktimport',              sub: 'Beste Konditionen schweizweit' },
     { icon: '✅', main: 'Kein Zwischenhandel',       sub: 'Direkt vom Importeur' },
-    { icon: '📦', main: 'Flexible Mindestmengen',   sub: 'Ab 6 Verkaufseinheiten' },
+    { icon: '📦', main: 'Flexible Mindestmengen',   sub: '' },
     { icon: '🇨🇭', main: 'Schweizer Unternehmen',  sub: 'Prodigio GmbH seit 2013' },
   ]),
 }

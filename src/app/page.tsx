@@ -68,7 +68,7 @@ const CMS_DEFAULTS = {
     { icon: '🚚', main: 'Schnelle Lieferung',       sub: '2–4 Werktage · Schweizweit' },
     { icon: '🏭', main: 'Direktimport',              sub: 'Beste Konditionen schweizweit' },
     { icon: '✅', main: 'Kein Zwischenhandel',       sub: 'Direkt vom Importeur' },
-    { icon: '📦', main: 'Flexible Mindestmengen',   sub: 'Ab 6 Verkaufseinheiten' },
+    { icon: '📦', main: 'Flexible Mindestmengen',   sub: '' },
     { icon: '🇨🇭', main: 'Schweizer Unternehmen',  sub: 'Prodigio GmbH seit 2013' },
   ]),
 }
@@ -123,6 +123,10 @@ export default async function HomePage() {
         }
         .trust-item:last-child { border-right: none; }
         .trust-icon { font-size: 20px; flex-shrink: 0; }
+        /* Items are vertically centred, so a tile without a subtitle would sit ~10px
+           lower than the rest. Reserve the two-line height (21px main + 1px gap +
+           19px sub) so every bold line stays on the same baseline. */
+        .trust-text { min-height: 41px; }
         .trust-text-main { font-size: 13px; font-weight: 700; color: var(--black); }
         .trust-text-sub { font-size: 11.5px; color: var(--gray-400); margin-top: 1px; }
 
@@ -296,9 +300,9 @@ export default async function HomePage() {
           {trustBar.map(({ icon, main, sub }) => (
             <div key={main} className="trust-item">
               <span className="trust-icon">{icon}</span>
-              <div>
+              <div className="trust-text">
                 <div className="trust-text-main">{main}</div>
-                <div className="trust-text-sub">{sub}</div>
+                {sub && <div className="trust-text-sub">{sub}</div>}
               </div>
             </div>
           ))}
