@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import { useCartStore } from '@/store/cart'
-import { formatPrice } from '@/lib/utils'
+import { formatPrice, parseTiers, tierPrice } from '@/lib/utils'
 import toast from 'react-hot-toast'
 
 interface Variant {
@@ -18,6 +18,7 @@ interface Product {
   taxRate?: number        // 0.026 | 0.081
   supplierSource?: string // 'migroweb' = Cash & Carry IT
   images?: string[]; variants?: Variant[]
+  priceTiers?: { minQty: number; price: number }[]
 }
 
 const BADGE: Record<string, { label: string; bg: string }> = {
@@ -77,10 +78,15 @@ export default function ProductCard({ product: p, priority, approved = false }: 
     setQty(v.moq)
   }
 
+  // Volume tiers (already discounted by the API). Variants have their own pricing.
+  const tiers = selectedVariant ? [] : parseTiers(p.priceTiers)
+  const tieredPrice = tiers.length ? tierPrice(activePrice, tiers, qty) : activePrice
+  const lineTotal   = Math.round(tieredPrice * qty * 100) / 100
+
   // Cart price = price × packCount (e.g. ½ Palette: 26.90 × 20 = 538.00)
   const cartUnitPrice = selectedVariant
     ? activePrice * (selectedVariant.packCount ?? 1)
-    : activePrice
+    : tieredPrice
 
   const handleAdd = (e?: React.MouseEvent) => {
     e?.stopPropagation()
@@ -100,6 +106,8 @@ export default function ProductCard({ product: p, priority, approved = false }: 
       moq: activeMoq,
       quantity: qty,
       unitPrice: cartUnitPrice,
+      basePrice: tiers.length ? activePrice : undefined,
+      priceTiers: tiers.length ? tiers : undefined,
       taxRate: p.taxRate ?? 0.081,
       supplierSource: p.supplierSource,
     })
@@ -428,7 +436,7 @@ export default function ProductCard({ product: p, priority, approved = false }: 
                         {/* BIG: Gesamtpreis für VE */}
                         <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 6 }}>
                           <div style={{ fontSize: 34, fontWeight: 800, color: 'var(--black)', lineHeight: 1 }}>
-                            {formatPrice(moqTotal)}
+                            {formatPrice(tiers.length ? lineTotal : moqTotal)}
                           </div>
                           {p.comparePrice && (
                             <div style={{ marginLeft: 'auto', textAlign: 'right' }}>
@@ -439,8 +447,36 @@ export default function ProductCard({ product: p, priority, approved = false }: 
                         </div>
                         {/* Formel */}
                         <div style={{ fontSize: 12.5, color: 'var(--gray-500)', marginBottom: 8 }}>
-                          {activeMoq > 1 ? `${activeMoq} × ${formatPrice(activePrice)}` : unitLabel}
+                          {tiers.length
+                            ? `${qty} × ${formatPrice(tieredPrice)}`
+                            : activeMoq > 1 ? `${activeMoq} × ${formatPrice(activePrice)}` : unitLabel}
                         </div>
+
+                        {/* Volume tier table — the row matching the chosen quantity is highlighted */}
+                        {tiers.length > 0 && (
+                          <div style={{ marginTop: 12, borderTop: '1px solid var(--gray-100)', paddingTop: 10 }}>
+                            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: 'var(--gray-400)', marginBottom: 7 }}>
+                              Staffelpreise
+                            </div>
+                            {tiers.map((t, idx) => {
+                              const next   = tiers[idx + 1]
+                              const range  = next ? `${t.minQty}–${next.minQty - 1}` : `ab ${t.minQty}`
+                              const active = tieredPrice === t.price && qty >= t.minQty && (!next || qty < next.minQty)
+                              return (
+                                <div key={t.minQty} style={{
+                                  display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                                  fontSize: 12.5, padding: '4px 8px', borderRadius: 6, marginBottom: 2,
+                                  background: active ? 'rgba(26,158,122,.12)' : 'transparent',
+                                  color: active ? 'var(--accent-dark)' : 'var(--gray-500)',
+                                  fontWeight: active ? 700 : 400,
+                                }}>
+                                  <span>{range} {activeUnit || 'Stk'}</span>
+                                  <span>{formatPrice(t.price)}</span>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        )}
                         {p.stock > 0 && p.stock < 20 && (
                           <div style={{ color: '#c2430c', fontSize: 12, marginTop: 4 }}>⚠ Nur {p.stock} Stk verfügbar</div>
                         )}

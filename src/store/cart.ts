@@ -3,7 +3,20 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { useEffect, useState } from 'react'
 import { CartItem, CartState } from '@/types'
-import { calcShipping, shippingLabel, calcCartTaxBreakdown } from '@/lib/utils'
+import { calcShipping, shippingLabel, calcCartTaxBreakdown, parseTiers, tierPrice } from '@/lib/utils'
+
+/** Re-price a line for a new quantity. Volume tiers make unitPrice a function of
+ *  quantity, so it cannot stay frozen at the value captured when the item was added.
+ *  basePrice and priceTiers arrive from the API already carrying the group discount,
+ *  so no discount is applied here. Lines without tiers keep their unitPrice untouched.
+ *  The server re-derives all of this from the DB at checkout; this is display only. */
+function reprice(i: CartItem, quantity: number): CartItem {
+  const tiers = parseTiers(i.priceTiers)
+  const unitPrice = tiers.length && i.basePrice != null
+    ? tierPrice(i.basePrice, tiers, quantity)
+    : i.unitPrice
+  return { ...i, quantity, unitPrice, total: Math.round(unitPrice * quantity * 100) / 100 }
+}
 
 export const useCartStore = create<CartState>()(
   persist(
@@ -23,14 +36,14 @@ export const useCartStore = create<CartState>()(
               isOpen: true,
               items: state.items.map(i =>
                 i.cartKey === key
-                  ? { ...i, quantity: i.quantity + item.quantity, total: (i.quantity + item.quantity) * i.unitPrice }
+                  ? reprice(i, i.quantity + item.quantity)
                   : i
               ),
             }
           }
           return {
             isOpen: true,
-            items: [...state.items, { ...item, total: item.quantity * item.unitPrice }],
+            items: [...state.items, reprice(item as CartItem, item.quantity)],
           }
         })
       },
@@ -42,7 +55,7 @@ export const useCartStore = create<CartState>()(
         set(state => ({
           items: state.items.map(i =>
             i.cartKey === cartKey
-              ? { ...i, quantity, total: quantity * i.unitPrice }
+              ? reprice(i, quantity)
               : i
           ),
         })),

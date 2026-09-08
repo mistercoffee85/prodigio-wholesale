@@ -98,6 +98,9 @@ model Product {
   createdAt      DateTime    @default(now())
   updatedAt      DateTime    @updatedAt
   variants       Json        @default("[]")
+  // Volume pricing: [{minQty, price}] sorted ascending; the highest minQty <= ordered
+  // quantity wins. Empty = flat `price` applies at every quantity.
+  priceTiers     Json        @default("[]")
   taxRate        Decimal     @default(0.081)
   costPrice      Decimal?
   lastSyncedAt   DateTime?

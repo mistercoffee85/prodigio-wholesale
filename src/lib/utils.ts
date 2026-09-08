@@ -25,6 +25,31 @@ export function applyDiscount(price: number, priceGroup: string): number {
   return Math.round(price * (factors[priceGroup] ?? 1) * 100) / 100
 }
 
+export type PriceTier = { minQty: number; price: number }
+
+/** Parse the priceTiers JSON column into a sorted, validated tier list. */
+export function parseTiers(raw: unknown): PriceTier[] {
+  if (!Array.isArray(raw)) return []
+  return raw
+    .filter((t): t is PriceTier =>
+      !!t && typeof t === 'object' &&
+      Number.isFinite(Number((t as PriceTier).minQty)) &&
+      Number.isFinite(Number((t as PriceTier).price)))
+    .map(t => ({ minQty: Number(t.minQty), price: Number(t.price) }))
+    .sort((a, b) => a.minQty - b.minQty)
+}
+
+/** Unit price for a quantity: the highest tier whose minQty is still <= qty.
+ *  Falls back to basePrice when no tier qualifies (or none are defined). */
+export function tierPrice(basePrice: number, tiers: PriceTier[], qty: number): number {
+  let price = basePrice
+  for (const t of tiers) {
+    if (qty >= t.minQty) price = t.price
+    else break
+  }
+  return price
+}
+
 /** Discount label */
 export function discountLabel(priceGroup: string): string | null {
   const labels: Record<string, string> = { PREMIUM: '-10%', VIP: '-20%' }
