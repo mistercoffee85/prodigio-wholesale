@@ -5,9 +5,10 @@ const p = new PrismaClient()
 //   Ware        EUR 2.95 ex works
 // + Transport   EUR 0.139  (Rechnung EUR 5814.25 inkl. EUR 260 Transport,
 //                           verteilt auf 1820 Flaschen + 2x25 Holzaufsteller)
-// = EUR 3.089 x 0.9441 (EZB 15.09.2026) = CHF 2.92
+// = EUR 3.089, bewusst zu 1:1 gerechnet (konservative Hauskalkulation,
+//   puffert Kursschwankungen; EZB-Kurs lag am 15.09.2026 bei 0.9441) = CHF 3.09
 // Zoll/Einfuhrabgaben sind hier NICHT enthalten — auf der Rechnung stand nur Transport.
-const EUR = 2.95, TRANSPORT_EUR = 260 / 1870, RATE = 0.9441
+const EUR = 2.95, TRANSPORT_EUR = 260 / 1870, RATE = 1.00
 const cost = Math.round((EUR + TRANSPORT_EUR) * RATE * 100) / 100
 
 // Nur echte Flaschen. Die "Probier-Teebox | 20 Sorten" ist ein anderer Artikel.
