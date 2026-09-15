@@ -1,18 +1,21 @@
 import { PrismaClient } from '@prisma/client'
 const p = new PrismaClient()
 
-// Einstand EUR 2.95 ex works, bestätigt für normale UND Bio-Flaschen.
-// EZB-Referenzkurs 15.09.2026: 1 EUR = 0.9441 CHF.
-// Achtung: ex works — Fracht und Verzollung sind hier NICHT enthalten.
-const EUR = 2.95, RATE = 0.9441
-const cost = Math.round(EUR * RATE * 100) / 100
+// Einstand frei Lager (landed), bestätigt für normale UND Bio-Flaschen.
+//   Ware        EUR 2.95 ex works
+// + Transport   EUR 0.139  (Rechnung EUR 5814.25 inkl. EUR 260 Transport,
+//                           verteilt auf 1820 Flaschen + 2x25 Holzaufsteller)
+// = EUR 3.089 x 0.9441 (EZB 15.09.2026) = CHF 2.92
+// Zoll/Einfuhrabgaben sind hier NICHT enthalten — auf der Rechnung stand nur Transport.
+const EUR = 2.95, TRANSPORT_EUR = 260 / 1870, RATE = 0.9441
+const cost = Math.round((EUR + TRANSPORT_EUR) * RATE * 100) / 100
 
 // Nur echte Flaschen. Die "Probier-Teebox | 20 Sorten" ist ein anderer Artikel.
 const r = await p.product.updateMany({
   where: { active: true, unit: { in: ['Glasflasche', 'Glasflasche / Stück'] } },
   data:  { costPrice: cost },
 })
-console.log(`EUR ${EUR} x ${RATE} = CHF ${cost.toFixed(2)} auf ${r.count} Flaschen gesetzt\n`)
+console.log(`EUR ${(EUR + TRANSPORT_EUR).toFixed(4)} landed x ${RATE} = CHF ${cost.toFixed(2)} auf ${r.count} Flaschen gesetzt\n`)
 
 const rows = await p.product.findMany({
   where: { active: true, costPrice: { not: null } },
