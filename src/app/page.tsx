@@ -108,6 +108,68 @@ export default async function HomePage() {
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: `
+        /* ── HERO ── */
+        .hero-section {
+          position: relative; overflow: hidden;
+          background: #0b0b0f;
+          min-height: clamp(420px, 52vw, 680px);
+          display: flex; align-items: center;
+        }
+        .hero-bg {
+          position: absolute; inset: 0;
+          background: url('/hero-banner.webp') center right / cover no-repeat;
+          opacity: .55;
+        }
+        .hero-gradient {
+          position: absolute; inset: 0;
+          background: linear-gradient(90deg, #0b0b0f 38%, rgba(11,11,15,.55) 62%, transparent 80%);
+        }
+        .hero-content {
+          position: relative; z-index: 1;
+          padding: clamp(48px,8vw,100px) clamp(24px,5vw,80px);
+          max-width: 620px;
+        }
+        .hero-tag {
+          font-size: 11px; font-weight: 700; letter-spacing: 3px;
+          text-transform: uppercase; color: rgba(255,255,255,.45);
+          margin-bottom: 22px;
+        }
+        .hero-h1 {
+          font-family: 'Archivo', sans-serif; font-weight: 900;
+          font-size: clamp(34px, 5.5vw, 68px);
+          color: #fff; line-height: 1.06; margin: 0 0 22px;
+        }
+        .hero-accent { color: #d4a8ff; }
+        .hero-sub {
+          font-size: clamp(14px, 1.5vw, 17px);
+          color: rgba(255,255,255,.6); line-height: 1.75;
+          margin: 0 0 36px; max-width: 460px;
+        }
+        .hero-btns { display: flex; gap: 14px; flex-wrap: wrap; }
+        .hero-btn-primary {
+          display: inline-flex; align-items: center;
+          background: var(--accent); color: #fff;
+          padding: 14px 28px; border-radius: 10px;
+          font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 15px;
+          text-decoration: none; transition: background .15s;
+        }
+        .hero-btn-primary:hover { background: var(--accent-dark); }
+        .hero-btn-ghost {
+          display: inline-flex; align-items: center;
+          background: rgba(255,255,255,.1); color: rgba(255,255,255,.8);
+          border: 1.5px solid rgba(255,255,255,.2);
+          padding: 14px 28px; border-radius: 10px;
+          font-family: 'Archivo', sans-serif; font-weight: 600; font-size: 15px;
+          text-decoration: none; transition: background .15s;
+        }
+        .hero-btn-ghost:hover { background: rgba(255,255,255,.18); color: #fff; }
+        @media (max-width: 640px) {
+          .hero-bg { background-position: 70% center; }
+          .hero-gradient { background: linear-gradient(180deg, rgba(11,11,15,.85) 55%, transparent 100%); }
+          .hero-content { padding: 48px 20px 60px; max-width: 100%; }
+          .hero-btns { flex-direction: column; align-items: flex-start; }
+        }
+
         /* ── TRUST BAR ── */
         .trust-bar {
           background: white; border-bottom: 1px solid var(--gray-100);
@@ -326,7 +388,7 @@ export default async function HomePage() {
         {/* ══ ANKÜNDIGUNG ══════════════════════════════════════════════ */}
         {announcementActive && announcement && (
           <div style={{
-            background: 'linear-gradient(90deg, #10b981, #059669)',
+            background: 'linear-gradient(90deg, #5E1EB8, #4a1792)',
             color: '#fff', textAlign: 'center',
             padding: '10px 20px', fontSize: 14, fontWeight: 600,
           }}>
@@ -335,29 +397,27 @@ export default async function HomePage() {
         )}
 
         {/* ══ HERO ══════════════════════════════════════════════════════ */}
-        <Link href="/products" style={{ display:'block', lineHeight:0 }}>
-          {/* Art-directed: the 16:9 banner puts copy beside the products, which becomes
-              unreadable on a narrow screen — below 768px swap to the square crop that
-              stacks copy above them. <picture> downloads only the matching source. */}
-          <picture>
-            <source
-              media="(max-width: 768px)"
-              srcSet="/hero-banner-mobile.webp"
-              width={1080}
-              height={1440}
-            />
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/hero-banner.webp"
-              alt="PRO.DI.GIO B2B Grosshandel Schweiz – Sortiment entdecken"
-              width={1920}
-              height={1080}
-              style={{ width:'100%', height:'auto', display:'block' }}
-              fetchPriority="high"
-              decoding="async"
-            />
-          </picture>
-        </Link>
+        <section className="hero-section">
+          {/* Product image fills the right — gradient on left hides the baked-in text */}
+          <div className="hero-bg" />
+          <div className="hero-gradient" />
+          <div className="hero-content">
+            <div className="hero-tag">B2B Grosshandel · Schweiz</div>
+            <h1 className="hero-h1">
+              Premium-Produkte.<br/>
+              Direktimport.<br/>
+              <span className="hero-accent">Ihr Erfolg.</span>
+            </h1>
+            <p className="hero-sub">
+              Bubble Tea, TEABALLS, Gourmet-Spezialitäten —<br/>
+              direkt vom Importeur. Exklusive B2B-Preise für die Schweiz.
+            </p>
+            <div className="hero-btns">
+              <Link href="/products" className="hero-btn-primary">Sortiment entdecken →</Link>
+              <Link href="/register" className="hero-btn-ghost">B2B-Konto eröffnen</Link>
+            </div>
+          </div>
+        </section>
 
         {/* ══ TRUST BAR ════════════════════════════════════════════════ */}
         <div className="trust-bar">
