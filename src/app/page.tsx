@@ -531,7 +531,7 @@ export default async function HomePage() {
 
           <div style={{ display: 'flex', gap: 32, justifyContent: 'center', marginTop: 48, flexWrap: 'wrap' }}>
             {[
-              { n: '500+', l: 'zufriedene Kunden' },
+              { n: '1000+', l: 'B2B Kunden schweizweit' },
               { n: '100+', l: 'Produkte im Sortiment' },
               { n: '2–4', l: 'Werktage Lieferzeit' },
               { n: '2013', l: 'gegründet in Basel' },
