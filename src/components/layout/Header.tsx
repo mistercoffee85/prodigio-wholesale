@@ -269,12 +269,7 @@ export default function Header() {
       }}>
         {/* Logo */}
         <Link href="/" style={{ flexShrink:0, lineHeight:1, textDecoration:'none' }}>
-          <div style={{ fontFamily:"'Archivo', sans-serif", fontWeight:700, fontSize:18, letterSpacing:3, color:'var(--black)', lineHeight:1 }}>
-            PRO.DI.GIO
-          </div>
-          <div style={{ fontSize:7.5, letterSpacing:2.5, color:'var(--gray-400)', marginTop:3 }}>
-            GROSSHANDEL · BASEL
-          </div>
+          <img src="/logos/logo-dark.png" alt="PRO.DI.GIO" style={{ height:40, width:'auto', display:'block' }} />
         </Link>
 
         <div style={{ width:1, height:28, background:'var(--gray-100)', flexShrink:0 }}/>
@@ -414,10 +409,7 @@ export default function Header() {
               padding:'16px 24px', borderBottom:'1px solid var(--gray-100)',
               display:'flex', alignItems:'center', justifyContent:'space-between',
             }}>
-              <div>
-                <div style={{ fontFamily:"'Archivo', sans-serif", fontWeight:700, fontSize:16, letterSpacing:2 }}>PRO.DI.GIO</div>
-                <div style={{ fontSize:9, letterSpacing:2, color:'var(--gray-400)' }}>GROSSHANDEL · BASEL</div>
-              </div>
+              <img src="/logos/logo-dark.png" alt="PRO.DI.GIO" style={{ height:34, width:'auto', display:'block' }} />
               <button onClick={() => setMobileOpen(false)} style={{
                 width:34, height:34, borderRadius:'var(--radius)', border:'1.5px solid var(--gray-200)',
                 display:'flex', alignItems:'center', justifyContent:'center', fontSize:16, cursor:'pointer',

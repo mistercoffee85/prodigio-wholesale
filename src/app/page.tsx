@@ -237,8 +237,8 @@ export default async function HomePage() {
         .kunden-sub { font-size: 11.5px; color: rgba(255,255,255,.45); line-height: 1.6; }
         .kunden-badge {
           display: inline-flex; align-items: center; gap: 8px;
-          background: rgba(26,158,122,.2); border: 1px solid rgba(26,158,122,.4);
-          color: #5fe8c0; padding: 6px 18px; border-radius: 20px;
+          background: rgba(94,30,184,.3); border: 1px solid rgba(94,30,184,.5);
+          color: #d4a8ff; padding: 6px 18px; border-radius: 20px;
           font-size: 12px; font-weight: 700; letter-spacing: .5px;
           margin-bottom: 40px;
         }
@@ -504,7 +504,7 @@ export default async function HomePage() {
             <div className="sec-label" style={{ color: 'rgba(255,255,255,.4)' }}>Unsere Kunden</div>
             <h2 className="sec-title" style={{ color: 'white' }}>
               Wir beliefern{' '}
-              <span style={{ color: '#5fe8c0' }}>die ganze Schweiz</span>
+              <span style={{ color: '#d4a8ff' }}>die ganze Schweiz</span>
             </h2>
             <p style={{ fontSize: 15.5, color: 'rgba(255,255,255,.5)', maxWidth: 560, margin: '16px auto 0', lineHeight: 1.75 }}>
               Von Basel bis Zürich, von Genf bis St. Gallen — unsere Kunden sind überall dort, wo Qualität zählt.
