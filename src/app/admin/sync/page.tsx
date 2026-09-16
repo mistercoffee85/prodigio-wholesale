@@ -20,7 +20,7 @@ interface SyncLog {
 }
 
 const STATUS_COLOR: Record<string, string> = {
-  success: '#1a9e7a',
+  success: '#5E1EB8',
   error:   '#e85c2a',
   running: '#f5a623',
 }
@@ -194,7 +194,7 @@ export default function SyncPage() {
                         </td>
                         <td style={{ padding: '12px 16px', color: 'var(--gray-400)' }}>{fmtDuration(log.durationMs)}</td>
                         <td style={{ padding: '12px 16px', fontWeight: 600 }}>{log.productsFound}</td>
-                        <td style={{ padding: '12px 16px', color: '#1a9e7a', fontWeight: log.productsNew > 0 ? 700 : 400 }}>{log.productsNew > 0 ? `+${log.productsNew}` : '—'}</td>
+                        <td style={{ padding: '12px 16px', color: '#5E1EB8', fontWeight: log.productsNew > 0 ? 700 : 400 }}>{log.productsNew > 0 ? `+${log.productsNew}` : '—'}</td>
                         <td style={{ padding: '12px 16px' }}>{log.productsUpdated || '—'}</td>
                         <td style={{ padding: '12px 16px', color: log.productsDeactivated > 0 ? '#e85c2a' : undefined }}>{log.productsDeactivated > 0 ? log.productsDeactivated : '—'}</td>
                         <td style={{ padding: '12px 16px', color: '#e85c2a', fontSize: 12, maxWidth: 240, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>

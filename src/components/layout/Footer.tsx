@@ -79,8 +79,7 @@ export default function Footer() {
       <div className="footer-main">
         {/* Brand */}
         <div>
-          <div style={{ fontWeight: 800, fontSize: 18, letterSpacing: 3.5, color: 'white', marginBottom: 3 }}>PRO.DI.GIO</div>
-          <div style={{ fontSize: 9, letterSpacing: 3, color: 'rgba(255,255,255,.3)', marginBottom: 18 }}>GMBH · GROSSHANDEL · BASEL</div>
+          <img src="/logos/logo-dark.png" alt="PRO.DI.GIO" style={{ height: 36, width: 'auto', display: 'block', filter: 'brightness(0) invert(1)', marginBottom: 18 }} />
           <p style={{ fontSize: 13.5, lineHeight: 1.75, opacity: .62, maxWidth: 300 }}>
             Ihr Partner für innovative Trendprodukte. Direktimport aus aller Welt —
             Logistik & Grosshandel Basel seit 2013.

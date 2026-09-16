@@ -37,7 +37,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             toastOptions={{
               duration: 3000,
               style: { background: '#0d0d0d', color: '#fff', borderRadius: '8px', fontSize: '13.5px' },
-              success: { iconTheme: { primary: '#1a9e7a', secondary: '#fff' } },
+              success: { iconTheme: { primary: '#5E1EB8', secondary: '#fff' } },
             }}
           />
         </Providers>

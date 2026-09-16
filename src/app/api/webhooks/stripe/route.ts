@@ -18,6 +18,7 @@ export async function POST(req: NextRequest) {
 
   const pi = event.data.object as any
 
+  try {
   // ── Payment succeeded ─────────────────────────────────────────
   if (event.type === 'payment_intent.succeeded') {
     const order = await prisma.order.findFirst({
@@ -100,6 +101,11 @@ export async function POST(req: NextRequest) {
         data:  { status: 'CANCELLED', paymentStatus: 'UNPAID' },
       })
     }
+  }
+
+  } catch (err) {
+    console.error('Stripe webhook processing error:', err)
+    return NextResponse.json({ error: 'Webhook processing failed' }, { status: 500 })
   }
 
   return NextResponse.json({ received: true })

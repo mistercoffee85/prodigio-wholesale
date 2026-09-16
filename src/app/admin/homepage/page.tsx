@@ -63,7 +63,7 @@ function Input({ value, onChange, placeholder, mono }: { value: string; onChange
         fontFamily: mono ? 'monospace' : undefined,
         outline: 'none', background: '#fff', boxSizing: 'border-box',
       }}
-      onFocus={e => (e.target.style.borderColor = '#10b981')}
+      onFocus={e => (e.target.style.borderColor = '#5E1EB8')}
       onBlur={e => (e.target.style.borderColor = '#e5e7eb')}
     />
   )
@@ -82,7 +82,7 @@ function Textarea({ value, onChange, rows = 3, placeholder }: { value: string; o
         outline: 'none', background: '#fff', boxSizing: 'border-box',
         lineHeight: 1.6,
       }}
-      onFocus={e => (e.target.style.borderColor = '#10b981')}
+      onFocus={e => (e.target.style.borderColor = '#5E1EB8')}
       onBlur={e => (e.target.style.borderColor = '#e5e7eb')}
     />
   )
@@ -266,7 +266,7 @@ export default function HomepageAdminPage() {
         </div>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
           {saved && (
-            <span style={{ color: '#10b981', fontWeight: 600, fontSize: 14 }}>✓ Gespeichert</span>
+            <span style={{ color: '#5E1EB8', fontWeight: 600, fontSize: 14 }}>✓ Gespeichert</span>
           )}
           {error && (
             <span style={{ color: '#dc2626', fontSize: 13 }}>{error}</span>
@@ -275,7 +275,7 @@ export default function HomepageAdminPage() {
             onClick={handleSave}
             disabled={saving}
             style={{
-              background: '#10b981', color: '#fff', border: 'none',
+              background: '#5E1EB8', color: '#fff', border: 'none',
               borderRadius: 10, padding: '10px 24px', fontWeight: 700,
               fontSize: 14, cursor: saving ? 'not-allowed' : 'pointer',
               opacity: saving ? .7 : 1,
@@ -294,7 +294,7 @@ export default function HomepageAdminPage() {
               type="checkbox"
               checked={settings.homepage_announcement_active === 'true'}
               onChange={e => set('homepage_announcement_active', e.target.checked ? 'true' : 'false')}
-              style={{ width: 16, height: 16, accentColor: '#10b981' }}
+              style={{ width: 16, height: 16, accentColor: '#5E1EB8' }}
             />
             <span style={{ fontSize: 14, color: '#374151' }}>Balken anzeigen</span>
           </label>
@@ -320,7 +320,7 @@ export default function HomepageAdminPage() {
               type="checkbox"
               checked={settings.homepage_hero_use_banner === 'true'}
               onChange={e => set('homepage_hero_use_banner', e.target.checked ? 'true' : 'false')}
-              style={{ width: 16, height: 16, accentColor: '#10b981' }}
+              style={{ width: 16, height: 16, accentColor: '#5E1EB8' }}
             />
             <span style={{ fontSize: 14, color: '#374151' }}>Banner-Bild verwenden (statt Mosaik)</span>
           </label>
@@ -467,13 +467,13 @@ export default function HomepageAdminPage() {
 
       {/* Bottom Save */}
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginTop: 8 }}>
-        {saved && <span style={{ color: '#10b981', fontWeight: 600, fontSize: 14, alignSelf: 'center' }}>✓ Gespeichert!</span>}
+        {saved && <span style={{ color: '#5E1EB8', fontWeight: 600, fontSize: 14, alignSelf: 'center' }}>✓ Gespeichert!</span>}
         {error && <span style={{ color: '#dc2626', fontSize: 13, alignSelf: 'center' }}>{error}</span>}
         <button
           onClick={handleSave}
           disabled={saving}
           style={{
-            background: '#10b981', color: '#fff', border: 'none',
+            background: '#5E1EB8', color: '#fff', border: 'none',
             borderRadius: 10, padding: '12px 32px', fontWeight: 700,
             fontSize: 15, cursor: saving ? 'not-allowed' : 'pointer',
             opacity: saving ? .7 : 1,

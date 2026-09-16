@@ -388,7 +388,7 @@ export default function Header() {
           ) : (
             <div style={{ display:'flex', gap:8 }} className="header-nav">
               <Link href="/login"    className="btn btn-outline btn-sm">Anmelden</Link>
-              <Link href="/register" className="btn btn-black btn-sm">Konto eröffnen</Link>
+              <Link href="/register" className="btn btn-primary btn-sm">Konto eröffnen</Link>
             </div>
           )}
 
@@ -443,7 +443,7 @@ export default function Header() {
               ) : (
                 <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
                   <Link href="/login"    onClick={() => setMobileOpen(false)} className="btn btn-outline" style={{ width:'100%', justifyContent:'center' }}>Anmelden</Link>
-                  <Link href="/register" onClick={() => setMobileOpen(false)} className="btn btn-black"   style={{ width:'100%', justifyContent:'center' }}>B2B-Konto eröffnen</Link>
+                  <Link href="/register" onClick={() => setMobileOpen(false)} className="btn btn-primary"   style={{ width:'100%', justifyContent:'center' }}>B2B-Konto eröffnen</Link>
                 </div>
               )}
             </div>

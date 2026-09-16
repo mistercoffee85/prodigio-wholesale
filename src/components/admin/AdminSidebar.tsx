@@ -104,10 +104,9 @@ export default function AdminSidebar() {
         {/* Logo */}
         <div style={{ padding: '28px 20px 20px', borderBottom: '1px solid rgba(255,255,255,.08)' }}>
           <Link href="/" style={{ textDecoration: 'none', color: 'white' }} onClick={() => setMobileOpen(false)}>
-            <div style={{ fontWeight: 800, fontSize: 16, letterSpacing: 3 }}>PRO.DI.GIO</div>
-            <div style={{ fontSize: 8.5, letterSpacing: 2, opacity: .45, marginTop: 3 }}>GROSSHANDEL · BASEL</div>
+            <img src="/logos/logo-dark.png" alt="PRO.DI.GIO" style={{ height: 30, width: 'auto', display: 'block', filter: 'brightness(0) invert(1)' }} />
           </Link>
-          <div style={{ marginTop: 14, display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(26,158,122,.25)', border: '1px solid rgba(26,158,122,.4)', borderRadius: 20, padding: '4px 12px', fontSize: 11, fontWeight: 600, color: '#4dffcc' }}>
+          <div style={{ marginTop: 14, display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(94,30,184,.3)', border: '1px solid rgba(94,30,184,.45)', borderRadius: 20, padding: '4px 12px', fontSize: 11, fontWeight: 600, color: '#d4a8ff' }}>
             ⚙️ Admin-Panel
           </div>
         </div>
@@ -125,8 +124,8 @@ export default function AdminSidebar() {
                 padding: '10px 12px', borderRadius: 'var(--radius)',
                 fontSize: 13.5, fontWeight: 500, marginBottom: 2,
                 color: isActive ? 'white' : 'rgba(255,255,255,.6)',
-                background: isActive ? 'rgba(26,158,122,.3)' : 'transparent',
-                border: isActive ? '1px solid rgba(26,158,122,.4)' : '1px solid transparent',
+                background: isActive ? 'rgba(94,30,184,.35)' : 'transparent',
+                border: isActive ? '1px solid rgba(94,30,184,.45)' : '1px solid transparent',
                 transition: 'all .15s', textDecoration: 'none',
               }}>
                 <span style={{ width: 20, textAlign: 'center', fontSize: 15 }}>{item.icon}</span>

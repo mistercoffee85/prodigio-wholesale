@@ -88,7 +88,7 @@ export default async function DashboardPage() {
 
         {/* Hero banner */}
         <div style={{
-          background: 'linear-gradient(135deg, var(--forest) 0%, #1a3d28 70%, #0d2218 100%)',
+          background: 'linear-gradient(135deg, var(--forest) 0%, #2d1060 70%, #180535 100%)',
           color: 'white', padding: 'clamp(32px, 5vw, 48px) clamp(16px, 4vw, 80px) clamp(36px, 5vw, 56px)', position: 'relative', overflow: 'hidden',
         }}>
           {/* Decorative bg pattern */}
@@ -97,13 +97,13 @@ export default async function DashboardPage() {
             pointerEvents: 'none',
           }} />
           <div style={{ position: 'absolute', top: '-60px', right: '-60px', width: 400, height: 400,
-            background: 'radial-gradient(circle, rgba(26,158,122,.18) 0%, transparent 70%)', pointerEvents: 'none',
+            background: 'radial-gradient(circle, rgba(94,30,184,.25) 0%, transparent 70%)', pointerEvents: 'none',
           }} />
 
           <div style={{ position: 'relative', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 24 }}>
             <div>
               <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: 2.5, color: 'var(--accent)', textTransform: 'uppercase', marginBottom: 12 }}>Mein Konto</div>
-              <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(24px, 4vw, 34px)', fontWeight: 700, marginBottom: 8, lineHeight: 1.2 }}>
+              <h1 style={{ fontFamily: 'Archivo, sans-serif', fontSize: 'clamp(24px, 4vw, 34px)', fontWeight: 700, marginBottom: 8, lineHeight: 1.2 }}>
                 Willkommen, {user?.name?.split(' ')[0]}
               </h1>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
@@ -112,7 +112,7 @@ export default async function DashboardPage() {
                 )}
                 <span style={{
                   fontSize: 11, fontWeight: 700, padding: '3px 12px', borderRadius: 20,
-                  background: '#f0fdf9', color: '#1a9e7a',
+                  background: 'var(--accent-pale)', color: 'var(--accent)',
                 }}>
                   ✓ B2B-Preise
                 </span>
@@ -285,7 +285,7 @@ export default async function DashboardPage() {
             {/* Support */}
             <div style={{
               padding: '20px', borderRadius: 'var(--radius-lg)',
-              background: 'linear-gradient(135deg, var(--forest) 0%, #1a3d28 100%)',
+              background: 'linear-gradient(135deg, var(--forest) 0%, #2d1060 100%)',
               color: 'white',
             }}>
               <div style={{ fontSize: 20, marginBottom: 8 }}>💬</div>

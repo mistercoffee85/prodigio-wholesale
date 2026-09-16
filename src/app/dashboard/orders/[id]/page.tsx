@@ -63,7 +63,7 @@ export default async function OrderDetailPage({ params }: { params: { id: string
 
         {/* Banner */}
         <div style={{
-          background: 'linear-gradient(135deg, var(--forest) 0%, #1a3d28 100%)',
+          background: 'linear-gradient(135deg, var(--forest) 0%, #2d1060 100%)',
           color: 'white', padding: 'clamp(24px,5vw,40px) clamp(20px,6vw,80px)',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
@@ -71,7 +71,7 @@ export default async function OrderDetailPage({ params }: { params: { id: string
               ← Mein Konto
             </Link>
           </div>
-          <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(22px,4vw,32px)', fontWeight: 700 }}>
+          <h1 style={{ fontFamily: 'Archivo, sans-serif', fontSize: 'clamp(22px,4vw,32px)', fontWeight: 700 }}>
             Bestellung #{order.orderNumber}
           </h1>
           <p style={{ opacity: .65, marginTop: 6, fontSize: 13 }}>

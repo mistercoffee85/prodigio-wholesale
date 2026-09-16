@@ -313,7 +313,7 @@ export default function ProductCard({ product: p, priority, approved = false }: 
             <a
               href="/login"
               onClick={e => e.stopPropagation()}
-              className="btn btn-black"
+              className="btn btn-primary"
               style={{ display: 'block', textAlign: 'center', fontSize: 12.5, height: 38, lineHeight: '38px', padding: '0', textDecoration: 'none' }}
             >
               Anmelden & Bestellen →
@@ -322,7 +322,7 @@ export default function ProductCard({ product: p, priority, approved = false }: 
             <div style={{ display: 'flex', gap: 8 }}>
               <QtyStepper qty={qty} setQty={setQty} moq={activeMoq} />
               <button
-                className="btn btn-black"
+                className="btn btn-primary"
                 style={{ flex: 1, fontSize: 12.5, height: 38, padding: '0 10px' }}
                 onClick={handleAdd}
                 disabled={p.stock === 0}
@@ -458,7 +458,7 @@ export default function ProductCard({ product: p, priority, approved = false }: 
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
                           <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: 'var(--gray-400)' }}>Einkaufspreis</span>
                           {p.comparePrice && (
-                            <span style={{ fontSize: 11, background: 'rgba(26,158,122,.15)', borderRadius: 5, padding: '2px 8px', color: 'var(--accent)', fontWeight: 700 }}>
+                            <span style={{ fontSize: 11, background: 'rgba(94,30,184,.12)', borderRadius: 5, padding: '2px 8px', color: 'var(--accent)', fontWeight: 700 }}>
                               +{Math.round((Number(p.comparePrice) / p.price - 1) * 100)}% Marge
                             </span>
                           )}
@@ -496,7 +496,7 @@ export default function ProductCard({ product: p, priority, approved = false }: 
                                 <div key={t.minQty} style={{
                                   display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                                   fontSize: 12.5, padding: '4px 8px', borderRadius: 6, marginBottom: 2,
-                                  background: active ? 'rgba(26,158,122,.12)' : 'transparent',
+                                  background: active ? 'rgba(94,30,184,.1)' : 'transparent',
                                   color: active ? 'var(--accent-dark)' : 'var(--gray-500)',
                                   fontWeight: active ? 700 : 400,
                                 }}>

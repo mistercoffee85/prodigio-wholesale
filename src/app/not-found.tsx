@@ -11,7 +11,7 @@ export default function NotFound() {
       <main style={{ minHeight: '70vh', background: '#f8f9fb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ textAlign: 'center', padding: '48px 24px' }}>
           <div style={{ fontSize: 72, marginBottom: 16 }}>🔍</div>
-          <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(28px,5vw,48px)', fontWeight: 700, marginBottom: 12 }}>
+          <h1 style={{ fontFamily: 'Archivo, sans-serif', fontSize: 'clamp(28px,5vw,48px)', fontWeight: 700, marginBottom: 12 }}>
             Seite nicht gefunden
           </h1>
           <p style={{ color: 'var(--gray-400)', fontSize: 16, marginBottom: 32, maxWidth: 420, margin: '0 auto 32px' }}>

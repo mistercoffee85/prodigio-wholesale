@@ -171,7 +171,7 @@ export async function sendOrderConfirmationEmail(
           Zahlungsreferenz: <strong>#${order.orderNumber}</strong>
         </div>
       ` : ''}
-      <a href="${APP_URL}/dashboard/orders" class="btn">Bestellung ansehen →</a>
+      <a href="${APP_URL}/dashboard" class="btn">Bestellung ansehen →</a>
     `),
   })
 }
@@ -251,7 +251,7 @@ export async function sendPaymentConfirmationEmail(
       </div>
 
       <p>Bei Fragen: <a href="mailto:contact@prodigio.ch" style="color:#1a9e7a;">contact@prodigio.ch</a></p>
-      <a href="${APP_URL}/dashboard/orders" class="btn">Bestellung ansehen →</a>
+      <a href="${APP_URL}/dashboard" class="btn">Bestellung ansehen →</a>
     `),
   })
 }

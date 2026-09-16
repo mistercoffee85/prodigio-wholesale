@@ -9,12 +9,12 @@ export default function Error({ reset }: { error: Error & { digest?: string }; r
         <p style={{ color: '#6b7280', marginBottom: 28, lineHeight: 1.7 }}>
           Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut —
           falls das Problem bestehen bleibt, kontaktieren Sie uns unter{' '}
-          <a href="mailto:contact@prodigio.ch" style={{ color: '#1a9e7a' }}>contact@prodigio.ch</a>.
+          <a href="mailto:contact@prodigio.ch" style={{ color: 'var(--accent)' }}>contact@prodigio.ch</a>.
         </p>
         <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
           <button
             onClick={reset}
-            style={{ background: '#1a9e7a', color: 'white', border: 'none', padding: '12px 28px', borderRadius: 10, fontSize: 15, fontWeight: 700, cursor: 'pointer' }}
+            style={{ background: 'var(--accent)', color: 'white', border: 'none', padding: '12px 28px', borderRadius: 10, fontSize: 15, fontWeight: 700, cursor: 'pointer' }}
           >
             Erneut versuchen
           </button>

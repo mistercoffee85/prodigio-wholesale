@@ -83,7 +83,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
             line_items: [{ price: price.id, quantity: 1 }],
             payment_method_types: paymentMethodTypes as any,
             metadata: { orderId: params.id, type: 'transport_cost' },
-            after_completion: { type: 'redirect', redirect: { url: `${APP_URL}/dashboard/orders` } },
+            after_completion: { type: 'redirect', redirect: { url: `${APP_URL}/dashboard` } },
           })
           transportPaymentLinkUrl = link.url
           orderForEmail = {

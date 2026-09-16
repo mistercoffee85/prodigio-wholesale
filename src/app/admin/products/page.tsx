@@ -318,7 +318,7 @@ export default function AdminProductsPage() {
                   const isDirty   = !!edit
 
                   return (
-                    <tr key={p.id} style={{ background: isDirty ? 'rgba(22,163,122,.04)' : undefined }}>
+                    <tr key={p.id} style={{ background: isDirty ? 'rgba(94,30,184,.05)' : undefined }}>
                       <td>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                           {p.images[0] ? (

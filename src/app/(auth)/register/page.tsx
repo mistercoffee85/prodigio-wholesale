@@ -114,26 +114,26 @@ export default function RegisterPage() {
       <div style={{ minHeight: '100vh', background: 'var(--cream)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'clamp(16px, 4vw, 24px)' }}>
         <div style={{ maxWidth: 500, width: '100%', textAlign: 'center' }}>
           <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'var(--accent-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36, margin: '0 auto 28px' }}>✅</div>
-          <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(24px, 5vw, 32px)', fontWeight: 700, marginBottom: 14 }}>Registrierung erfolgreich!</h1>
+          <h1 style={{ fontFamily: 'Archivo, sans-serif', fontSize: 'clamp(24px, 5vw, 32px)', fontWeight: 700, marginBottom: 14 }}>Registrierung erfolgreich!</h1>
           <p style={{ color: 'var(--gray-600)', lineHeight: 1.75, fontSize: 15, marginBottom: 24 }}>
             Vielen Dank für Ihre Bewerbung als B2B-Partner! Unser Team prüft Ihr Konto und schaltet es
             innerhalb von <strong>1 Werktag</strong> frei. Sie erhalten eine Bestätigungs-E-Mail sobald Ihr Zugang aktiviert ist.
           </p>
-          <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 10, padding: '16px 20px', marginBottom: 32, textAlign: 'left' }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#166534', marginBottom: 10 }}>Was passiert als nächstes?</div>
+          <div style={{ background: 'var(--accent-pale)', border: '1px solid var(--accent-light)', borderRadius: 10, padding: '16px 20px', marginBottom: 32, textAlign: 'left' }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--accent-dark)', marginBottom: 10 }}>Was passiert als nächstes?</div>
             {[
               'Unser Team prüft Ihre Angaben (1 Werktag)',
               'Sie erhalten eine E-Mail mit Ihren Zugangsdaten',
               'Sofortiger Zugang zu allen B2B-Preisen und Produkten',
             ].map((step, i) => (
               <div key={i} style={{ display: 'flex', gap: 10, marginBottom: 8, alignItems: 'flex-start' }}>
-                <span style={{ color: '#16a34a', fontWeight: 700, flexShrink: 0, marginTop: 1 }}>✓</span>
+                <span style={{ color: 'var(--accent)', fontWeight: 700, flexShrink: 0, marginTop: 1 }}>✓</span>
                 <span style={{ fontSize: 13, color: '#374151', lineHeight: 1.5 }}>{step}</span>
               </div>
             ))}
           </div>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link href="/" className="btn btn-black btn-lg">Zur Startseite</Link>
+            <Link href="/" className="btn btn-primary btn-lg">Zur Startseite</Link>
             <Link href="/login" className="btn btn-outline btn-lg">Anmelden</Link>
           </div>
         </div>
@@ -152,7 +152,7 @@ export default function RegisterPage() {
         .register-brand-panel {
           width: 38%;
           min-width: 280px;
-          background: linear-gradient(150deg, var(--forest) 0%, #1a3d28 60%, #0d2218 100%);
+          background: linear-gradient(150deg, var(--forest) 0%, #2d1060 60%, #180535 100%);
           display: flex;
           flex-direction: column;
           justify-content: space-between;
@@ -181,7 +181,7 @@ export default function RegisterPage() {
           .register-layout { flex-direction: column; }
           .register-mobile-intro {
             display: block;
-            background: linear-gradient(150deg, var(--forest) 0%, #1a3d28 70%, #0d2218 100%);
+            background: linear-gradient(150deg, var(--forest) 0%, #2d1060 70%, #180535 100%);
             color: white;
             padding: 28px 24px 26px;
           }
@@ -198,13 +198,12 @@ export default function RegisterPage() {
           <div style={{ position: 'absolute', inset: 0, opacity: .03, backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%23fff\' fill-opacity=\'1\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/svg%3E")', pointerEvents: 'none' }} />
 
           <Link href="/" style={{ textDecoration: 'none', color: 'white' }}>
-            <div style={{ fontWeight: 800, fontSize: 19, letterSpacing: 4 }}>PRO.DI.GIO</div>
-            <div style={{ fontSize: 9, letterSpacing: 3, opacity: .5, marginTop: 3 }}>GROSSHANDEL · BASEL</div>
+            <img src="/logos/logo-dark.png" alt="PRO.DI.GIO" style={{ height: 36, width: 'auto', display: 'block', filter: 'brightness(0) invert(1)' }} />
           </Link>
 
           <div>
             <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, color: 'var(--accent)', marginBottom: 18, textTransform: 'uppercase' }}>B2B Konto eröffnen</div>
-            <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 30, fontWeight: 700, lineHeight: 1.2, marginBottom: 14 }}>
+            <h2 style={{ fontFamily: 'Archivo, sans-serif', fontSize: 30, fontWeight: 700, lineHeight: 1.2, marginBottom: 14 }}>
               Werden Sie<br />B2B-Grosshändler
             </h2>
             <p style={{ fontSize: 13.5, opacity: .72, lineHeight: 1.75, marginBottom: 28, maxWidth: 310 }}>
@@ -231,7 +230,7 @@ export default function RegisterPage() {
               <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, color: 'var(--accent)', textTransform: 'uppercase', marginBottom: 8 }}>Für wen ist das?</div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                 {['Detailhandel', 'Gastronomie', 'Kiosk', 'E-Commerce', 'Bäckerei', 'Hotel & Catering'].map(tag => (
-                  <span key={tag} style={{ fontSize: 11, background: 'rgba(26,158,122,.2)', border: '1px solid rgba(26,158,122,.35)', borderRadius: 20, padding: '3px 9px', color: '#a7f3d0' }}>
+                  <span key={tag} style={{ fontSize: 11, background: 'rgba(94,30,184,.25)', border: '1px solid rgba(94,30,184,.4)', borderRadius: 20, padding: '3px 9px', color: '#d4a8ff' }}>
                     {tag}
                   </span>
                 ))}
@@ -249,7 +248,7 @@ export default function RegisterPage() {
                 <div key={n} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   <div style={{
                     width: 28, height: 28, borderRadius: '50%', flexShrink: 0,
-                    background: done ? 'var(--accent)' : step === n ? 'rgba(26,158,122,.3)' : 'rgba(255,255,255,.08)',
+                    background: done ? 'var(--accent)' : step === n ? 'rgba(94,30,184,.35)' : 'rgba(255,255,255,.08)',
                     border: `2px solid ${done || step === n ? 'var(--accent)' : 'rgba(255,255,255,.15)'}`,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     fontSize: 11, fontWeight: 700,
@@ -270,7 +269,7 @@ export default function RegisterPage() {
           <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: 2, color: 'var(--accent)', marginBottom: 10, textTransform: 'uppercase' }}>
             B2B Konto eröffnen
           </div>
-          <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 25, fontWeight: 700, lineHeight: 1.2, marginBottom: 10 }}>
+          <h2 style={{ fontFamily: 'Archivo, sans-serif', fontSize: 25, fontWeight: 700, lineHeight: 1.2, marginBottom: 10 }}>
             Werden Sie B2B-Grosshändler
           </h2>
           <p style={{ fontSize: 13.5, opacity: .75, lineHeight: 1.65, marginBottom: 18 }}>
@@ -291,7 +290,7 @@ export default function RegisterPage() {
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
             {['Detailhandel', 'Gastronomie', 'Kiosk', 'E-Commerce', 'Bäckerei', 'Hotel & Catering'].map(tag => (
-              <span key={tag} style={{ fontSize: 11, background: 'rgba(26,158,122,.2)', border: '1px solid rgba(26,158,122,.35)', borderRadius: 20, padding: '3px 9px', color: '#a7f3d0' }}>
+              <span key={tag} style={{ fontSize: 11, background: 'rgba(94,30,184,.25)', border: '1px solid rgba(94,30,184,.4)', borderRadius: 20, padding: '3px 9px', color: '#d4a8ff' }}>
                 {tag}
               </span>
             ))}
