@@ -504,11 +504,10 @@ export default async function HomePage() {
             <div className="sec-label" style={{ color: 'rgba(255,255,255,.4)' }}>Unsere Kunden</div>
             <h2 className="sec-title" style={{ color: 'white' }}>
               Wir beliefern{' '}
-              <span style={{ color: '#5fe8c0' }}>ganz die Schweiz</span>
+              <span style={{ color: '#5fe8c0' }}>die ganze Schweiz</span>
             </h2>
             <p style={{ fontSize: 15.5, color: 'rgba(255,255,255,.5)', maxWidth: 560, margin: '16px auto 0', lineHeight: 1.75 }}>
-              Von Basel bis Zürich, von Genf bis St. Gallen — unsere Kunden sind
-              überall dort, wo Qualität zählt.
+              Von Basel bis Zürich, von Genf bis St. Gallen — unsere Kunden sind überall dort, wo Qualität zählt.
             </p>
           </div>
 
