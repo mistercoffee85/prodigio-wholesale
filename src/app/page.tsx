@@ -111,18 +111,24 @@ export default async function HomePage() {
         /* ── HERO ── */
         .hero-section {
           position: relative; overflow: hidden;
-          background: #0e0520;
+          background: #3a1280;
           min-height: clamp(480px, 52vw, 700px);
           display: flex; align-items: center;
         }
         .hero-bg {
           position: absolute; inset: 0;
           background: url('/hero-banner.webp') center right / cover no-repeat;
-          opacity: .82;
+          filter: brightness(1.25) saturate(1.1);
         }
         .hero-gradient {
           position: absolute; inset: 0;
-          background: linear-gradient(90deg, rgba(14,5,32,.92) 0%, rgba(14,5,32,.7) 42%, rgba(14,5,32,.2) 68%, transparent 85%);
+          /* Solid purple on left covers baked-in webp text. Hard stop → transparent reveals products. */
+          background: linear-gradient(90deg,
+            #3a1280 0%,
+            #3a1280 40%,
+            rgba(58,18,128,.65) 54%,
+            rgba(58,18,128,.15) 68%,
+            transparent 80%);
         }
         .hero-content {
           position: relative; z-index: 1;
@@ -166,8 +172,8 @@ export default async function HomePage() {
         .hero-btn-ghost:hover { background: rgba(255,255,255,.2); color: #fff; }
         @media (max-width: 640px) {
           .hero-section { min-height: 520px; align-items: flex-start; }
-          .hero-bg { background-position: 60% center; opacity: .7; }
-          .hero-gradient { background: linear-gradient(180deg, rgba(14,5,32,.88) 0%, rgba(14,5,32,.72) 55%, rgba(14,5,32,.2) 100%); }
+          .hero-bg { background-position: 60% center; }
+          .hero-gradient { background: linear-gradient(180deg, #3a1280 0%, #3a1280 38%, rgba(58,18,128,.6) 60%, transparent 100%); }
           .hero-content { padding: 52px 20px 56px; max-width: 100%; }
           .hero-btns { flex-direction: column; align-items: flex-start; }
           .hero-btn-primary, .hero-btn-ghost { width: 100%; justify-content: center; box-sizing: border-box; }
