@@ -202,7 +202,7 @@ export default function CartSidebar({ open, onClose }: Props) {
               <p style={{ fontSize: 13.5, color: 'var(--gray-400)', marginBottom: 28, lineHeight: 1.6 }}>
                 Entdecken Sie unsere Grosshandelsprodukte.
               </p>
-              <button className="btn btn-black" onClick={onClose}>Zum Sortiment →</button>
+              <button className="btn btn-primary" onClick={onClose}>Zum Sortiment →</button>
             </div>
           ) : (
             <>
@@ -317,7 +317,7 @@ export default function CartSidebar({ open, onClose }: Props) {
                             image: s.images?.[0], bgGradient: s.bgGradient,
                             unit: s.unit, moq: s.moq, quantity: s.moq, unitPrice: s.price,
                           })}
-                          className="btn btn-black cart-suggestion-add-btn"
+                          className="btn btn-primary cart-suggestion-add-btn"
                           style={{ flexShrink: 0 }}
                         >
                           + Hinzufügen

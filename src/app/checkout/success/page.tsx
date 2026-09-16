@@ -45,7 +45,7 @@ function SuccessContent() {
           Bei Fragen: <a href="mailto:contact@prodigio.ch" style={{ color: 'var(--accent)' }}>contact@prodigio.ch</a>
         </p>
         <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap' }}>
-          <Link href="/dashboard" className="btn btn-black btn-lg">Meine Bestellungen</Link>
+          <Link href="/dashboard" className="btn btn-primary btn-lg">Meine Bestellungen</Link>
           <Link href="/products" className="btn btn-outline btn-lg">Weiter einkaufen</Link>
         </div>
       </div>

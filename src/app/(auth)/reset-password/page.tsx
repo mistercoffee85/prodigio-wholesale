@@ -51,7 +51,7 @@ function ResetPasswordForm() {
       <div className="reset-form-panel" style={{ padding: 'clamp(24px,5vw,48px)', background: 'var(--cream)' }}>
         <div style={{ textAlign: 'center' }}>
           <p style={{ color: 'var(--gray-400)', marginBottom: 24 }}>Ungültiger Link.</p>
-          <Link href="/forgot-password" className="btn btn-black" style={{ padding: '12px 28px', borderRadius: 'var(--radius-lg)' }}>
+          <Link href="/forgot-password" className="btn btn-primary" style={{ padding: '12px 28px', borderRadius: 'var(--radius-lg)' }}>
             Neuen Link anfordern
           </Link>
         </div>

@@ -257,7 +257,7 @@ export default function AdminProductsPage() {
           >
             {bulkAction === 'activate' ? '⏳' : '🟢'} Migroweb AN
           </button>
-          <button className="btn btn-black" onClick={openAdd}>+ Neues Produkt</button>
+          <button className="btn btn-primary" onClick={openAdd}>+ Neues Produkt</button>
         </div>
       </div>
 

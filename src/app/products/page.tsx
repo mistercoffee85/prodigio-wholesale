@@ -565,7 +565,7 @@ function ProductsContent() {
                   <div className="icon">🔍</div>
                   <p style={{ fontWeight: 600, fontSize: 17, marginBottom: 8 }}>Keine Produkte gefunden</p>
                   <p style={{ fontSize: 14 }}>Versuche andere Suchbegriffe oder wähle eine andere Kategorie.</p>
-                  <button className="btn btn-black" style={{ marginTop: 20 }} onClick={() => { setSearch(''); setSearchInput(''); navigate('all') }}>
+                  <button className="btn btn-primary" style={{ marginTop: 20 }} onClick={() => { setSearch(''); setSearchInput(''); navigate('all') }}>
                     Alle Kategorien anzeigen
                   </button>
                 </div>

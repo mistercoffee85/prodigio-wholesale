@@ -137,7 +137,7 @@ export default function ForgotPasswordPage() {
                 <p style={{ color: 'var(--gray-400)', lineHeight: 1.75, fontSize: 14, marginBottom: 32 }}>
                   Falls ein Konto mit <strong>{email}</strong> existiert, erhalten Sie in Kürze eine E-Mail mit einem Link zum Zurücksetzen des Passworts.
                 </p>
-                <Link href="/login" className="btn btn-black" style={{ display: 'inline-block', padding: '12px 32px', borderRadius: 'var(--radius-lg)' }}>
+                <Link href="/login" className="btn btn-outline" style={{ display: 'inline-block', padding: '12px 32px', borderRadius: 'var(--radius-lg)' }}>
                   Zurück zur Anmeldung
                 </Link>
               </div>

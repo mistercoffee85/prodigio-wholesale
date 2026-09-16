@@ -168,7 +168,7 @@ export default async function DashboardPage() {
                 <div style={{ fontSize: 52 }}>📦</div>
                 <p style={{ marginTop: 12, color: 'var(--gray-400)', fontSize: 14 }}>Noch keine Bestellungen</p>
                 <p style={{ fontSize: 13, color: 'var(--gray-300)', marginTop: 4 }}>Entdecken Sie unser Sortiment und geben Sie Ihre erste Bestellung auf</p>
-                <Link href="/products" className="btn btn-black" style={{ marginTop: 20, display: 'inline-block' }}>Sortiment entdecken →</Link>
+                <Link href="/products" className="btn btn-primary" style={{ marginTop: 20, display: 'inline-block' }}>Sortiment entdecken →</Link>
               </div>
             ) : (
               <div style={{ overflowX: 'auto' }}>
