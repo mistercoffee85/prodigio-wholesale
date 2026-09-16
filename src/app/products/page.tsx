@@ -392,7 +392,7 @@ function ProductsContent() {
                           alt={cat.name}
                           fill
                           sizes="(max-width: 768px) 50vw, 280px"
-                          style={{ objectFit: 'cover' }}
+                          style={{ objectFit: 'contain', padding: 12 }}
                         />
                       </div>
                     ) : (
@@ -445,7 +445,7 @@ function ProductsContent() {
                       <div style={{ height: 120, overflow: 'hidden', position: 'relative', background: CATEGORY_IMAGES[sub.slug].bg }}>
                         <Image src={CATEGORY_IMAGES[sub.slug].img} alt={sub.name}
                           fill sizes="(max-width: 768px) 45vw, 180px"
-                          style={{ objectFit: 'cover' }} />
+                          style={{ objectFit: 'contain', padding: 10 }} />
                       </div>
                     ) : (
                       <div style={{ height: 80, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36, background: 'var(--cream)' }}>
