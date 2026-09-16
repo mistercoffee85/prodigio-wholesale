@@ -216,6 +216,64 @@ export default async function HomePage() {
         .step-title { font-family: 'Space Grotesk', sans-serif; font-size: 17px; font-weight: 700; color: var(--black); margin-bottom: 10px; letter-spacing: -0.02em; }
         .step-desc { font-size: 13.5px; color: var(--gray-400); line-height: 1.75; }
 
+        /* ── KUNDEN ── */
+        .kunden-section {
+          padding: clamp(56px,7vw,96px) clamp(20px,5vw,80px);
+          background: #0d0d0d;
+          color: white;
+        }
+        .kunden-grid {
+          display: grid; grid-template-columns: repeat(6,1fr); gap: 16px;
+          margin-top: clamp(36px,4vw,52px);
+        }
+        .kunden-tile {
+          background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
+          border-radius: 18px; padding: 24px 16px; text-align: center;
+          transition: background .2s, transform .2s;
+        }
+        .kunden-tile:hover { background: rgba(255,255,255,.11); transform: translateY(-4px); }
+        .kunden-icon { font-size: 36px; margin-bottom: 14px; display: block; }
+        .kunden-name { font-size: 13.5px; font-weight: 700; color: white; margin-bottom: 6px; }
+        .kunden-sub { font-size: 11.5px; color: rgba(255,255,255,.45); line-height: 1.6; }
+        .kunden-badge {
+          display: inline-flex; align-items: center; gap: 8px;
+          background: rgba(26,158,122,.2); border: 1px solid rgba(26,158,122,.4);
+          color: #5fe8c0; padding: 6px 18px; border-radius: 20px;
+          font-size: 12px; font-weight: 700; letter-spacing: .5px;
+          margin-bottom: 40px;
+        }
+
+        /* ── FAQ ── */
+        .faq-section {
+          padding: clamp(56px,7vw,96px) clamp(20px,5vw,80px);
+          background: var(--cream);
+        }
+        .faq-list { margin-top: clamp(32px,4vw,48px); max-width: 820px; margin-left: auto; margin-right: auto; }
+        details.faq-item {
+          background: white; border: 1px solid var(--gray-100); border-radius: 14px;
+          margin-bottom: 10px; overflow: hidden;
+          box-shadow: 0 1px 4px rgba(0,0,0,.04);
+          transition: box-shadow .2s;
+        }
+        details.faq-item[open] { box-shadow: 0 4px 16px rgba(0,0,0,.08); }
+        details.faq-item summary {
+          display: flex; align-items: center; justify-content: space-between; gap: 16px;
+          padding: 20px 24px; font-size: 15px; font-weight: 600;
+          color: var(--black); cursor: pointer; list-style: none;
+          user-select: none;
+        }
+        details.faq-item summary::-webkit-details-marker { display: none; }
+        details.faq-item summary::after {
+          content: '+'; font-size: 22px; font-weight: 300; color: var(--accent);
+          flex-shrink: 0; transition: transform .25s;
+        }
+        details.faq-item[open] summary::after { content: '−'; }
+        .faq-answer {
+          padding: 0 24px 22px; font-size: 14px; color: var(--gray-600);
+          line-height: 1.8; border-top: 1px solid var(--gray-100);
+          padding-top: 16px;
+        }
+
         /* ── CTA ── */
         .cta-section {
           padding: clamp(56px,7vw,96px) clamp(20px,5vw,80px);
@@ -248,6 +306,12 @@ export default async function HomePage() {
           .step-item { padding: 0 12px; }
           .brand-tile { min-height: 220px; }
           .feat-img { height: 160px; }
+        }
+        @media (max-width: 1100px) {
+          .kunden-grid { grid-template-columns: repeat(3,1fr); }
+        }
+        @media (max-width: 640px) {
+          .kunden-grid { grid-template-columns: repeat(2,1fr); }
         }
         @media (max-width: 400px) {
           .brand-tile { min-height: 180px; }
@@ -427,6 +491,108 @@ export default async function HomePage() {
                 <div className="step-title">{title}</div>
                 <p className="step-desc">{desc}</p>
               </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ══ WEN WIR BELIEFERN ════════════════════════════════════════ */}
+        <section className="kunden-section">
+          <div style={{ textAlign: 'center' }}>
+            <div className="kunden-badge">
+              <span>🇨🇭</span> Schweizweite Belieferung
+            </div>
+            <div className="sec-label" style={{ color: 'rgba(255,255,255,.4)' }}>Unsere Kunden</div>
+            <h2 className="sec-title" style={{ color: 'white' }}>
+              Wir beliefern{' '}
+              <span style={{ color: '#5fe8c0' }}>ganz die Schweiz</span>
+            </h2>
+            <p style={{ fontSize: 15.5, color: 'rgba(255,255,255,.5)', maxWidth: 560, margin: '16px auto 0', lineHeight: 1.75 }}>
+              Von Basel bis Zürich, von Genf bis St. Gallen — unsere Kunden sind
+              überall dort, wo Qualität zählt.
+            </p>
+          </div>
+
+          <div className="kunden-grid">
+            {[
+              { icon: '🏪', name: 'Einzelhandel', sub: 'Läden, Kiosks, Drogeriemärkte, Boutiquen' },
+              { icon: '💊', name: 'Apotheken', sub: 'Apotheken & Drogerien schweizweit' },
+              { icon: '🏥', name: 'Spitäler', sub: 'Kliniken, Ambulatorien & Gesundheitszentren' },
+              { icon: '🏡', name: 'Alters- & Pflegeheime', sub: 'Wohnheime, Residenzen & Pflegezentren' },
+              { icon: '🏨', name: 'Hotels & Gastronomie', sub: 'Hotels, Restaurants & Cafés' },
+              { icon: '🏢', name: 'Büros & Firmen', sub: 'KMU, Grossunternehmen & Kantinen' },
+            ].map(({ icon, name, sub }) => (
+              <div key={name} className="kunden-tile">
+                <span className="kunden-icon">{icon}</span>
+                <div className="kunden-name">{name}</div>
+                <div className="kunden-sub">{sub}</div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ display: 'flex', gap: 32, justifyContent: 'center', marginTop: 48, flexWrap: 'wrap' }}>
+            {[
+              { n: '500+', l: 'zufriedene Kunden' },
+              { n: '100+', l: 'Produkte im Sortiment' },
+              { n: '2–4', l: 'Werktage Lieferzeit' },
+              { n: '2013', l: 'gegründet in Basel' },
+            ].map(({ n, l }) => (
+              <div key={l} style={{ textAlign: 'center' }}>
+                <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 36, fontWeight: 800, color: 'white', letterSpacing: '-0.04em', lineHeight: 1 }}>{n}</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,.4)', marginTop: 6, fontWeight: 500 }}>{l}</div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ══ FAQ ══════════════════════════════════════════════════════ */}
+        <section className="faq-section">
+          <div style={{ textAlign: 'center' }}>
+            <div className="sec-label">Häufige Fragen</div>
+            <h2 className="sec-title">
+              Alles, was Sie{' '}
+              <span style={{ color: 'var(--accent)' }}>wissen müssen</span>
+            </h2>
+          </div>
+
+          <div className="faq-list">
+            {[
+              {
+                q: 'Wie eröffne ich ein B2B-Konto?',
+                a: 'Registrieren Sie sich kostenlos mit Ihren Unternehmensdaten (Firmenname, UID-Nummer, Adresse). Unser Team prüft Ihr Konto und schaltet es innerhalb eines Werktags frei. Danach haben Sie sofortigen Zugang zu allen Grosshandelspreisen.',
+              },
+              {
+                q: 'Gibt es eine Mindestbestellmenge?',
+                a: 'Ja, es gibt produktabhängige Mindestbestellmengen (MOQ). Diese sind für jedes Produkt transparent angezeigt. Viele Produkte sind bereits ab kleinen Mengen bestellbar — ideal für Erstbestellungen oder neue Sortimentserweiterungen.',
+              },
+              {
+                q: 'Wie hoch sind die Versandkosten?',
+                a: 'Der Versand kostet CHF 9.90 pauschal. Ab einem Bestellwert von CHF 300 liefern wir kostenlos. Bei grossen Paletten-Bestellungen wählen wir automatisch die günstigste Versandoption für Sie.',
+              },
+              {
+                q: 'Wie schnell erhalte ich meine Bestellung?',
+                a: 'Die Lieferzeit beträgt in der Regel 2–4 Werktage schweizweit. Bestellungen, die bis 12:00 Uhr eingehen, werden noch am selben Tag bearbeitet.',
+              },
+              {
+                q: 'Welche Zahlungsmethoden sind möglich?',
+                a: 'Wir akzeptieren Kreditkarte, TWINT, PayPal, Klarna sowie Vorauskasse per Banküberweisung. Die IBAN für Überweisungen finden Sie in Ihrer Bestellbestätigung.',
+              },
+              {
+                q: 'Gibt es Staffelpreise bei grossen Mengen?',
+                a: 'Ja! Bei vielen Produkten — insbesondere TEABALLS Glasflaschen — gelten automatische Mengenrabatte. Je mehr Sie bestellen, desto günstiger der Preis pro Einheit. Die Staffeln sind auf jeder Produktseite sichtbar.',
+              },
+              {
+                q: 'Kann ich als Privatperson bestellen?',
+                a: 'Nein. Unser B2B-Grosshandel ist ausschliesslich für Unternehmen, Gewerbe und Institutionen mit gültiger Mehrwertsteuernummer (UID) vorgesehen. Für Privatbestellungen verweisen wir auf die jeweiligen Hersteller-Shops.',
+              },
+              {
+                q: 'Gibt es auch Abholmöglichkeit?',
+                a: 'Ja, Sie können Ihre Bestellung auch persönlich bei uns in Basel abholen. Adresse: Mailand-Strasse 31, 4053 Basel. Bitte wählen Sie beim Checkout die Option «Abholung» und wir kontaktieren Sie zur Terminabstimmung.',
+              },
+            ].map(({ q, a }) => (
+              <details key={q} className="faq-item">
+                <summary>{q}</summary>
+                <div className="faq-answer">{a}</div>
+              </details>
             ))}
           </div>
         </section>
