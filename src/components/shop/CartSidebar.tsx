@@ -1,6 +1,6 @@
 'use client'
 import { useCartStore, useCartTotals } from '@/store/cart'
-import { formatPrice, calcShipping } from '@/lib/utils'
+import { formatPrice, FREE_SHIPPING_THRESHOLD } from '@/lib/utils'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useSession } from 'next-auth/react'
@@ -43,7 +43,7 @@ export default function CartSidebar({ open, onClose }: Props) {
   // re-price (and re-render) on every keystroke.
   const [draft, setDraft] = useState<Record<string, string>>({})
   const clearCart    = useCartStore(s => s.clearCart)
-  const { subtotal, shipping, tax, taxFood, taxStandard, total } = useCartTotals()
+  const { subtotal, shipping, tax, taxFood, taxStandard, total } = useCartTotals('LOCAL_DELIVERY')
   const [suggestions, setSuggestions] = useState<Suggestion[]>([])
   const addItem      = useCartStore(s => s.addItem)
 
@@ -178,11 +178,14 @@ export default function CartSidebar({ open, onClose }: Props) {
             <div style={{ fontSize: 12, color: '#166534', display: 'flex', alignItems: 'flex-start', gap: 8 }}>
               <span style={{ fontSize: 16, flexShrink: 0 }}>🚚</span>
               <div>
-                <strong>Lieferung ca. CHF {calcShipping(subtotal).toFixed(2)}</strong>
-                <span style={{ color: '#15803d' }}> — gestaffelt nach Bestellwert, 1:1 weitergegeben.</span>
-                <div style={{ marginTop: 3, color: '#15803d', fontSize: 11.5 }}>
-                  Definitiver Betrag kommt per E-Mail nach der Bestellung.
-                </div>
+                {subtotal >= FREE_SHIPPING_THRESHOLD ? (
+                  <strong>Gratisversand</strong>
+                ) : (
+                  <>
+                    <strong>Versand CHF 9.90</strong>
+                    <span style={{ color: '#15803d' }}> — Gratisversand ab CHF {FREE_SHIPPING_THRESHOLD.toFixed(0)}</span>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -336,8 +339,8 @@ export default function CartSidebar({ open, onClose }: Props) {
                 <span>Zwischensumme</span><span>{formatPrice(subtotal)}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: 'var(--gray-400)', marginBottom: 10 }}>
-                <span>Transport</span>
-                <span style={{ fontStyle: 'italic' }}>wird bestätigt</span>
+                <span>Versand</span>
+                <span>{shipping > 0 ? formatPrice(shipping) : 'Gratis'}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 800, fontSize: 20, borderTop: '1px solid var(--gray-100)', paddingTop: 10 }}>
                 <span>Gesamt</span><span>{formatPrice(total)}</span>

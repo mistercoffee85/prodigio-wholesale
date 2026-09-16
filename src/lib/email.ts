@@ -159,7 +159,7 @@ export async function sendOrderConfirmationEmail(
       <p><strong>Zahlungsmethode:</strong> ${paymentLabel[order.paymentMethod] ?? order.paymentMethod}</p>
       <p><strong>Lieferung:</strong> ${order.shippingOption === 'LOCAL_PICKUP'
         ? '🏢 Abholung bei PRO.DI.GIO GmbH, Mailand-Strasse 31, 4053 Basel – wir kontaktieren Sie zur Terminvereinbarung.'
-        : '🚚 Lieferung durch PRO.DI.GIO GmbH – Transportkosten werden separat bestätigt.'
+        : '🚚 Lieferung durch PRO.DI.GIO GmbH – Versandkosten im Gesamtbetrag enthalten.'
         }</p>
       ${order.paymentMethod === 'BANK_TRANSFER' || order.paymentMethod === 'NET_30' ? `
         <div style="background:#fff7ed; padding:16px; border-radius:8px; margin:16px 0; border:1px solid #fcd9b6;">

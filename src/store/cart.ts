@@ -3,7 +3,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { useEffect, useState } from 'react'
 import { CartItem, CartState } from '@/types'
-import { calcShipping, shippingLabel, calcCartTaxBreakdown, parseTiers, tierPrice } from '@/lib/utils'
+import { calcShippingWeightBased, calcCartTaxBreakdown, parseTiers, tierPrice } from '@/lib/utils'
 
 /** Re-price a line for a new quantity. Volume tiers make unitPrice a function of
  *  quantity, so it cannot stay frozen at the value captured when the item was added.
@@ -85,13 +85,16 @@ export const useCartStore = create<CartState>()(
 export function useCartTotals(shippingOption?: string) {
   const items = useCartStore(s => s.items)
   const subtotal  = items.reduce((s, i) => s + i.total, 0)
+  const totalWeightKg = items.reduce((s, i) => s + (i.weight ?? 0) * i.quantity, 0)
   const needsDelivery = shippingOption === 'LOCAL_DELIVERY'
-  const shipping  = 0 // Transportkosten immer per E-Mail bestätigt
-  const label     = needsDelivery ? shippingLabel(subtotal) : 'Abholung'
+  const shipResult = needsDelivery
+    ? calcShippingWeightBased(subtotal, totalWeightKg)
+    : { cost: 0, label: 'Abholung', method: 'FREE' as const, internalCost: 0 }
+  const shipping = shipResult.cost
   const taxBreak  = calcCartTaxBreakdown(items, shipping)
   const tax       = taxBreak.total
   const total     = Math.round((subtotal + shipping + tax) * 100) / 100
-  return { subtotal, shipping, shippingLabel: label, tax, taxFood: taxBreak.food, taxStandard: taxBreak.standard, total }
+  return { subtotal, shipping, shippingLabel: shipResult.label, shippingMethod: shipResult.method, totalWeightKg, tax, taxFood: taxBreak.food, taxStandard: taxBreak.standard, total }
 }
 
 /**

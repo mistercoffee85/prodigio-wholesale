@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useCartStore, useCartTotals, useCartHydrated } from '@/store/cart'
-import { formatPrice, calcShipping } from '@/lib/utils'
+import { formatPrice, FREE_SHIPPING_THRESHOLD } from '@/lib/utils'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import StripePaymentForm from '@/components/checkout/StripePaymentForm'
@@ -74,16 +74,13 @@ export default function CheckoutPage() {
   // Derive the "primary" shippingOption for the API
   const primaryShipping: ShippingOption = shippingOptionLocal
 
-  // Compute totals — shipping always 0 (confirmed separately by email)
-  const { subtotal, shipping, shippingLabel: shipLabel, tax, taxFood, taxStandard, total } = useCartTotals(primaryShipping)
-  const needsTransportEmail = shippingOptionLocal === 'LOCAL_DELIVERY'
-  const shownTotal = needsTransportEmail ? Math.round((subtotal + tax) * 100) / 100 : total
+    const { subtotal, shipping, shippingLabel: shipLabel, tax, taxFood, taxStandard, total } = useCartTotals(primaryShipping)
 
   const buildPayload = () => ({
     items: items.map(i => ({ productId: i.productId, quantity: i.quantity, variantLabel: i.variantLabel })),
     // Delivery is invoiced by email, so record it as such rather than carrying over
     // whatever was picked while a pickup option was selected.
-    paymentMethod: needsTransportEmail ? ('BANK_TRANSFER' as PaymentMethod) : paymentMethod,
+    paymentMethod,
     shippingOption: primaryShipping,
     notes,
   })
@@ -230,11 +227,9 @@ export default function CheckoutPage() {
     },
   ]
 
-  const displayTotal = (needsTransportEmail ? shownTotal : total) > 0 ? (needsTransportEmail ? shownTotal : total) : null
+  const displayTotal = total > 0 ? total : null
   const totalLabel   = displayTotal ? formatPrice(displayTotal) : '…'
-  const submitLabel  = needsTransportEmail
-    ? 'Bestellung abschicken — Rechnung per E-Mail'
-    : paymentMethod === 'STRIPE_CARD'
+  const submitLabel  = paymentMethod === 'STRIPE_CARD'
     ? `Weiter zur Kartenzahlung – ${totalLabel}`
     : paymentMethod === 'STRIPE_TWINT'
     ? `Weiter zu TWINT – ${totalLabel}`
@@ -361,7 +356,7 @@ export default function CheckoutPage() {
                       <p style={{ fontSize: 12.5, color: 'var(--gray-400)', marginBottom: 14 }}>Ware ab Lager PRO.DI.GIO GmbH, Basel.</p>
                       {([
                         { value: 'LOCAL_DELIVERY' as ShippingOption, title: '🚚 Lieferung durch PRO.DI.GIO GmbH',
-                          rows: [['📦','Versand','Wir liefern direkt zu Ihnen'],['💶','Kosten','Wird per E-Mail bestätigt — angepasst an Bestellmenge'],['📅','Lieferzeit','2–4 Werktage nach Bestellbestätigung'],['📞','Kontakt','Wir melden uns zur Koordination']],
+                          rows: [['📦','Versand','Wir liefern direkt zu Ihnen'],['💶','Kosten', subtotal >= FREE_SHIPPING_THRESHOLD ? 'Gratisversand' : 'CHF 9.90 — Gratisversand ab CHF 300'],['📅','Lieferzeit','2–4 Werktage nach Bestellbestätigung'],['📞','Kontakt','Wir melden uns zur Koordination']],
                           note: null },
                         { value: 'LOCAL_PICKUP' as ShippingOption, title: '🏢 Abholung bei PRO.DI.GIO GmbH, Basel',
                           rows: [['📍','Adresse','Mailand-Strasse 31, 4053 Basel'],['🕐','Termin','Nach Absprache — wir kontaktieren Sie'],['💶','Kosten','Kostenlos — keine Versandkosten'],['📦','Bereit','Wir informieren Sie sobald Ware bereit ist']],
@@ -391,32 +386,7 @@ export default function CheckoutPage() {
                 {/* Zahlungsmethode */}
                 <div className="card" style={{ padding: 'clamp(16px, 4vw, 28px)' }}>
                   <h2 style={{ fontSize: 17, fontWeight: 700, marginBottom: 20 }}>Zahlungsmethode</h2>
-                  {needsTransportEmail ? (
-                    /* Delivery orders never reach Stripe — the checkout returns early and the
-                       invoice goes out by email. Picking a method here would do nothing, so
-                       list what will be on offer instead of pretending it is a choice. */
-                    <>
-                      <p style={{ fontSize: 13, color: 'var(--gray-500)', lineHeight: 1.6, marginBottom: 14 }}>
-                        Sie erhalten die Rechnung per E-Mail — inklusive Transportkosten.
-                        Dort wählen Sie Ihre Zahlungsart:
-                      </p>
-                      <div style={{ display: 'grid', gap: 8 }}>
-                        {PAYMENT_OPTIONS.map(opt => (
-                          <div key={opt.value} style={{
-                            display: 'flex', gap: 12, alignItems: 'flex-start',
-                            padding: '12px 14px', border: '1.5px solid var(--gray-200)',
-                            borderRadius: 10, background: 'var(--gray-50)',
-                          }}>
-                            <span style={{ fontSize: 16, flexShrink: 0 }}>{opt.icon}</span>
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                              <div style={{ fontWeight: 600, fontSize: 13.5 }}>{opt.title.replace(/^\S+\s/, '')}</div>
-                              <div style={{ fontSize: 12, color: 'var(--gray-400)' }}>{opt.desc}</div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </>
-                  ) : PAYMENT_OPTIONS.map(opt => (
+                  {PAYMENT_OPTIONS.map(opt => (
                     <div key={opt.value}>
                       <label style={{
                         display: 'flex', gap: 14, padding: '14px 16px',
@@ -490,7 +460,7 @@ export default function CheckoutPage() {
                     ['Lieferung',
                       primaryShipping === 'LOCAL_PICKUP'
                         ? '🏢 Abholung — CHF 0.00'
-                        : '📧 Per E-Mail bestätigt'
+                        : shipping === 0 ? '🚚 Gratisversand' : `🚚 ${shipLabel} — ${formatPrice(shipping)}`
                     ],
                     ...(taxFood > 0     ? [['MwSt. 2.6% (Lebensmittel)', formatPrice(taxFood)]]   : []),
                     ...(taxStandard > 0 ? [['MwSt. 8.1%',                formatPrice(taxStandard)]] : []),
@@ -507,38 +477,11 @@ export default function CheckoutPage() {
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 800, fontSize: 22, marginTop: 16, paddingTop: 14, borderTop: '2px solid var(--black)' }}>
                   <span>Gesamt</span>
-                  <span>{formatPrice(shownTotal)}</span>
+                  <span>{formatPrice(total)}</span>
                 </div>
                 <div style={{ fontSize: 11.5, color: 'var(--gray-400)', textAlign: 'right', marginBottom: 16 }}>
-                  inkl. MwSt.
+                  inkl. MwSt.{shipping > 0 ? ' und Versand' : ''}
                 </div>
-
-                {/* Transport cost notice — shown when delivery is selected */}
-                {needsTransportEmail ? (
-                  <>
-                  <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 10, padding: '10px 14px', marginBottom: 8 }}>
-                    <div style={{ fontSize: 12.5, color: '#166534', display: 'flex', gap: 8, alignItems: 'flex-start' }}>
-                      <span style={{ fontSize: 15, flexShrink: 0 }}>🚚</span>
-                      <div>
-                        <strong>Lieferung ca. CHF {calcShipping(subtotal).toFixed(2)}</strong>
-                        <span style={{ color: '#15803d' }}> — gestaffelt nach Bestellwert, 1:1 weitergegeben.</span>
-                        <div style={{ marginTop: 2, fontSize: 11.5, color: '#15803d' }}>
-                          Definitiver Betrag kommt per E-Mail nach der Bestellung.
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div style={{ background: '#fff7ed', border: '1px solid #fcd9b6', borderRadius: 10, padding: '12px 14px', marginBottom: 14 }}>
-                    <div style={{ fontSize: 12.5, color: '#92400e', display: 'flex', gap: 8, alignItems: 'flex-start' }}>
-                      <span style={{ fontSize: 15, flexShrink: 0 }}>📧</span>
-                      <div>
-                        <strong>Transportkosten werden separat verrechnet.</strong><br />
-                        Nach der Bestellung erhalten Sie eine E-Mail mit dem definitiven Betrag und einem Zahlungslink. <strong>Bitte sofort bezahlen</strong> — die Bestellung wird erst nach Zahlungseingang bearbeitet.
-                      </div>
-                    </div>
-                  </div>
-                  </>
-                ) : null}
 
                 <button
                   type="submit"

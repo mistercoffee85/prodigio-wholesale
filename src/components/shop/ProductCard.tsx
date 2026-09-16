@@ -49,6 +49,7 @@ interface Product {
   supplierSource?: string // 'migroweb' = Cash & Carry IT
   images?: string[]; variants?: Variant[]
   priceTiers?: { minQty: number; price: number }[]
+  weight?: number
 }
 
 const BADGE: Record<string, { label: string; bg: string }> = {
@@ -138,6 +139,7 @@ export default function ProductCard({ product: p, priority, approved = false }: 
       unitPrice: cartUnitPrice,
       basePrice: tiers.length ? activePrice : undefined,
       priceTiers: tiers.length ? tiers : undefined,
+      weight: p.weight ?? undefined,
       taxRate: p.taxRate ?? 0.081,
       supplierSource: p.supplierSource,
     })

@@ -44,34 +44,54 @@ export function tierPrice(basePrice: number, tiers: PriceTier[], qty: number): n
   return price
 }
 
-/** Versandkostenrechner PRO.DI.GIO
- *  Gilt nur bei Lieferung (LOCAL_DELIVERY). Abholung (LOCAL_PICKUP) = CHF 0.00
- *
- *  Staffel nach Bestellwert (Netto ohne MwSt.):
- *  bis CHF 100   → CHF  9.90
- *  bis CHF 200   → CHF 19.90
- *  bis CHF 300   → CHF 29.90
- *  bis CHF 400   → CHF 49.90
- *  ab  CHF 400   → CHF 90.00 (Palette)
- */
-export const SHIPPING_CARRIER = 'DPD / Eigene Lieferung'
+export const SHIPPING_CARRIER = 'DPD / Palettenversand'
+export const FREE_SHIPPING_THRESHOLD = 300
+const PALETTE_COST = 85.00
+const FLAT_RATE = 9.90
 
-export const SHIPPING_TIERS: Array<{ upTo: number; cost: number; label: string }> = [
-  { upTo: 100,  cost:  9.90, label: 'Paket (bis CHF 100)' },
-  { upTo: 200,  cost: 19.90, label: 'Paket (bis CHF 200)' },
-  { upTo: 300,  cost: 29.90, label: 'Paket (bis CHF 300)' },
-  { upTo: 400,  cost: 49.90, label: 'Paket (bis CHF 400)' },
-  { upTo: Infinity, cost: 90.00, label: 'Palette (ab CHF 400)' },
+const DPD_BRACKETS: Array<{ maxKg: number; base: number }> = [
+  { maxKg: 1,    base: 7.35 },
+  { maxKg: 2,    base: 7.75 },
+  { maxKg: 3,    base: 8.15 },
+  { maxKg: 4,    base: 8.66 },
+  { maxKg: 7,    base: 10.17 },
+  { maxKg: 10.5, base: 12.48 },
 ]
+const DPD_SURCHARGE = 1.133
+
+function dpdCostForWeight(kg: number): number {
+  if (kg <= 0) return 0
+  const parcels = Math.ceil(kg / 10.5)
+  const perParcel = kg / parcels
+  const bracket = DPD_BRACKETS.find(b => perParcel <= b.maxKg) ?? DPD_BRACKETS[DPD_BRACKETS.length - 1]
+  return Math.round(bracket.base * DPD_SURCHARGE * parcels * 100) / 100
+}
+
+export interface ShippingResult {
+  cost: number
+  label: string
+  method: 'DPD' | 'PALETTE' | 'FREE'
+  internalCost: number
+}
+
+export function calcShippingWeightBased(subtotal: number, totalWeightKg: number): ShippingResult {
+  const dpd = dpdCostForWeight(totalWeightKg)
+  const usePalette = dpd > PALETTE_COST
+  const internalCost = usePalette ? PALETTE_COST : dpd
+  const method = usePalette ? 'PALETTE' as const : 'DPD' as const
+
+  if (subtotal >= FREE_SHIPPING_THRESHOLD) {
+    return { cost: 0, label: 'Gratisversand', method: 'FREE', internalCost }
+  }
+  return { cost: FLAT_RATE, label: method === 'PALETTE' ? 'Palettenversand' : 'DPD Paket', method, internalCost }
+}
 
 export function calcShipping(subtotal: number): number {
-  const tier = SHIPPING_TIERS.find(t => subtotal <= t.upTo)
-  return tier ? tier.cost : 90.00
+  return subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : FLAT_RATE
 }
 
 export function shippingLabel(subtotal: number): string {
-  const tier = SHIPPING_TIERS.find(t => subtotal <= t.upTo)
-  return tier ? tier.label : 'Palette'
+  return subtotal >= FREE_SHIPPING_THRESHOLD ? 'Gratisversand' : 'DPD Paket'
 }
 
 /** Swiss VAT rates */

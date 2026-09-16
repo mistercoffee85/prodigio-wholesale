@@ -5,7 +5,7 @@ import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { requireAuth } from '@/lib/auth'
 import { stripe, toStripeAmount } from '@/lib/stripe'
-import { generateOrderNumber, calcShipping, shippingLabel, calcCartTaxBreakdown, parseTiers, tierPrice } from '@/lib/utils'
+import { generateOrderNumber, calcShippingWeightBased, calcCartTaxBreakdown, parseTiers, tierPrice } from '@/lib/utils'
 import { sendOrderConfirmationEmail } from '@/lib/email'
 
 const itemSchema = z.object({
@@ -96,14 +96,17 @@ export async function POST(req: NextRequest) {
 
     const subtotal   = orderItems.reduce((s, i) => s + i.total, 0)
 
-    // ── Lieferkosten: gestaffelt nach Bestellwert ────────────────
-    // Abholung (LOCAL_PICKUP / SELF_PICKUP) = kostenlos
-    // Lieferung: CHF 9.90 / 19.90 / 29.90 / 49.90 / 90.00 (Palette)
     const needsDelivery = shippingOption === 'LOCAL_DELIVERY'
       || shippingOption === 'PRODIGIO_DELIVERS'
       || shippingOptionLocal === 'LOCAL_DELIVERY'
-    const shipping = 0 // Transportkosten immer per E-Mail bestätigt
-    const shipLabel = needsDelivery ? 'per E-Mail bestätigt' : 'Abholung'
+    const totalWeightKg = items.reduce((s, item) => {
+      const product = products.find(p => p.id === item.productId)!
+      return s + (Number(product.weight) || 0) * item.quantity
+    }, 0)
+    const shipResult = needsDelivery
+      ? calcShippingWeightBased(subtotal, totalWeightKg)
+      : { cost: 0, label: 'Abholung', method: 'FREE' as const, internalCost: 0 }
+    const shipping = shipResult.cost
 
     const taxBreak   = calcCartTaxBreakdown(orderItems, shipping)
     const tax        = taxBreak.total
@@ -116,7 +119,7 @@ export async function POST(req: NextRequest) {
       }, { status: 400 })
     }
 
-    const shippingPending = needsDelivery // Transportkosten werden per E-Mail bestätigt
+    const shippingPending = false
 
     const orderNumber = generateOrderNumber()
     // Vorauskasse: 3 Werktage Zahlungsziel
@@ -156,26 +159,7 @@ export async function POST(req: NextRequest) {
       include: { items: { include: { product: true } } },
     })
 
-    // ── Delivery orders: save payment preference, wait for admin to confirm transport ──
-    if (needsDelivery) {
-      // Decrement stock to reserve items
-      for (const item of items) {
-        await prisma.product.update({
-          where: { id: item.productId },
-          data:  { stock: { decrement: item.quantity } },
-        })
-      }
-      await sendOrderConfirmationEmail(user.email, user.name, {
-        orderNumber, total, paymentMethod, shippingOption, shippingOptionLocal,
-        items: order.items.map(i => ({
-          name: i.product.name, quantity: i.quantity, unitPrice: Number(i.unitPrice),
-          unit: (i as any).unit || i.product.unit || '', sku: (i as any).productSku || i.product.supplierSku || '',
-        })),
-      }).catch(console.error)
-      return NextResponse.json({ orderId: order.id, orderNumber, type: 'manual' })
-    }
-
-    // ── Stripe Payment (card / TWINT) — Abholung/Ex Works ──
+    // ── Stripe Payment (card / TWINT / PayPal / Klarna) ──
     if (paymentMethod === 'STRIPE_CARD' || paymentMethod === 'STRIPE_TWINT' || paymentMethod === 'STRIPE_PAYPAL' || paymentMethod === 'STRIPE_KLARNA') {
       const paymentMethods = paymentMethod === 'STRIPE_TWINT' ? ['twint'] : paymentMethod === 'STRIPE_PAYPAL' ? ['paypal'] : paymentMethod === 'STRIPE_KLARNA' ? ['klarna'] : ['card']
 
