@@ -136,7 +136,7 @@ export default async function HomePage() {
           text-transform: uppercase; color: var(--accent); margin-bottom: 12px;
         }
         .sec-title {
-          font-family: 'Space Grotesk', sans-serif;
+          font-family: 'Archivo', sans-serif;
           font-size: clamp(28px,3.5vw,44px); font-weight: 700;
           letter-spacing: -0.035em; line-height: 1.1;
         }
@@ -165,7 +165,7 @@ export default async function HomePage() {
           background: linear-gradient(to top, rgba(0,0,0,.85) 0%, rgba(0,0,0,.2) 50%, transparent 100%);
         }
         .brand-tile-info { position: relative; z-index: 2; padding: 20px 18px; }
-        .brand-tile-name { font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 700; color: white; }
+        .brand-tile-name { font-family: 'Archivo', sans-serif; font-size: 15px; font-weight: 700; color: white; }
         .brand-tile-sub { font-size: 11.5px; color: rgba(255,255,255,.6); margin-top: 4px; }
         .brand-tile-arrow {
           display: inline-flex; align-items: center; justify-content: center;
@@ -189,7 +189,7 @@ export default async function HomePage() {
         .feat-brand { font-size: 10px; font-weight: 700; letter-spacing: 1.8px; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
         .feat-name { font-size: 14px; font-weight: 600; color: var(--black); line-height: 1.35; margin-bottom: 4px; }
         .feat-unit { font-size: 12px; color: var(--gray-400); margin-bottom: 14px; }
-        .feat-price { font-family: 'Space Grotesk', sans-serif; font-size: 21px; font-weight: 700; color: var(--black); }
+        .feat-price { font-family: 'Archivo', sans-serif; font-size: 21px; font-weight: 700; color: var(--black); }
         .feat-moq { font-size: 11px; color: var(--gray-400); background: var(--gray-50); padding: 3px 10px; border-radius: 20px; font-weight: 500; border: 1px solid var(--gray-100); }
 
         /* ── STEPS ── */
@@ -204,7 +204,7 @@ export default async function HomePage() {
           width: 2px; height: 28px; background: var(--gray-100);
         }
         .step-num {
-          font-family: 'Space Grotesk', sans-serif;
+          font-family: 'Archivo', sans-serif;
           font-size: 11px; font-weight: 700; letter-spacing: 2px; color: var(--accent);
           text-transform: uppercase; margin-bottom: 16px;
         }
@@ -213,7 +213,7 @@ export default async function HomePage() {
           display: flex; align-items: center; justify-content: center; font-size: 24px;
           margin-bottom: 20px; border: 1px solid var(--accent-light);
         }
-        .step-title { font-family: 'Space Grotesk', sans-serif; font-size: 17px; font-weight: 700; color: var(--black); margin-bottom: 10px; letter-spacing: -0.02em; }
+        .step-title { font-family: 'Archivo', sans-serif; font-size: 17px; font-weight: 700; color: var(--black); margin-bottom: 10px; letter-spacing: -0.02em; }
         .step-desc { font-size: 13.5px; color: var(--gray-400); line-height: 1.75; }
 
         /* ── KUNDEN ── */
@@ -430,7 +430,7 @@ export default async function HomePage() {
                 return (
                   <Link key={p.id} href={`/products?category=${p.category.slug}`} className="feat-card">
                     <div className="feat-img" style={{
-                      background: (p.bgGradient as string|null) ?? 'linear-gradient(135deg,#f0f0ee,#e8e8e6)',
+                      background: (p.bgGradient as string|null) ?? '#F7F5FA',
                     }}>
                       {firstImage ? (
                         <Image src={firstImage} alt={p.name} fill
@@ -536,7 +536,7 @@ export default async function HomePage() {
               { n: '2013', l: 'gegründet in Basel' },
             ].map(({ n, l }) => (
               <div key={l} style={{ textAlign: 'center' }}>
-                <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 36, fontWeight: 800, color: 'white', letterSpacing: '-0.04em', lineHeight: 1 }}>{n}</div>
+                <div style={{ fontFamily: "'Archivo', sans-serif", fontSize: 36, fontWeight: 800, color: 'white', letterSpacing: '-0.04em', lineHeight: 1 }}>{n}</div>
                 <div style={{ fontSize: 12, color: 'rgba(255,255,255,.4)', marginTop: 6, fontWeight: 500 }}>{l}</div>
               </div>
             ))}
@@ -600,7 +600,7 @@ export default async function HomePage() {
         <section className="cta-section">
           <div className="sec-label" style={{ marginBottom:16 }}>Jetzt starten</div>
           <h2 style={{
-            fontFamily:"'Space Grotesk', sans-serif",
+            fontFamily:"'Archivo', sans-serif",
             fontSize:'clamp(28px,4vw,50px)', fontWeight:700,
             letterSpacing:'-0.04em', color:'var(--black)',
             marginBottom:18, lineHeight:1.08,

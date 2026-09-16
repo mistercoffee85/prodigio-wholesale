@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -57,11 +57,11 @@ input, select, textarea { font-family: inherit; }
 
 /* ── Typography ─────────────────────────────────────────────── */
 h1, h2, h3, h4 {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Archivo', sans-serif;
   line-height: 1.12;
   letter-spacing: -0.025em;
 }
-.display { font-family: 'Space Grotesk', sans-serif; font-weight: 700; letter-spacing: -0.03em; }
+.display { font-family: 'Archivo', sans-serif; font-weight: 700; letter-spacing: -0.03em; }
 .label {
   font-size: 11px; font-weight: 700; letter-spacing: 2.5px;
   text-transform: uppercase; color: var(--accent);
@@ -264,7 +264,7 @@ tbody td { padding: 14px 18px; vertical-align: middle; }
   padding: clamp(36px, 5vw, 56px) clamp(20px, 5vw, 80px);
 }
 .page-header h1 {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Archivo', sans-serif;
   font-size: clamp(24px, 3vw, 38px); font-weight: 700;
   letter-spacing: -0.03em; margin-bottom: 8px;
 }

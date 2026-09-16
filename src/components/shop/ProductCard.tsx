@@ -154,7 +154,7 @@ export default function ProductCard({ product: p, priority, approved = false }: 
         <div style={{
           height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center',
           fontSize: 68, position: 'relative', overflow: 'hidden',
-          background: p.bgGradient ?? 'linear-gradient(135deg, #f0f0ee, #e8e8e6)',
+          background: p.bgGradient ?? '#F7F5FA',
         }}>
           {firstImage ? (
             <div style={{ position: 'relative', width: '100%', height: '100%' }}>
@@ -343,7 +343,7 @@ export default function ProductCard({ product: p, priority, approved = false }: 
             <div style={{
               height: 'clamp(180px, 35vw, 300px)', display: 'flex', alignItems: 'center', justifyContent: 'center',
               position: 'sticky', top: 0, zIndex: 10, overflow: 'hidden',
-              background: p.bgGradient ?? 'linear-gradient(135deg, #f0f0ee, #e8e8e6)',
+              background: p.bgGradient ?? '#F7F5FA',
             }}>
               {firstImage ? (
                 <div style={{ position: 'relative', width: '100%', height: '100%' }}>
@@ -383,7 +383,7 @@ export default function ProductCard({ product: p, priority, approved = false }: 
               <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: 0.5, color: 'var(--accent)', marginBottom: 8 }}>
                 {p.brand}
               </div>
-              <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 24, fontWeight: 700, marginBottom: 10, lineHeight: 1.15, letterSpacing: '-0.02em' }}>
+              <h2 style={{ fontFamily: "'Archivo', sans-serif", fontSize: 24, fontWeight: 700, marginBottom: 10, lineHeight: 1.15, letterSpacing: '-0.02em' }}>
                 {p.name}
               </h2>
               <p style={{ fontSize: 14, color: 'var(--gray-600)', lineHeight: 1.75, marginBottom: 24 }}>

@@ -269,7 +269,7 @@ export default function Header() {
       }}>
         {/* Logo */}
         <Link href="/" style={{ flexShrink:0, lineHeight:1, textDecoration:'none' }}>
-          <div style={{ fontFamily:"'Space Grotesk', sans-serif", fontWeight:700, fontSize:18, letterSpacing:3, color:'var(--black)', lineHeight:1 }}>
+          <div style={{ fontFamily:"'Archivo', sans-serif", fontWeight:700, fontSize:18, letterSpacing:3, color:'var(--black)', lineHeight:1 }}>
             PRO.DI.GIO
           </div>
           <div style={{ fontSize:7.5, letterSpacing:2.5, color:'var(--gray-400)', marginTop:3 }}>
@@ -415,7 +415,7 @@ export default function Header() {
               display:'flex', alignItems:'center', justifyContent:'space-between',
             }}>
               <div>
-                <div style={{ fontFamily:"'Space Grotesk', sans-serif", fontWeight:700, fontSize:16, letterSpacing:2 }}>PRO.DI.GIO</div>
+                <div style={{ fontFamily:"'Archivo', sans-serif", fontWeight:700, fontSize:16, letterSpacing:2 }}>PRO.DI.GIO</div>
                 <div style={{ fontSize:9, letterSpacing:2, color:'var(--gray-400)' }}>GROSSHANDEL · BASEL</div>
               </div>
               <button onClick={() => setMobileOpen(false)} style={{
