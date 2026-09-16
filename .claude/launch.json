@@ -3,8 +3,8 @@
   "configurations": [
     {
       "name": "wholesale-dev",
-      "runtimeExecutable": "npx",
-      "runtimeArgs": ["next", "dev"],
+      "runtimeExecutable": "node_modules/.bin/next",
+      "runtimeArgs": ["dev"],
       "port": 3000
     }
   ]

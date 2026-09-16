@@ -40,6 +40,7 @@ const CATEGORY_IMAGES: Record<string, { img: string; bg: string }> = {
   'teaballs-glasflaschen-bio':  { img: 'https://cdn.shopify.com/s/files/1/0368/6150/9769/files/Ingwer.png?v=1762430214', bg: '#fff' },
   'teaballs-vorratsglas-100g':  { img: 'https://cdn.shopify.com/s/files/1/0368/6150/9769/files/100gGlas_TEABALLSWILDBERRY_6216e31b-7ca6-45b2-a642-dac1c3a08d92.png?v=1772191743', bg: '#fff' },
   'teaballs-vorratsglas-500g':  { img: 'https://cdn.shopify.com/s/files/1/0368/6150/9769/files/500gWildberry_24738ca5-8a7d-40c2-87f6-0eedcb0d5dbf.png?v=1772191540', bg: '#fff' },
+  'teaballs-teetueten':          { img: 'https://cdn.shopify.com/s/files/1/0368/6150/9769/files/teetute-black-selection-mit-20xteapacks-300607_1024x1024_d3cc834e-9a28-4af6-84a0-7658b6fdf426.jpg?v=1727296186', bg: '#0d0d0d' },
   'teaballs-tea-packs':         { img: '/products/teaballs/tb-earl-grey-12er.jpeg', bg: '#f3f4f6' },
   'teaballs-heiss-kalt-12er':   { img: '/products/teaballs/tb-wildberry-12er.jpeg', bg: '#f3f4f6' },
   'teaballs-heiss-kalt-100er':  { img: '/products/teaballs/tb-earl-grey-100er.jpeg', bg: '#f3f4f6' },
