@@ -275,7 +275,7 @@ export default function ProductCard({ product: p, priority, approved = false }: 
                   <span style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: 'var(--gray-400)' }}>
                     Einkaufspreis
                   </span>
-                  {p.comparePrice && (
+                  {p.comparePrice && Math.round((Number(p.comparePrice) / p.price - 1) * 100) > 0 && (
                     <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--accent)', background: '#e8f7f1', borderRadius: 6, padding: '2px 7px' }}>
                       +{Math.round((Number(p.comparePrice) / p.price - 1) * 100)}% Marge
                     </span>
@@ -295,13 +295,41 @@ export default function ProductCard({ product: p, priority, approved = false }: 
                 </div>
 
                 {/* Formel: X × CHF y.yy */}
-                <div style={{ fontSize: 11, color: 'var(--gray-500)', marginBottom: 2 }}>
+                <div style={{ fontSize: 11, color: 'var(--gray-500)', marginBottom: tiers.length > 1 ? 8 : 2 }}>
                   {tiers.length
                     ? `${qty} × ${formatPrice(tieredPrice)}`
                     : activeMoq > 1
                       ? `${activeMoq} × ${formatPrice(activePrice)}`
                       : unitLabel}
                 </div>
+
+                {/* Staffelpreise-Vorschau auf der Karte */}
+                {tiers.length > 1 && (
+                  <div style={{ borderTop: '1px solid var(--gray-100)', paddingTop: 7 }}>
+                    <div style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: .8, textTransform: 'uppercase', color: 'var(--gray-400)', marginBottom: 5 }}>
+                      Staffelpreise
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      {tiers.map((t, idx) => {
+                        const next = tiers[idx + 1]
+                        const range = next ? `${t.minQty}–${next.minQty - 1}` : `ab ${t.minQty}`
+                        const isActive = tieredPrice === t.price && qty >= t.minQty && (!next || qty < next.minQty)
+                        return (
+                          <div key={t.minQty} style={{
+                            display: 'flex', justifyContent: 'space-between',
+                            fontSize: 11, padding: '2px 6px', borderRadius: 4,
+                            background: isActive ? 'rgba(94,30,184,.08)' : 'transparent',
+                            color: isActive ? 'var(--accent-dark)' : 'var(--gray-500)',
+                            fontWeight: isActive ? 700 : 400,
+                          }}>
+                            <span>{range} {activeUnit || 'Stk'}</span>
+                            <span style={{ fontWeight: isActive ? 700 : 600 }}>{formatPrice(t.price)}</span>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -457,7 +485,7 @@ export default function ProductCard({ product: p, priority, approved = false }: 
                         {/* Header */}
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
                           <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: 'var(--gray-400)' }}>Einkaufspreis</span>
-                          {p.comparePrice && (
+                          {p.comparePrice && Math.round((Number(p.comparePrice) / p.price - 1) * 100) > 0 && (
                             <span style={{ fontSize: 11, background: 'rgba(94,30,184,.12)', borderRadius: 5, padding: '2px 8px', color: 'var(--accent)', fontWeight: 700 }}>
                               +{Math.round((Number(p.comparePrice) / p.price - 1) * 100)}% Marge
                             </span>
