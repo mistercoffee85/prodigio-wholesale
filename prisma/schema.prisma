@@ -23,6 +23,8 @@ model User {
   company             Company?
   orders              Order[]
   sessions            Session[]
+  cart                Cart?
+  activityLogs        ActivityLog[]
 
   @@map("users")
 }
@@ -183,6 +185,28 @@ model Setting {
   value String
 
   @@map("settings")
+}
+
+model Cart {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  items     Json     @default("[]")
+  subtotal  Decimal  @default(0)
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("carts")
+}
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String
+  payload   Json     @default("{}")
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("activity_logs")
 }
 
 enum Role {

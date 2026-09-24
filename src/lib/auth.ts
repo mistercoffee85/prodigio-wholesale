@@ -36,6 +36,11 @@ export const authOptions: NextAuthOptions = {
           throw new Error('REJECTED')
         }
 
+        // Log login activity
+        await prisma.activityLog.create({
+          data: { userId: user.id, type: 'login', payload: { email: user.email, company: user.company?.name ?? null } },
+        }).catch(() => {})
+
         return {
           id: user.id,
           email: user.email,

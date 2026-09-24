@@ -5,6 +5,28 @@ import { useEffect, useState } from 'react'
 import { CartItem, CartState } from '@/types'
 import { calcShippingWeightBased, calcCartTaxBreakdown, parseTiers, tierPrice } from '@/lib/utils'
 
+let syncTimer: ReturnType<typeof setTimeout> | null = null
+
+function syncCart(items: CartItem[]) {
+  if (syncTimer) clearTimeout(syncTimer)
+  syncTimer = setTimeout(() => {
+    const subtotal = items.reduce((s, i) => s + i.total, 0)
+    fetch('/api/cart', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ items, subtotal }),
+    }).catch(() => {})
+  }, 800)
+}
+
+function logActivity(type: string, payload: Record<string, unknown> = {}) {
+  fetch('/api/activity', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ type, payload }),
+  }).catch(() => {})
+}
+
 /** Re-price a line for a new quantity. Volume tiers make unitPrice a function of
  *  quantity, so it cannot stay frozen at the value captured when the item was added.
  *  Lines without tiers keep their unitPrice untouched.
@@ -30,36 +52,43 @@ export const useCartStore = create<CartState>()(
         set(state => {
           const key = item.cartKey
           const existing = state.items.find(i => i.cartKey === key)
+          let newItems: CartItem[]
           if (existing) {
-            return {
-              isOpen: true,
-              items: state.items.map(i =>
-                i.cartKey === key
-                  ? reprice(i, i.quantity + item.quantity)
-                  : i
-              ),
-            }
+            newItems = state.items.map(i =>
+              i.cartKey === key ? reprice(i, i.quantity + item.quantity) : i
+            )
+          } else {
+            newItems = [...state.items, reprice(item as CartItem, item.quantity)]
           }
-          return {
-            isOpen: true,
-            items: [...state.items, reprice(item as CartItem, item.quantity)],
-          }
+          syncCart(newItems)
+          logActivity('cart_add', { productId: item.productId, name: item.name, quantity: item.quantity })
+          return { isOpen: true, items: newItems }
         })
       },
 
       removeItem: (cartKey) =>
-        set(state => ({ items: state.items.filter(i => i.cartKey !== cartKey) })),
+        set(state => {
+          const newItems = state.items.filter(i => i.cartKey !== cartKey)
+          syncCart(newItems)
+          const removed = state.items.find(i => i.cartKey === cartKey)
+          if (removed) logActivity('cart_remove', { productId: removed.productId, name: removed.name })
+          return { items: newItems }
+        }),
 
       updateQuantity: (cartKey, quantity) =>
-        set(state => ({
-          items: state.items.map(i =>
-            i.cartKey === cartKey
-              ? reprice(i, quantity)
-              : i
-          ),
-        })),
+        set(state => {
+          const newItems = state.items.map(i =>
+            i.cartKey === cartKey ? reprice(i, quantity) : i
+          )
+          syncCart(newItems)
+          return { items: newItems }
+        }),
 
-      clearCart: () => set({ items: [] }),
+      clearCart: () => {
+        fetch('/api/cart', { method: 'DELETE' }).catch(() => {})
+        logActivity('cart_clear', {})
+        set({ items: [] })
+      },
 
       get itemCount() { return get().items.reduce((s, i) => s + i.quantity, 0) },
       get subtotal() { return get().items.reduce((s, i) => s + i.total, 0) },

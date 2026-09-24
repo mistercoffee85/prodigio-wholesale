@@ -11,6 +11,7 @@ const NAV = [
   { href: '/admin/products',  icon: '🛍️', label: 'Produkte'           },
   { href: '/admin/preise',    icon: '💰', label: 'Marge & Preise'     },
   { href: '/admin/homepage',  icon: '🏠', label: 'Hauptseite'         },
+  { href: '/admin/activity',  icon: '📡', label: 'Aktivität'           },
 ]
 
 export default function AdminSidebar() {

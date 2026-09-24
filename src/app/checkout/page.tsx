@@ -90,6 +90,13 @@ export default function CheckoutPage() {
     if (items.length === 0) { toast.error('Warenkorb ist leer'); return }
     setLoading(true)
 
+    // Log checkout start
+    fetch('/api/activity', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'checkout_start', payload: { itemCount: items.length, subtotal } }),
+    }).catch(() => {})
+
     try {
       const res  = await fetch('/api/checkout', {
         method:  'POST',
