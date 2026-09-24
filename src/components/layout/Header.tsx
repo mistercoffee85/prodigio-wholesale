@@ -43,7 +43,7 @@ const NAV: NavItem[] = [
     ],
   },
   { href: '/products?category=the-mallows', label: 'The Mallows' },
-  { href: '/products?category=gastro-reinigung', label: 'Gastro/Reinigung' },
+  { href: '/products?category=gastro-reinigung', label: 'Gastrobedarf' },
 ]
 
 /* ── Desktop dropdown item ── */

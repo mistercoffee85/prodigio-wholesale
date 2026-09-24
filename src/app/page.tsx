@@ -65,11 +65,11 @@ const CMS_DEFAULTS = {
   homepage_announcement:        '',
   homepage_announcement_active: 'false',
   homepage_trust_bar: JSON.stringify([
-    { icon: '🚚', main: 'Schnelle Lieferung',       sub: '2–4 Werktage · Schweizweit' },
-    { icon: '🏭', main: 'Direktimport',              sub: 'Beste Konditionen schweizweit' },
-    { icon: '✅', main: 'Kein Zwischenhandel',       sub: 'Direkt vom Importeur' },
-    { icon: '📦', main: 'Flexible Mindestmengen',   sub: '' },
-    { icon: '🇨🇭', main: 'Schweizer Unternehmen',  sub: 'Prodigio GmbH seit 2013' },
+    { icon: '🚚', main: 'Lieferung in 2–4 Werktagen', sub: 'Schweizweit · ab CHF 300 gratis' },
+    { icon: '🏭', main: 'Direktimport',               sub: 'Beste Konditionen schweizweit' },
+    { icon: '✅', main: 'Kein Zwischenhandel',        sub: 'Direkt vom Importeur' },
+    { icon: '📦', main: 'Flexible Mindestmengen',    sub: 'Kleine & grosse Bestellungen' },
+    { icon: '🇨🇭', main: 'Schweizer Unternehmen',   sub: 'Prodigio GmbH Basel seit 2013' },
   ]),
 }
 
@@ -696,10 +696,10 @@ export default async function HomePage() {
           <div className="cta-btns">
             <Link href="/register" style={{
               display:'inline-flex', alignItems:'center', gap:9,
-              background:'var(--black)', color:'white',
+              background:'var(--accent)', color:'white',
               padding:'16px 36px', borderRadius:14,
               fontSize:15.5, fontWeight:700,
-              boxShadow:'0 8px 28px rgba(0,0,0,.2)',
+              boxShadow:'0 8px 28px rgba(94,30,184,.35)',
               transition:'transform .2s, box-shadow .2s',
             }}>
               Kostenlos registrieren →
@@ -716,7 +716,7 @@ export default async function HomePage() {
             </a>
           </div>
           <div style={{ display:'flex', gap:24, justifyContent:'center', marginTop:36, flexWrap:'wrap' }}>
-            {['✓ Keine Mindestbestellung', '✓ Freigabe innert 1 Werktag', '✓ Persönlicher Support'].map(t => (
+            {['✓ Flexible Mindestmengen', '✓ Freigabe innert 1 Werktag', '✓ Persönlicher Support'].map(t => (
               <span key={t} style={{ fontSize:13, color:'var(--gray-400)', fontWeight:500 }}>{t}</span>
             ))}
           </div>

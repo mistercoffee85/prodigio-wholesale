@@ -98,15 +98,15 @@ export default function Footer() {
         <div>
           <h4 style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', color: 'white', marginBottom: 20 }}>Produkte</h4>
           <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {[
-              ['🧋 Bubble Tea', '/products?category=bubble-tea'],
-              ['🍵 TEABALLS', '/products?category=teaballs'],
-              ['🌿 TEABALLS Bio', '/products?category=teaballs-glasflaschen-bio'],
-              ['🍶 Glasflaschen', '/products?category=teaballs-glasflaschen'],
-              ['🫙 Vorratsgläser', '/products?category=teaballs-vorratsglas-100g'],
-              ['📦 Tea-Packs', '/products?category=teaballs-tea-packs'],
-              ['🍫 Patislove', '/products?category=patislove'],
-              ['☁️ The Mallows', '/products?category=the-mallows'],
+            [
+              ['Bubble Tea', '/products?category=bubble-tea'],
+              ['TEABALLS', '/products?category=teaballs'],
+              ['TEABALLS Bio', '/products?category=teaballs-glasflaschen-bio'],
+              ['Glasflaschen', '/products?category=teaballs-glasflaschen'],
+              ['Vorratsgläser', '/products?category=teaballs-vorratsglas-100g'],
+              ['Tea-Packs', '/products?category=teaballs-tea-packs'],
+              ['Patislove', '/products?category=patislove'],
+              ['The Mallows', '/products?category=the-mallows'],
               ['Neuheiten', '/products?badge=new'],
               ['Bestseller', '/products?badge=hot'],
             ].map(([label, href]) => (
@@ -139,10 +139,11 @@ export default function Footer() {
         <div>
           <h4 style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', color: 'white', marginBottom: 20 }}>Kontakt</h4>
           <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {[
+            [
               { icon: '🏢', text: 'PRO.DI.GIO GmbH' },
               { icon: '📍', text: 'Mailand-Strasse 31, 4053 Basel' },
               { icon: '✉️', text: 'contact@prodigio.ch', href: 'mailto:contact@prodigio.ch' },
+              { icon: '📞', text: '+41 61 868 95 33', href: 'tel:+41618689533' },
             ].map(({ icon, text, href }) => (
               <li key={text} style={{ display: 'flex', gap: 10, fontSize: 13.5, color: 'rgba(255,255,255,.65)' }}>
                 <span style={{ flexShrink: 0, opacity: .6 }}>{icon}</span>
