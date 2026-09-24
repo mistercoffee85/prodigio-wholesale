@@ -178,25 +178,31 @@ export default async function HomePage() {
 
         /* ── TRUST BAR ── */
         .trust-bar {
-          background: white; border-bottom: 1px solid var(--gray-100);
+          background: #faf7ff;
+          border-top: 2px solid var(--accent);
+          border-bottom: 1px solid #ede8fb;
           padding: 0 clamp(20px,5vw,80px);
           display: flex; align-items: center; gap: 0;
           overflow-x: auto; -webkit-overflow-scrolling: touch;
         }
         .trust-item {
-          display: flex; align-items: center; gap: 12px;
-          padding: 22px 32px; flex-shrink: 0;
-          border-right: 1px solid var(--gray-100);
+          display: flex; align-items: center; gap: 14px;
+          padding: 20px 28px; flex-shrink: 0;
+          border-right: 1px solid #ede8fb;
           color: var(--gray-600);
         }
         .trust-item:last-child { border-right: none; }
-        .trust-icon { font-size: 20px; flex-shrink: 0; }
-        /* Items are vertically centred, so a tile without a subtitle would sit ~10px
-           lower than the rest. Reserve the two-line height (21px main + 1px gap +
-           19px sub) so every bold line stays on the same baseline. */
-        .trust-text { min-height: 41px; }
-        .trust-text-main { font-size: 13px; font-weight: 700; color: var(--black); }
-        .trust-text-sub { font-size: 11.5px; color: var(--gray-400); margin-top: 1px; }
+        .trust-icon {
+          font-size: 20px; flex-shrink: 0;
+          width: 44px; height: 44px;
+          display: inline-flex; align-items: center; justify-content: center;
+          background: rgba(94,30,184,.09);
+          border: 1px solid rgba(94,30,184,.14);
+          border-radius: 12px;
+        }
+        .trust-text { min-height: 38px; }
+        .trust-text-main { font-size: 13.5px; font-weight: 700; color: var(--black); }
+        .trust-text-sub { font-size: 11.5px; color: var(--gray-500); margin-top: 2px; }
 
         /* ── SECTION HEADERS ── */
         .sec-label {
@@ -263,7 +269,9 @@ export default async function HomePage() {
         /* ── STEPS ── */
         .steps-section {
           padding: clamp(56px,7vw,88px) clamp(20px,5vw,80px);
-          background: white;
+          background: #f8f5ff;
+          border-top: 1px solid #ede8fb;
+          border-bottom: 1px solid #ede8fb;
         }
         .steps-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 0; margin-top: clamp(36px,4vw,52px); }
         .step-item { padding: 0 28px; position: relative; }
@@ -345,11 +353,21 @@ export default async function HomePage() {
 
         /* ── CTA ── */
         .cta-section {
-          padding: clamp(56px,7vw,96px) clamp(20px,5vw,80px);
-          background: linear-gradient(135deg, var(--accent-pale) 0%, #ffffff 60%);
-          border-top: 1px solid var(--gray-100);
+          padding: clamp(72px,9vw,112px) clamp(20px,5vw,80px);
+          background: linear-gradient(135deg, #0d0520 0%, #1a0a2e 45%, #0a0418 100%);
           text-align: center;
+          position: relative;
+          overflow: hidden;
         }
+        .cta-section::before {
+          content: '';
+          position: absolute; top: -40%; left: 50%;
+          transform: translateX(-50%);
+          width: 700px; height: 700px;
+          background: radial-gradient(circle, rgba(94,30,184,.28) 0%, transparent 68%);
+          pointer-events: none;
+        }
+        .cta-section > * { position: relative; z-index: 1; }
         .cta-btns {
           display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;
         }
@@ -542,7 +560,17 @@ export default async function HomePage() {
                         {approved ? (
                           <span className="feat-price">{formatPrice(Number(p.price))}</span>
                         ) : (
-                          <span style={{ fontSize:13, fontWeight:700, color:'var(--gray-400)', letterSpacing:1 }}>🔒 Preis auf Anfrage</span>
+                          <span style={{
+                            fontSize:11.5, fontWeight:700, color:'var(--accent)',
+                            background:'rgba(94,30,184,.07)', border:'1px solid rgba(94,30,184,.15)',
+                            padding:'4px 10px', borderRadius:8, letterSpacing:.3,
+                            display:'inline-flex', alignItems:'center', gap:5,
+                          }}>
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{opacity:.7}}>
+                              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                            </svg>
+                            B2B-Preis
+                          </span>
                         )}
                         <span className="feat-moq">ab {p.moq} VE</span>
                       </div>
@@ -728,44 +756,44 @@ export default async function HomePage() {
 
         {/* ══ CTA ══════════════════════════════════════════════════════ */}
         <section className="cta-section">
-          <div className="sec-label" style={{ marginBottom:16 }}>Jetzt starten</div>
+          <div className="sec-label" style={{ marginBottom:16, color:'rgba(255,255,255,.45)' }}>Jetzt starten</div>
           <h2 style={{
             fontFamily:"'Archivo', sans-serif",
-            fontSize:'clamp(28px,4vw,50px)', fontWeight:700,
-            letterSpacing:'-0.04em', color:'var(--black)',
-            marginBottom:18, lineHeight:1.08,
+            fontSize:'clamp(32px,4.5vw,58px)', fontWeight:800,
+            letterSpacing:'-0.04em', color:'white',
+            marginBottom:18, lineHeight:1.06,
           }}>
-            Bereit für exklusive<br />B2B-Konditionen?
+            Bereit für exklusive<br />
+            <span style={{ color:'#d4a8ff' }}>B2B-Konditionen?</span>
           </h2>
-          <p style={{ fontSize:16.5, color:'var(--gray-600)', maxWidth:480, margin:'0 auto 40px', lineHeight:1.8 }}>
+          <p style={{ fontSize:16.5, color:'rgba(255,255,255,.6)', maxWidth:480, margin:'0 auto 44px', lineHeight:1.8 }}>
             Registrieren Sie sich kostenlos und erhalten Sie nach Freigabe Zugang
             zu Grosshandelspreisen, Neuheiten und persönlichem Support.
           </p>
           <div className="cta-btns">
             <Link href="/register" style={{
               display:'inline-flex', alignItems:'center', gap:9,
-              background:'var(--accent)', color:'white',
+              background:'white', color:'var(--accent)',
               padding:'16px 36px', borderRadius:14,
               fontSize:15.5, fontWeight:700,
-              boxShadow:'0 8px 28px rgba(94,30,184,.35)',
+              boxShadow:'0 8px 32px rgba(0,0,0,.4)',
               transition:'transform .2s, box-shadow .2s',
             }}>
               Kostenlos registrieren →
             </Link>
             <a href="mailto:contact@prodigio.ch" style={{
               display:'inline-flex', alignItems:'center', gap:9,
-              border:'1.5px solid var(--gray-200)', color:'var(--black)',
+              border:'1.5px solid rgba(255,255,255,.25)', color:'rgba(255,255,255,.85)',
               padding:'15px 32px', borderRadius:14,
-              fontSize:15.5, fontWeight:600, background:'white',
-              boxShadow:'var(--shadow-xs)',
-              transition:'border-color .2s',
+              fontSize:15.5, fontWeight:600, background:'rgba(255,255,255,.06)',
+              transition:'border-color .2s, background .2s',
             }}>
               ✉ Kontakt aufnehmen
             </a>
           </div>
           <div style={{ display:'flex', gap:24, justifyContent:'center', marginTop:36, flexWrap:'wrap' }}>
             {['✓ Flexible Mindestmengen', '✓ Freigabe innert 1 Werktag', '✓ Persönlicher Support'].map(t => (
-              <span key={t} style={{ fontSize:13, color:'var(--gray-400)', fontWeight:500 }}>{t}</span>
+              <span key={t} style={{ fontSize:13, color:'rgba(255,255,255,.4)', fontWeight:500 }}>{t}</span>
             ))}
           </div>
         </section>
