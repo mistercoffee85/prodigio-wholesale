@@ -222,30 +222,29 @@ export default async function HomePage() {
           margin-top: clamp(32px,4vw,48px);
         }
         .brand-tile {
-          border-radius: 20px; overflow: hidden; position: relative;
-          min-height: 280px; display: flex; flex-direction: column;
-          justify-content: flex-end; text-decoration: none;
+          border-radius: 20px; overflow: hidden;
+          display: flex; flex-direction: column;
+          text-decoration: none;
           transition: transform .25s, box-shadow .25s;
           box-shadow: 0 4px 20px rgba(0,0,0,.12);
         }
-        .brand-tile:hover { transform: translateY(-6px); box-shadow: 0 20px 48px rgba(0,0,0,.22); }
+        .brand-tile:hover { transform: translateY(-6px); box-shadow: 0 20px 48px rgba(0,0,0,.25); }
         .brand-tile-img {
-          position: absolute; inset: 0;
+          position: relative; height: 200px; overflow: hidden;
           transition: transform .35s;
         }
-        .brand-tile:hover .brand-tile-img { transform: scale(1.05); }
-        .brand-tile-overlay {
-          position: absolute; inset: 0;
-          background: linear-gradient(to top, rgba(0,0,0,.85) 0%, rgba(0,0,0,.2) 50%, transparent 100%);
+        .brand-tile:hover .brand-tile-img { transform: scale(1.04); }
+        .brand-tile-info {
+          padding: 16px 18px 20px;
+          border-top: 1px solid rgba(255,255,255,.1);
         }
-        .brand-tile-info { position: relative; z-index: 2; padding: 20px 18px; }
         .brand-tile-name { font-family: 'Archivo', sans-serif; font-size: 15px; font-weight: 700; color: white; }
-        .brand-tile-sub { font-size: 11.5px; color: rgba(255,255,255,.6); margin-top: 4px; }
+        .brand-tile-sub { font-size: 11.5px; color: rgba(255,255,255,.55); margin-top: 4px; }
         .brand-tile-arrow {
           display: inline-flex; align-items: center; justify-content: center;
           width: 28px; height: 28px; border-radius: 50%;
           background: rgba(255,255,255,.15); color: white; font-size: 12px;
-          margin-top: 10px; transition: background .2s;
+          margin-top: 12px; transition: background .2s;
         }
         .brand-tile:hover .brand-tile-arrow { background: var(--accent); }
 
@@ -405,7 +404,7 @@ export default async function HomePage() {
           .featured-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
           .steps-grid { grid-template-columns: 1fr; gap: 24px; }
           .step-item { padding: 0 8px; }
-          .brand-tile { min-height: 200px; }
+          .brand-tile-img { height: 150px; }
           .feat-img { height: 150px; }
           .kunden-grid { grid-template-columns: repeat(2,1fr); gap: 10px; }
           .trust-bar { grid-template-columns: 1fr; }
@@ -413,7 +412,7 @@ export default async function HomePage() {
           .trust-item:last-child { border-bottom: none !important; }
         }
         @media (max-width: 380px) {
-          .brand-tile { min-height: 170px; }
+          .brand-tile-img { height: 130px; }
           .feat-img { height: 130px; }
           .feat-body { padding: 12px 12px 16px; }
           .feat-name { font-size: 12.5px; }
@@ -495,10 +494,9 @@ export default async function HomePage() {
                 <div className="brand-tile-img">
                   <Image src={brand.img} alt={brand.name} fill
                     sizes="(max-width:768px) 50vw, 20vw"
-                    style={{ objectFit:'contain', padding:24 }}
+                    style={{ objectFit:'contain', padding:20 }}
                   />
                 </div>
-                <div className="brand-tile-overlay" />
                 <div className="brand-tile-info">
                   <div className="brand-tile-name">{brand.name}</div>
                   <div className="brand-tile-sub">{brand.sub}</div>
