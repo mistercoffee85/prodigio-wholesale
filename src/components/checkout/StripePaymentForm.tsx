@@ -128,7 +128,7 @@ export default function StripePaymentForm({
         colorBackground: '#ffffff',
         colorText:       '#1a1a1a',
         borderRadius:    '8px',
-        fontFamily:      'Inter, system-ui, sans-serif',
+        fontFamily:      'Archivo, system-ui, sans-serif',
       },
     },
   }
