@@ -411,7 +411,7 @@ export default function ProductCard({ product: p, priority, approved = false }: 
               <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: 0.5, color: 'var(--accent)', marginBottom: 8 }}>
                 {p.brand}
               </div>
-              <h2 style={{ fontFamily: "'Archivo', sans-serif", fontSize: 24, fontWeight: 700, marginBottom: 10, lineHeight: 1.15, letterSpacing: '-0.02em' }}>
+              <h2 style={{ }}>
                 {p.name}
               </h2>
               <p style={{ fontSize: 14, color: 'var(--gray-600)', lineHeight: 1.75, marginBottom: 24 }}>

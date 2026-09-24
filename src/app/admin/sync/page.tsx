@@ -90,7 +90,7 @@ export default function SyncPage() {
             <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, color: 'var(--accent)', textTransform: 'uppercase', marginBottom: 8 }}>
               Admin
             </div>
-            <h1 style={{ fontFamily: "'Archivo', sans-serif", fontSize: 28, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 6 }}>
+            <h1 style={{ marginBottom: 6 }}>
               Lieferanten-Sync
             </h1>
             <p style={{ color: 'var(--gray-400)', fontSize: 14 }}>

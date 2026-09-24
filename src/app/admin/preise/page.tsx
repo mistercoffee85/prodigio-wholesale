@@ -74,7 +74,7 @@ export default function PreisePage() {
 
       {/* Header */}
       <div style={{ marginBottom: 32 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 700, fontFamily: "'Archivo', sans-serif" }}>
+        <h1 style={{ fontSize: 22, fontWeight: 700, }}>
           Marge & Preiskalkulation
         </h1>
         <p style={{ fontSize: 13, color: 'var(--gray-400)', marginTop: 4 }}>

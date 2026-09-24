@@ -138,7 +138,7 @@ export default async function HomePage() {
           margin-bottom: 22px;
         }
         .hero-h1 {
-          font-family: 'Archivo', sans-serif; font-weight: 900;
+          font-family: inherit; font-weight: 900;
           font-size: clamp(36px, 5.5vw, 68px);
           color: #fff; line-height: 1.06; margin: 0 0 22px;
           text-shadow: 0 2px 24px rgba(0,0,0,.4);
@@ -154,7 +154,7 @@ export default async function HomePage() {
           display: inline-flex; align-items: center;
           background: var(--accent); color: #fff;
           padding: 14px 28px; border-radius: 10px;
-          font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 15px;
+          font-family: inherit; font-weight: 700; font-size: 15px;
           text-decoration: none; transition: background .15s;
         }
         .hero-btn-primary:hover { background: var(--accent-dark); }
@@ -163,7 +163,7 @@ export default async function HomePage() {
           background: rgba(255,255,255,.12); color: rgba(255,255,255,.85);
           border: 1.5px solid rgba(255,255,255,.25);
           padding: 14px 28px; border-radius: 10px;
-          font-family: 'Archivo', sans-serif; font-weight: 600; font-size: 15px;
+          font-family: inherit; font-weight: 600; font-size: 15px;
           text-decoration: none; transition: background .15s;
         }
         .hero-btn-ghost:hover { background: rgba(255,255,255,.2); color: #fff; }
@@ -210,7 +210,7 @@ export default async function HomePage() {
           text-transform: uppercase; color: var(--accent); margin-bottom: 12px;
         }
         .sec-title {
-          font-family: 'Archivo', sans-serif;
+          font-family: inherit;
           font-size: clamp(28px,3.5vw,44px); font-weight: 700;
           letter-spacing: -0.035em; line-height: 1.1;
         }
@@ -238,7 +238,7 @@ export default async function HomePage() {
           padding: 16px 18px 20px;
           border-top: 1px solid rgba(255,255,255,.1);
         }
-        .brand-tile-name { font-family: 'Archivo', sans-serif; font-size: 15px; font-weight: 700; color: white; }
+        .brand-tile-name { font-family: inherit; font-size: 15px; font-weight: 700; color: white; }
         .brand-tile-sub { font-size: 11.5px; color: rgba(255,255,255,.55); margin-top: 4px; }
         .brand-tile-arrow {
           display: inline-flex; align-items: center; justify-content: center;
@@ -262,7 +262,7 @@ export default async function HomePage() {
         .feat-brand { font-size: 10px; font-weight: 700; letter-spacing: 1.8px; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
         .feat-name { font-size: 14px; font-weight: 600; color: var(--black); line-height: 1.35; margin-bottom: 4px; }
         .feat-unit { font-size: 12px; color: var(--gray-400); margin-bottom: 14px; }
-        .feat-price { font-family: 'Archivo', sans-serif; font-size: 21px; font-weight: 700; color: var(--black); }
+        .feat-price { font-family: inherit; font-size: 21px; font-weight: 700; color: var(--black); }
         .feat-moq { font-size: 11px; color: var(--gray-400); background: var(--gray-50); padding: 3px 10px; border-radius: 20px; font-weight: 500; border: 1px solid var(--gray-100); }
 
         /* ── STEPS ── */
@@ -279,7 +279,7 @@ export default async function HomePage() {
           width: 2px; height: 28px; background: var(--gray-100);
         }
         .step-num {
-          font-family: 'Archivo', sans-serif;
+          font-family: inherit;
           font-size: 11px; font-weight: 700; letter-spacing: 2px; color: var(--accent);
           text-transform: uppercase; margin-bottom: 16px;
         }
@@ -289,7 +289,7 @@ export default async function HomePage() {
           margin-bottom: 20px; border: 1px solid var(--accent-light);
           color: var(--accent);
         }
-        .step-title { font-family: 'Archivo', sans-serif; font-size: 17px; font-weight: 700; color: var(--black); margin-bottom: 10px; letter-spacing: -0.02em; }
+        .step-title { font-family: inherit; font-size: 17px; font-weight: 700; color: var(--black); margin-bottom: 10px; letter-spacing: -0.02em; }
         .step-desc { font-size: 13.5px; color: var(--gray-400); line-height: 1.75; }
 
         /* ── KUNDEN ── */
@@ -692,7 +692,7 @@ export default async function HomePage() {
               { n: '2013', l: 'gegründet in Basel' },
             ].map(({ n, l }) => (
               <div key={l} style={{ textAlign: 'center' }}>
-                <div style={{ fontFamily: "'Archivo', sans-serif", fontSize: 36, fontWeight: 800, color: 'white', letterSpacing: '-0.04em', lineHeight: 1 }}>{n}</div>
+                <div style={{ lineHeight: 1 }}>{n}</div>
                 <div style={{ fontSize: 12, color: 'rgba(255,255,255,.4)', marginTop: 6, fontWeight: 500 }}>{l}</div>
               </div>
             ))}
@@ -755,9 +755,7 @@ export default async function HomePage() {
         {/* ══ CTA ══════════════════════════════════════════════════════ */}
         <section className="cta-section">
           <div className="sec-label" style={{ marginBottom:16, color:'rgba(255,255,255,.45)' }}>Jetzt starten</div>
-          <h2 style={{
-            fontFamily:"'Archivo', sans-serif",
-            fontSize:'clamp(32px,4.5vw,58px)', fontWeight:800,
+          <h2 style={{            fontSize:'clamp(32px,4.5vw,58px)', fontWeight:800,
             letterSpacing:'-0.04em', color:'white',
             marginBottom:18, lineHeight:1.06,
           }}>

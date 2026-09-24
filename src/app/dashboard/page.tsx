@@ -103,7 +103,7 @@ export default async function DashboardPage() {
           <div style={{ position: 'relative', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 24 }}>
             <div>
               <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: 2.5, color: 'var(--accent)', textTransform: 'uppercase', marginBottom: 12 }}>Mein Konto</div>
-              <h1 style={{ fontFamily: 'Archivo, sans-serif', fontSize: 'clamp(24px, 4vw, 34px)', fontWeight: 700, marginBottom: 8, lineHeight: 1.2 }}>
+              <h1 style={{ fontWeight: 700, marginBottom: 8, lineHeight: 1.2 }}>
                 Willkommen, {user?.name?.split(' ')[0]}
               </h1>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>

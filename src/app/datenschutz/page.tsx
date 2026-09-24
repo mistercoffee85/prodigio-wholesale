@@ -13,7 +13,7 @@ export default function DatenschutzPage() {
           color: 'white', padding: 'clamp(24px,5vw,48px) clamp(20px,6vw,80px)',
         }}>
           <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, color: 'var(--accent)', textTransform: 'uppercase', marginBottom: 8 }}>Rechtliches</div>
-          <h1 style={{ fontFamily: 'Archivo, sans-serif', fontSize: 'clamp(24px,4vw,36px)', fontWeight: 700 }}>Datenschutzerklärung</h1>
+          <h1 style={{ fontWeight: 700 }}>Datenschutzerklärung</h1>
           <p style={{ opacity: .65, marginTop: 8, fontSize: 14 }}>PRO.DI.GIO GmbH · Stand: Januar 2025</p>
         </div>
 

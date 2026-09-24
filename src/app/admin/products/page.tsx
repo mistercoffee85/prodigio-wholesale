@@ -232,7 +232,7 @@ export default function AdminProductsPage() {
       {/* ── Header ── */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
         <div>
-          <h1 style={{ fontSize: 22, fontWeight: 700, fontFamily: "'Archivo', sans-serif" }}>Produktverwaltung</h1>
+          <h1 style={{ fontSize: 22, fontWeight: 700, }}>Produktverwaltung</h1>
           <p style={{ fontSize: 13, color: 'var(--gray-400)', marginTop: 3 }}>{products.length} Produkte total · {filtered.length} angezeigt</p>
         </div>
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
@@ -411,7 +411,7 @@ export default function AdminProductsPage() {
 
             {/* Modal header */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 28px', borderBottom: '1px solid var(--gray-100)' }}>
-              <h2 style={{ fontFamily: "'Archivo',sans-serif", fontSize: 20, fontWeight: 700 }}>
+              <h2 style={{ fontSize: 20, fontWeight: 700 }}>
                 {editProduct ? `Bearbeiten: ${editProduct.name}` : 'Neues Produkt'}
               </h2>
               <button onClick={() => setModalOpen(false)} style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--gray-100)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>✕</button>

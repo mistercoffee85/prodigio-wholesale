@@ -177,7 +177,7 @@ export default function ResetPasswordPage() {
             <img src="/logos/logo-dark.png" alt="PRO.DI.GIO" style={{ height: 30, width: 'auto', display: 'block', filter: 'brightness(0) invert(1)' }} />
           </Link>
           <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: 2, color: 'var(--accent)', margin: '18px 0 8px', textTransform: 'uppercase' }}>Sicherheit</div>
-          <h1 style={{ fontFamily: 'Archivo, sans-serif', fontSize: 25, fontWeight: 700, lineHeight: 1.2, marginBottom: 10 }}>Neues Passwort</h1>
+          <h1 style={{ fontSize: 25, fontWeight: 700, lineHeight: 1.2, marginBottom: 10 }}>Neues Passwort</h1>
           <p style={{ fontSize: 13.5, opacity: .75, lineHeight: 1.65 }}>
             Wählen Sie ein sicheres Passwort mit mindestens 8 Zeichen.
           </p>
@@ -192,7 +192,7 @@ export default function ResetPasswordPage() {
 
           <div style={{ position: 'relative' }}>
             <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, color: 'var(--accent)', marginBottom: 20, textTransform: 'uppercase' }}>Sicherheit</div>
-            <h1 style={{ fontFamily: 'Archivo, sans-serif', fontSize: 36, fontWeight: 700, lineHeight: 1.15, marginBottom: 20 }}>
+            <h1 style={{ fontSize: 36, fontWeight: 700, lineHeight: 1.15, marginBottom: 20 }}>
               Neues<br />Passwort
             </h1>
             <p style={{ fontSize: 15, opacity: .7, lineHeight: 1.75, maxWidth: 340 }}>

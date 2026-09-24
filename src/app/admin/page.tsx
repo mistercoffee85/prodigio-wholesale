@@ -41,7 +41,7 @@ export default async function AdminDashboard() {
     <div style={{ padding: '40px 40px' }}>
       {/* Header */}
       <div style={{ marginBottom: 36 }}>
-        <h1 style={{ fontFamily: 'Archivo, sans-serif', fontSize: 28, fontWeight: 700, marginBottom: 4 }}>
+        <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 4 }}>
           Dashboard
         </h1>
         <p style={{ color: 'var(--gray-400)', fontSize: 14 }}>

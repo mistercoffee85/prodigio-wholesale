@@ -91,7 +91,7 @@ export default function ActivityPage() {
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
         <div>
-          <h1 style={{ fontFamily: "'Archivo',sans-serif", fontSize: 24, fontWeight: 800, marginBottom: 4 }}>
+          <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 4 }}>
             Kundenaktivität
           </h1>
           <div style={{ fontSize: 13, color: 'var(--gray-400)' }}>

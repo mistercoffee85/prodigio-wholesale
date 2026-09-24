@@ -36,7 +36,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="de" className={archivo.variable}>
-      <body style={{ fontFamily: 'var(--font-archivo), -apple-system, sans-serif' }}>
+      <body>
         <Providers>
           {children}
           <CookieBanner />

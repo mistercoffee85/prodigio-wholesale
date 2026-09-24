@@ -114,7 +114,7 @@ export default function RegisterPage() {
       <div style={{ minHeight: '100vh', background: 'var(--cream)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'clamp(16px, 4vw, 24px)' }}>
         <div style={{ maxWidth: 500, width: '100%', textAlign: 'center' }}>
           <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'var(--accent-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36, margin: '0 auto 28px' }}>✅</div>
-          <h1 style={{ fontFamily: 'Archivo, sans-serif', fontSize: 'clamp(24px, 5vw, 32px)', fontWeight: 700, marginBottom: 14 }}>Registrierung erfolgreich!</h1>
+          <h1 style={{ fontWeight: 700, marginBottom: 14 }}>Registrierung erfolgreich!</h1>
           <p style={{ color: 'var(--gray-600)', lineHeight: 1.75, fontSize: 15, marginBottom: 24 }}>
             Vielen Dank für Ihre Bewerbung als B2B-Partner! Unser Team prüft Ihr Konto und schaltet es
             innerhalb von <strong>1 Werktag</strong> frei. Sie erhalten eine Bestätigungs-E-Mail sobald Ihr Zugang aktiviert ist.
@@ -203,7 +203,7 @@ export default function RegisterPage() {
 
           <div>
             <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, color: 'var(--accent)', marginBottom: 18, textTransform: 'uppercase' }}>B2B Konto eröffnen</div>
-            <h2 style={{ fontFamily: 'Archivo, sans-serif', fontSize: 30, fontWeight: 700, lineHeight: 1.2, marginBottom: 14 }}>
+            <h2 style={{ fontSize: 30, fontWeight: 700, lineHeight: 1.2, marginBottom: 14 }}>
               Werden Sie<br />B2B-Grosshändler
             </h2>
             <p style={{ fontSize: 13.5, opacity: .72, lineHeight: 1.75, marginBottom: 28, maxWidth: 310 }}>
@@ -269,7 +269,7 @@ export default function RegisterPage() {
           <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: 2, color: 'var(--accent)', marginBottom: 10, textTransform: 'uppercase' }}>
             B2B Konto eröffnen
           </div>
-          <h2 style={{ fontFamily: 'Archivo, sans-serif', fontSize: 25, fontWeight: 700, lineHeight: 1.2, marginBottom: 10 }}>
+          <h2 style={{ fontSize: 25, fontWeight: 700, lineHeight: 1.2, marginBottom: 10 }}>
             Werden Sie B2B-Grosshändler
           </h2>
           <p style={{ fontSize: 13.5, opacity: .75, lineHeight: 1.65, marginBottom: 18 }}>

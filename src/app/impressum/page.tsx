@@ -13,7 +13,7 @@ export default function ImpressumPage() {
           color: 'white', padding: 'clamp(24px,5vw,48px) clamp(20px,6vw,80px)',
         }}>
           <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, color: 'var(--accent)', textTransform: 'uppercase', marginBottom: 8 }}>Rechtliches</div>
-          <h1 style={{ fontFamily: 'Archivo, sans-serif', fontSize: 'clamp(24px,4vw,36px)', fontWeight: 700 }}>Impressum</h1>
+          <h1 style={{ fontWeight: 700 }}>Impressum</h1>
         </div>
 
         <div style={{ maxWidth: 860, margin: '0 auto', padding: 'clamp(32px,4vw,56px) clamp(16px,4vw,40px)' }}>

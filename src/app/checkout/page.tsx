@@ -290,7 +290,7 @@ export default function CheckoutPage() {
           <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: 2, color: 'var(--accent)', textTransform: 'uppercase', marginBottom: 8 }}>
             Bestellung abschliessen
           </div>
-          <h1 style={{ fontFamily: 'Archivo, sans-serif', fontSize: 30, fontWeight: 700 }}>Kasse</h1>
+          <h1 style={{ fontSize: 30, fontWeight: 700 }}>Kasse</h1>
           {session?.user?.companyName && (
             <p style={{ opacity: .65, marginTop: 6, fontSize: 14 }}>
               Bestellen als: <strong>{session.user.companyName}</strong>
@@ -309,7 +309,7 @@ export default function CheckoutPage() {
           ) : items.length === 0 && step === 'form' && showEmpty ? (
             <div style={{ textAlign: 'center', padding: '60px 0' }}>
               <div style={{ fontSize: 48, marginBottom: 16 }}>🛒</div>
-              <h2 style={{ fontFamily: 'Archivo, sans-serif', fontSize: 24, marginBottom: 12 }}>Warenkorb ist leer</h2>
+              <h2 style={{ fontSize: 24, marginBottom: 12 }}>Warenkorb ist leer</h2>
               <p style={{ color: 'var(--gray-400)', marginBottom: 28 }}>Bitte fügen Sie Produkte hinzu, bevor Sie zur Kasse gehen.</p>
               <a href="/products" className="btn btn-primary" style={{ padding: '12px 28px' }}>Sortiment entdecken →</a>
             </div>

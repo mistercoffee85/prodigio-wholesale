@@ -75,7 +75,7 @@ function LoginForm() {
           background: var(--cream);
         }
         .login-brand h1 {
-          font-family: 'Archivo', sans-serif;
+          font-family: inherit;
           font-size: clamp(28px, 3vw, 38px);
           font-weight: 700;
           line-height: 1.15;
@@ -104,7 +104,7 @@ function LoginForm() {
             <img src="/logos/logo-dark.png" alt="PRO.DI.GIO" style={{ height: 30, width: 'auto', display: 'block', filter: 'brightness(0) invert(1)' }} />
           </Link>
           <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: 2, color: 'var(--accent)', margin: '18px 0 8px', textTransform: 'uppercase' }}>B2B Grosshandel</div>
-          <h1 style={{ fontFamily: 'Archivo, sans-serif', fontSize: 25, fontWeight: 700, lineHeight: 1.2, marginBottom: 10 }}>Willkommen zurück</h1>
+          <h1 style={{ fontSize: 25, fontWeight: 700, lineHeight: 1.2, marginBottom: 10 }}>Willkommen zurück</h1>
           <p style={{ fontSize: 13.5, opacity: .75, lineHeight: 1.65, marginBottom: 16 }}>
             Exklusive Grosshandelspreise für Wiederverkäufer, Gastronomie und Einzelhandel.
           </p>

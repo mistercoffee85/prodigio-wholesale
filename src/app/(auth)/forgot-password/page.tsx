@@ -100,7 +100,7 @@ export default function ForgotPasswordPage() {
             <img src="/logos/logo-dark.png" alt="PRO.DI.GIO" style={{ height: 30, width: 'auto', display: 'block', filter: 'brightness(0) invert(1)' }} />
           </Link>
           <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: 2, color: 'var(--accent)', margin: '18px 0 8px', textTransform: 'uppercase' }}>Passwort zurücksetzen</div>
-          <h1 style={{ fontFamily: 'Archivo, sans-serif', fontSize: 25, fontWeight: 700, lineHeight: 1.2, marginBottom: 10 }}>Passwort vergessen?</h1>
+          <h1 style={{ fontSize: 25, fontWeight: 700, lineHeight: 1.2, marginBottom: 10 }}>Passwort vergessen?</h1>
           <p style={{ fontSize: 13.5, opacity: .75, lineHeight: 1.65 }}>
             Kein Problem. Geben Sie Ihre E-Mail-Adresse ein und wir senden Ihnen einen Link zum Zurücksetzen.
           </p>
@@ -116,7 +116,7 @@ export default function ForgotPasswordPage() {
 
           <div style={{ position: 'relative' }}>
             <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, color: 'var(--accent)', marginBottom: 20, textTransform: 'uppercase' }}>Passwort zurücksetzen</div>
-            <h1 style={{ fontFamily: 'Archivo, sans-serif', fontSize: 'clamp(24px, 4vw, 36px)', fontWeight: 700, lineHeight: 1.15, marginBottom: 20 }}>
+            <h1 style={{ fontWeight: 700, lineHeight: 1.15, marginBottom: 20 }}>
               Passwort<br />vergessen?
             </h1>
             <p style={{ fontSize: 15, opacity: .7, lineHeight: 1.75, maxWidth: 340 }}>
