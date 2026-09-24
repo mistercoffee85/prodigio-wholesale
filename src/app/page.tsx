@@ -81,18 +81,20 @@ export default async function HomePage() {
     prisma.product.findMany({
       where: { active: true, badge: 'hot' },
       include: { category: true },
-      take: 4,
+      orderBy: { name: 'asc' },
+      take: 6,
     }),
     prisma.product.findMany({
       where: { active: true, badge: 'new' },
       include: { category: true },
-      take: 4,
+      orderBy: { name: 'asc' },
+      take: 6,
     }),
     prisma.product.count({ where: { active: true } }),
     prisma.setting.findMany({ where: { key: { startsWith: 'homepage_' } } }),
   ])
 
-  const allFeatured = [...featuredProducts, ...newProducts].slice(0, 8)
+  const allFeatured = [...featuredProducts, ...newProducts].slice(0, 12)
 
   // Merge DB settings over defaults
   const cmsMap: Record<string, string> = { ...CMS_DEFAULTS }
