@@ -1,8 +1,16 @@
 import type { Metadata, Viewport } from 'next'
+import { Archivo } from 'next/font/google'
 import './globals.css'
 import { Providers } from './providers'
 import { Toaster } from 'react-hot-toast'
 import CookieBanner from '@/components/layout/CookieBanner'
+
+const archivo = Archivo({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800', '900'],
+  display: 'swap',
+  variable: '--font-archivo',
+})
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://b2b.prodigio.ch'),
@@ -27,8 +35,8 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="de">
-      <body>
+    <html lang="de" className={archivo.variable}>
+      <body style={{ fontFamily: 'var(--font-archivo), -apple-system, sans-serif' }}>
         <Providers>
           {children}
           <CookieBanner />
