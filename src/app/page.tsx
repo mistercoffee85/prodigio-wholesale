@@ -278,8 +278,9 @@ export default async function HomePage() {
         }
         .step-icon {
           width: 56px; height: 56px; border-radius: 16px; background: var(--accent-pale);
-          display: flex; align-items: center; justify-content: center; font-size: 24px;
+          display: flex; align-items: center; justify-content: center;
           margin-bottom: 20px; border: 1px solid var(--accent-light);
+          color: var(--accent);
         }
         .step-title { font-family: 'Archivo', sans-serif; font-size: 17px; font-weight: 700; color: var(--black); margin-bottom: 10px; letter-spacing: -0.02em; }
         .step-desc { font-size: 13.5px; color: var(--gray-400); line-height: 1.75; }
@@ -300,7 +301,7 @@ export default async function HomePage() {
           transition: background .2s, transform .2s;
         }
         .kunden-tile:hover { background: rgba(255,255,255,.11); transform: translateY(-4px); }
-        .kunden-icon { font-size: 36px; margin-bottom: 14px; display: block; }
+        .kunden-icon { width: 44px; height: 44px; margin: 0 auto 14px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,.08); border-radius: 12px; color: rgba(255,255,255,.85); }
         .kunden-name { font-size: 13.5px; font-weight: 700; color: white; margin-bottom: 6px; }
         .kunden-sub { font-size: 11.5px; color: rgba(255,255,255,.45); line-height: 1.6; }
         .kunden-badge {
@@ -561,12 +562,31 @@ export default async function HomePage() {
           </div>
 
           <div className="steps-grid">
-            {[
-              { n:'01', icon:'📋', title:'Konto eröffnen',     desc:'Registrieren Sie sich mit Ihren Unternehmensdaten. Dauert nur 2 Minuten.' },
-              { n:'02', icon:'✅', title:'Freigabe erhalten',  desc:'Unser Team prüft Ihr Konto und schaltet es innerhalb eines Werktags frei.' },
-              { n:'03', icon:'🛒', title:'Produkte wählen',    desc:'Bestellen Sie aus unserem Sortiment zu exklusiven Grosshandelspreisen.' },
-              { n:'04', icon:'🚚', title:'Lieferung erhalten', desc:'Lieferung in 2–4 Werktagen direkt an Ihre Geschäftsadresse in der Schweiz.' },
-            ].map(({ n, icon, title, desc }) => (
+            {([
+              { n:'01', icon:(
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2"/>
+                  <line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/>
+                </svg>
+              ), title:'Konto eröffnen',     desc:'Registrieren Sie sich mit Ihren Unternehmensdaten. Dauert nur 2 Minuten.' },
+              { n:'02', icon:(
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                  <polyline points="9 12 11 14 15 10"/>
+                </svg>
+              ), title:'Freigabe erhalten',  desc:'Unser Team prüft Ihr Konto und schaltet es innerhalb eines Werktags frei.' },
+              { n:'03', icon:(
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/>
+                </svg>
+              ), title:'Produkte wählen',    desc:'Bestellen Sie aus unserem Sortiment zu exklusiven Grosshandelspreisen.' },
+              { n:'04', icon:(
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 3v5h-7V8z"/>
+                  <circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+                </svg>
+              ), title:'Lieferung erhalten', desc:'Lieferung in 2–4 Werktagen direkt an Ihre Geschäftsadresse in der Schweiz.' },
+            ] as const).map(({ n, icon, title, desc }) => (
               <div key={n} className="step-item">
                 <div className="step-num">Schritt {n}</div>
                 <div className="step-icon">{icon}</div>
@@ -594,16 +614,44 @@ export default async function HomePage() {
           </div>
 
           <div className="kunden-grid">
-            {[
-              { icon: '🏪', name: 'Einzelhandel', sub: 'Läden, Kiosks, Drogeriemärkte, Boutiquen' },
-              { icon: '💊', name: 'Apotheken', sub: 'Apotheken & Drogerien schweizweit' },
-              { icon: '🏥', name: 'Spitäler', sub: 'Kliniken, Ambulatorien & Gesundheitszentren' },
-              { icon: '🏡', name: 'Alters- & Pflegeheime', sub: 'Wohnheime, Residenzen & Pflegezentren' },
-              { icon: '🏨', name: 'Hotels & Gastronomie', sub: 'Hotels, Restaurants & Cafés' },
-              { icon: '🏢', name: 'Büros & Firmen', sub: 'KMU, Grossunternehmen & Kantinen' },
-            ].map(({ icon, name, sub }) => (
+            {([
+              { icon:(
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+              ), name: 'Einzelhandel', sub: 'Läden, Kiosks, Drogeriemärkte, Boutiquen' },
+              { icon:(
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="4"/>
+                  <line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
+                </svg>
+              ), name: 'Apotheken', sub: 'Apotheken & Drogerien schweizweit' },
+              { icon:(
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3"/>
+                </svg>
+              ), name: 'Spitäler', sub: 'Kliniken, Ambulatorien & Gesundheitszentren' },
+              { icon:(
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                  <path d="M12 17c-1.1 0-2-.9-2-2 0-.7.4-1.3.9-1.7L12 12l1.1 1.3c.5.4.9 1 .9 1.7 0 1.1-.9 2-2 2z" fill="currentColor" strokeWidth="0" opacity=".7"/>
+                </svg>
+              ), name: 'Alters- & Pflegeheime', sub: 'Wohnheime, Residenzen & Pflegezentren' },
+              { icon:(
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 2v7c0 1.1.9 2 2 2s2-.9 2-2V2M7 11v9M15 2a5 5 0 0 1 5 5v6h-5V2zM15 13v9"/>
+                </svg>
+              ), name: 'Hotels & Gastronomie', sub: 'Hotels, Restaurants & Cafés' },
+              { icon:(
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="2" y="7" width="20" height="14" rx="2"/>
+                  <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+                  <line x1="12" y1="12" x2="12" y2="17"/><line x1="2" y1="12" x2="22" y2="12"/>
+                </svg>
+              ), name: 'Büros & Firmen', sub: 'KMU, Grossunternehmen & Kantinen' },
+            ] as const).map(({ icon, name, sub }) => (
               <div key={name} className="kunden-tile">
-                <span className="kunden-icon">{icon}</span>
+                <div className="kunden-icon">{icon}</div>
                 <div className="kunden-name">{name}</div>
                 <div className="kunden-sub">{sub}</div>
               </div>
