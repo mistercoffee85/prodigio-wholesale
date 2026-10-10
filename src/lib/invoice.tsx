@@ -149,12 +149,12 @@ export function InvoicePDF({ d }: { d: InvoiceData }) {
         {/* ── HEADER ── */}
         <View style={s.header}>
           <View>
-            <Text style={s.logo}>PRO.DI.GIO</Text>
+            <Text style={s.logo}>Pro.Di.Gio</Text>
             <Text style={s.logoSub}>GmbH · B2B Grosshandel Schweiz</Text>
             <View style={{ marginTop: 8 }}>
-              <Text style={s.addrGray}>Prodigio GmbH</Text>
+              <Text style={s.addrGray}>Pro.Di.Gio GmbH</Text>
               <Text style={s.addrGray}>Mailand-Strasse 31, 4053 Basel</Text>
-              <Text style={s.addrGray}>info@prodigio.ch · b2b.prodigio.ch</Text>
+              <Text style={s.addrGray}>contact@prodigio.ch · b2b.prodigio.ch</Text>
               <Text style={s.addrGray}>UID: CHE-431.421.931 MWST</Text>
             </View>
           </View>
@@ -264,7 +264,7 @@ export function InvoicePDF({ d }: { d: InvoiceData }) {
         <View style={s.footer} fixed>
           <View style={s.divider} />
           <Text style={s.footerText}>
-            PRO.DI.GIO GmbH · Mailand-Strasse 31 · 4053 Basel · info@prodigio.ch · UID: CHE-431.421.931 MWST{'\n'}
+            Pro.Di.Gio GmbH · Mailand-Strasse 31 · 4053 Basel · contact@prodigio.ch · UID: CHE-431.421.931 MWST{'\n'}
             Alle Preise in CHF inkl. MwSt. · Gerichtsstand: Basel · b2b.prodigio.ch
           </Text>
         </View>
