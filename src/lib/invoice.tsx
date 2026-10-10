@@ -1,5 +1,5 @@
 import {
-  Document, Page, Text, View, StyleSheet, Font,
+  Document, Page, Text, View, StyleSheet, Font, Image,
 } from '@react-pdf/renderer'
 
 // Register a font with full Unicode support for German umlauts
@@ -117,6 +117,7 @@ export interface InvoiceData {
   total:        number
   paymentMethod: string
   shippingOption?: string
+  qrCodeDataUrl?: string
 }
 
 function chf(n: number) {
@@ -243,20 +244,30 @@ export function InvoicePDF({ d }: { d: InvoiceData }) {
         {/* ── BANK DETAILS (only if unpaid + bank transfer) ── */}
         {showBankDetails && (
           <View style={s.payBox}>
-            <Text style={s.payTitle}>Zahlungsinformationen</Text>
-            {[
-              ['Empfänger',        'PRO.DI.GIO GmbH'],
-              ['IBAN',             'CH40 0023 3233 2287 0701 P'],
-              ['Bank',             'UBS AG, Basel'],
-              ['Verwendungszweck', `Bestellung #${d.orderNumber}`],
-              ['Betrag',           chf(d.total)],
-              ['Zahlungsziel',     '3 Werktage ab Rechnungsdatum'],
-            ].map(([label, value]) => (
-              <View key={label} style={s.payRow}>
-                <Text style={s.payLabel}>{label}</Text>
-                <Text style={s.payValue}>{value}</Text>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <View style={{ flex: 1 }}>
+                <Text style={s.payTitle}>Zahlungsinformationen</Text>
+                {[
+                  ['Empfänger',        'Pro.Di.Gio GmbH'],
+                  ['IBAN',             'CH40 0023 3233 2287 0701 P'],
+                  ['Bank',             'UBS AG, Basel'],
+                  ['Verwendungszweck', `Bestellung #${d.orderNumber}`],
+                  ['Betrag',           chf(d.total)],
+                  ['Zahlungsziel',     '3 Werktage ab Rechnungsdatum'],
+                ].map(([label, value]) => (
+                  <View key={label} style={s.payRow}>
+                    <Text style={s.payLabel}>{label}</Text>
+                    <Text style={s.payValue}>{value}</Text>
+                  </View>
+                ))}
               </View>
-            ))}
+              {d.qrCodeDataUrl && (
+                <View style={{ alignItems: 'center', marginLeft: 16 }}>
+                  <Image src={d.qrCodeDataUrl} style={{ width: 80, height: 80 }} />
+                  <Text style={{ fontSize: 6.5, color: C.gray, marginTop: 3, textAlign: 'center' }}>Swiss QR-Rechnung</Text>
+                </View>
+              )}
+            </View>
           </View>
         )}
 

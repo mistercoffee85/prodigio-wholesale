@@ -6,6 +6,33 @@ import { requireAuth } from '@/lib/auth'
 import { InvoicePDF, type InvoiceData } from '@/lib/invoice'
 import { format } from 'date-fns'
 import { de } from 'date-fns/locale'
+import QRCode from 'qrcode'
+
+function buildSwissQrData(orderNumber: string, amount: number): string {
+  const iban = 'CH4000233233228707010'
+  const lines = [
+    'SPC',          // header
+    '0200',         // version
+    '1',            // coding
+    iban,           // IBAN
+    'S',            // creditor address type (structured)
+    'Pro.Di.Gio GmbH', // creditor name
+    'Mailand-Strasse 31', // street
+    '',             // building number (combined in street above)
+    '4053',         // postal code
+    'Basel',        // city
+    'CH',           // country
+    '', '', '', '', '', '', // ultimate creditor (empty)
+    amount.toFixed(2), // amount
+    'CHF',          // currency
+    '', '', '', '', '', '', // debtor (empty = open)
+    'NON',          // reference type
+    '',             // reference
+    `Bestellung #${orderNumber}`, // additional info
+    'EPD',          // end
+  ]
+  return lines.join('\n')
+}
 
 export const dynamic = 'force-dynamic'
 
@@ -29,6 +56,15 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
     }
 
     const fmt = (d: Date) => format(d, 'dd. MMMM yyyy', { locale: de })
+
+    // QR code for bank transfer (Swiss QR-bill)
+    let qrCodeDataUrl: string | undefined
+    if (order.paymentMethod === 'BANK_TRANSFER') {
+      qrCodeDataUrl = await QRCode.toDataURL(
+        buildSwissQrData(order.orderNumber, Number(order.total)),
+        { errorCorrectionLevel: 'M', margin: 1, width: 160 }
+      )
+    }
 
     const data: InvoiceData = {
       orderNumber:   order.orderNumber,
@@ -60,6 +96,7 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
       total:         Number(order.total),
       paymentMethod: order.paymentMethod,
       shippingOption: order.shippingOption ?? undefined,
+      qrCodeDataUrl,
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
