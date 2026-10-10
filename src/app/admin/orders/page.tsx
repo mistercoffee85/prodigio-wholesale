@@ -198,7 +198,15 @@ export default function AdminOrdersPage() {
                         </select>
                       </td>
                       <td style={{ fontSize: 12.5, color: 'var(--gray-600)' }}>
-                        {new Date(o.createdAt).toLocaleDateString('de-CH')}
+                        <div>{new Date(o.createdAt).toLocaleDateString('de-CH')}</div>
+                        <a
+                          href={`/api/orders/${o.id}/invoice`}
+                          target="_blank"
+                          onClick={e => e.stopPropagation()}
+                          style={{ fontSize: 11, color: 'var(--accent)', fontWeight: 600, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 3, marginTop: 3 }}
+                        >
+                          📄 Rechnung
+                        </a>
                       </td>
                     </tr>
 
