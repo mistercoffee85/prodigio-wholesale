@@ -61,6 +61,15 @@ export async function POST(req: NextRequest) {
           sku:       (i as any).productSku || i.product.supplierSku || '',
         })),
       }).catch(console.error)
+
+      // Admin-Benachrichtigung
+      await sendAdminOrderPaidEmail(
+        order.orderNumber,
+        order.user.name,
+        order.user.email,
+        Number(order.total),
+        order.id
+      ).catch(console.error)
     }
   }
 
