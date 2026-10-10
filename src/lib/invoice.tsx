@@ -198,7 +198,7 @@ export function InvoicePDF({ d }: { d: InvoiceData }) {
           <Text style={[s.tableHeaderText, s.colPos]}>#</Text>
           <Text style={[s.tableHeaderText, s.colName]}>Artikel</Text>
           <Text style={[s.tableHeaderText, s.colQty]}>Menge</Text>
-          <Text style={[s.tableHeaderText, s.colUnit]}>Einzelpreis</Text>
+          <Text style={[s.tableHeaderText, s.colUnit]}>Preis / Stk</Text>
           <Text style={[s.tableHeaderText, s.colTotal]}>Total</Text>
         </View>
 
@@ -207,9 +207,10 @@ export function InvoicePDF({ d }: { d: InvoiceData }) {
             <Text style={[s.tableCell, s.colPos]}>{i + 1}</Text>
             <View style={s.colName}>
               <Text style={s.tableCell}>{item.name}</Text>
+              {item.unit ? <Text style={s.tableCellGray}>{item.unit}</Text> : null}
               {item.sku ? <Text style={s.tableCellGray}>SKU: {item.sku}</Text> : null}
             </View>
-            <Text style={[s.tableCell, s.colQty]}>{item.quantity}{item.unit ? ` ${item.unit}` : ''}</Text>
+            <Text style={[s.tableCell, s.colQty]}>{item.quantity} Stk</Text>
             <Text style={[s.tableCell, s.colUnit]}>{chf(item.unitPrice)}</Text>
             <Text style={[s.tableCell, s.colTotal, { fontWeight: 700 }]}>{chf(item.total)}</Text>
           </View>
